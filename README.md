@@ -4,42 +4,54 @@ Aplicação pessoal para planejamento e acompanhamento de metas, foco em projeto
 
 ## Status do projeto
 
-O Ascend está na fase de descoberta e definição funcional do MVP.
+O escopo funcional do MVP foi fechado na versão 0.4.
 
 Atualmente:
 
-- Metas e planejamento estão definidos funcionalmente;
-- Projetos estão definidos funcionalmente;
-- Treinos estão definidos funcionalmente;
-- Histórico e lembretes ainda estão em definição;
-- Plataforma, arquitetura e tecnologias ainda não foram escolhidas.
+- Metas e planejamento estão definidos;
+- Projetos estão definidos;
+- Treinos estão definidos;
+- Histórico e estatísticas básicas estão definidos;
+- Autenticação simples e regras globais estão definidas;
+- Lembretes e notificações estão fora do MVP;
+- A plataforma será uma aplicação web responsiva mobile-first;
+- Fluxos, navegação, design e arquitetura são as próximas etapas.
 
 ## Objetivo
 
 Centralizar produtividade e evolução física em um único sistema, reduzindo a dependência de memória e permitindo acompanhar o que foi planejado e realizado.
 
-## Módulos do MVP
+## Escopo do MVP
+
+### Módulos funcionais
 
 - Metas e planejamento diário;
 - Projetos;
 - Treinos;
-- Histórico e lembretes.
+- Histórico e estatísticas básicas.
+
+### Fundação do sistema
+
+- Cadastro e autenticação com e-mail e senha;
+- Separação dos dados por usuário;
+- Aplicação web responsiva mobile-first;
+- Tratamento de datas no fuso `America/Sao_Paulo`;
+- Armazenamento de instantes técnicos em UTC.
 
 ## Documentação
 
 A especificação atual do produto está disponível em:
 
-- [Documentação do MVP](docs/produto/mvp.md)
+- [Documentação do MVP](docs/produto/Ascend_Documentacao_Produto_MVP_v0.4.md)
 
 Versões anteriores estão disponíveis em [`docs/arquivo`](docs/arquivo).
 
-## Desenvolvimento
+## Próximos passos
 
-O desenvolvimento ainda não foi iniciado. Os próximos passos são:
-
-1. Fechar Histórico e Lembretes;
-2. Definir a plataforma inicial;
-3. Desenhar os fluxos principais;
+1. Mapear os fluxos principais do usuário;
+2. Definir a navegação e a arquitetura de informação;
+3. Criar wireframes para celular e computador;
 4. Modelar o banco de dados;
-5. Escolher a stack;
-6. Iniciar a implementação incremental.
+5. Escolher a stack e definir a arquitetura técnica;
+6. Criar o backlog de desenvolvimento;
+7. Iniciar a implementação em pequenas entregas.
