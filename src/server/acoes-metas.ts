@@ -1,0 +1,174 @@
+"use server";
+
+import { eq } from "drizzle-orm";
+import { refresh } from "next/cache";
+import { redirect } from "next/navigation";
+import { z } from "zod";
+
+import { db } from "@/db";
+import { meta, metaVersao, ocorrencia } from "@/db/schema";
+import { errosPorCampo, type ErrosDeCampo } from "@/domain/conta";
+import { ehDataCivil, hoje, type DataCivil } from "@/domain/datas";
+import {
+  diaEditavel,
+  esquemaNovaMeta,
+  estadoPeloValor,
+  lerNumero,
+  VALOR_MAXIMO,
+  type CamposNovaMeta,
+} from "@/domain/metas";
+
+import { garantirOcorrencia, type OcorrenciaParaAlterar } from "./metas";
+import { exigirUsuario } from "./sessao";
+
+export type EstadoNovaMeta = {
+  erros?: ErrosDeCampo<CamposNovaMeta>;
+  // Devolvido para o formulário não apagar o que a pessoa digitou.
+  valores?: CamposNovaMeta;
+};
+
+function texto(form: FormData, campo: string): string {
+  const valor = form.get(campo);
+  return typeof valor === "string" ? valor : "";
+}
+
+/** Endereço da lista de uma data (navegacao.md). */
+function enderecoDoDia(data: DataCivil): string {
+  return data === hoje() ? "/hoje" : `/dia/${data}`;
+}
+
+/** Cria 1 meta e 1 versão. Nenhuma ocorrência: a lista as calcula. */
+export async function criarMeta(
+  _anterior: EstadoNovaMeta,
+  form: FormData,
+): Promise<EstadoNovaMeta> {
+  const usuario = await exigirUsuario();
+
+  const valores: CamposNovaMeta = {
+    titulo: texto(form, "titulo"),
+    descricao: texto(form, "descricao"),
+    tipo: texto(form, "tipo"),
+    valorAlvo: texto(form, "valorAlvo"),
+    unidade: texto(form, "unidade"),
+    frequencia: texto(form, "frequencia"),
+    diasSemana: form.getAll("diasSemana").map(String),
+    intervaloDias: texto(form, "intervaloDias"),
+    horario: texto(form, "horario"),
+    dataInicio: texto(form, "dataInicio"),
+  };
+  const resultado = esquemaNovaMeta(hoje()).safeParse(valores);
+  if (!resultado.success) {
+    return { erros: errosPorCampo(resultado.error), valores };
+  }
+  const nova = resultado.data;
+
+  await db().transaction(async (tx) => {
+    const [criada] = await tx
+      .insert(meta)
+      .values({ usuarioId: usuario.id, tipo: nova.tipo, unidade: nova.unidade })
+      .returning({ id: meta.id });
+    await tx.insert(metaVersao).values({
+      metaId: criada!.id,
+      vigenteDe: nova.regra.vigenteDe,
+      vigenteAte: nova.regra.vigenteAte,
+      titulo: nova.titulo,
+      descricao: nova.descricao,
+      horario: nova.horario,
+      valorAlvo: nova.valorAlvo,
+      frequencia: nova.regra.frequencia,
+      diasSemana: nova.regra.diasSemana,
+      intervaloDias: nova.regra.intervaloDias,
+    });
+  });
+
+  redirect(enderecoDoDia(nova.regra.vigenteDe));
+}
+
+// ---------------------------------------------------------------------------
+// Marcar e somar valor (RF-MET-07, 08). A vaga é gravada na primeira vez que
+// é tocada; datas futuras também valem (fluxos-metas.md, decisão 2).
+
+const vaga = z.object({
+  metaId: z.uuid(),
+  dataPrevista: z.string().refine(ehDataCivil),
+});
+
+/**
+ * Roda `alterar` sobre a ocorrência da vaga, numa transação. Se a data já
+ * passou (o dia virou com a tela aberta), não grava nada: a tela recarrega e
+ * mostra o dia como só leitura.
+ */
+async function alterarOcorrencia(
+  metaId: string,
+  dataPrevista: string,
+  alterar: (
+    o: OcorrenciaParaAlterar,
+  ) => Partial<typeof ocorrencia.$inferInsert> | null,
+): Promise<void> {
+  const usuario = await exigirUsuario();
+  const entrada = vaga.safeParse({ metaId, dataPrevista });
+  if (entrada.success) {
+    const data = entrada.data.dataPrevista as DataCivil;
+    await db().transaction(async (tx) => {
+      const o = await garantirOcorrencia(tx, usuario.id, metaId, data);
+      if (!o || !diaEditavel(o.data, hoje())) return;
+      const mudanca = alterar(o);
+      if (!mudanca) return;
+      await tx
+        .update(ocorrencia)
+        .set({ ...mudanca, atualizadoEm: new Date() })
+        .where(eq(ocorrencia.id, o.id));
+    });
+  }
+  refresh();
+}
+
+/** Binária: um toque conclui, outro volta a pendente. */
+export async function alternarConclusao(
+  metaId: string,
+  dataPrevista: string,
+): Promise<void> {
+  await alterarOcorrencia(metaId, dataPrevista, (o) => {
+    if (o.tipo !== "binaria") return null;
+    return o.estado === "concluida"
+      ? { estado: "pendente", concluidaEm: null }
+      : { estado: "concluida", concluidaEm: new Date() };
+  });
+}
+
+function comValor(o: OcorrenciaParaAlterar, valor: number) {
+  if (o.tipo !== "numerica" || o.valorAlvo === null) return null;
+  const novo = Math.min(VALOR_MAXIMO, Math.max(0, valor));
+  const estado = estadoPeloValor(novo, o.valorAlvo);
+  // concluida_em marca quando o alvo foi atingido; somar mais não o move.
+  if (estado === o.estado) return { valorAtual: novo };
+  return {
+    valorAtual: novo,
+    estado,
+    concluidaEm: estado === "concluida" ? new Date() : null,
+  };
+}
+
+/** Numérica: soma um incremento ao valor atual. */
+export async function somarValor(
+  metaId: string,
+  dataPrevista: string,
+  incremento: string,
+): Promise<void> {
+  const n = lerNumero(incremento);
+  await alterarOcorrencia(metaId, dataPrevista, (o) =>
+    n === null || n === 0 ? null : comValor(o, (o.valorAtual ?? 0) + n),
+  );
+}
+
+/** Numérica: troca o valor atual por um novo total, que pode ser menor. */
+export async function definirValor(
+  metaId: string,
+  dataPrevista: string,
+  total: string,
+): Promise<void> {
+  const n = lerNumero(total);
+  await alterarOcorrencia(metaId, dataPrevista, (o) =>
+    n === null ? null : comValor(o, n),
+  );
+}

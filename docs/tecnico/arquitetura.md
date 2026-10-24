@@ -55,6 +55,17 @@ Implementado na entrega 1. Responde aos itens "método de sessão autenticada" e
 - **Erro ao entrar:** a mensagem é sempre "E-mail ou senha incorretos", sem dizer qual dos dois.
 - **`fechado_ate`:** nasce como a véspera do cadastro, porque não há dias a fechar antes de a conta existir.
 
+## Metas: lista do dia e materialização
+
+Implementado na entrega 2, seguindo o [modelo de dados de Metas](../produto/modelo-dados-metas.md).
+
+- **Tabelas:** `meta`, `meta_versao` e `ocorrencia`, com as restrições do modelo como `CHECK` no banco (unidade só em numérica, dias da semana só em semanal, intervalo de pelo menos 2 dias, origem `regra` ou `reagendada`). A coluna `projeto_id` da versão entra com a tabela `projeto`, na entrega 5.
+- **Lista de uma data:** `listaDoDia()` busca as versões vigentes das metas ativas e as ocorrências gravadas com `data` ou `data_prevista` naquele dia. A regra pura `montarListaDoDia()` (em `src/domain/metas.ts`) calcula as vagas e ordena: com horário primeiro, depois as sem horário.
+- **Gravar uma vaga:** só quando o usuário mexe nela. `garantirOcorrencia()` insere com `ON CONFLICT DO NOTHING` sobre a chave única `(meta_id, data_prevista) WHERE origem = 'regra'` e trava a linha até o fim da transação. Dois toques ao mesmo tempo não criam duas ocorrências.
+- **Ocorrência única:** a versão nasce com `vigente_ate = vigente_de`.
+- **Dias passados:** só leitura. Uma alteração que chega depois da meia-noite para o dia anterior é ignorada e a tela recarrega. O encerramento e a correção chegam na entrega 3.
+- **"+ último incremento":** fica guardado só no aparelho (`localStorage`), porque o banco guarda só o valor atual (decisão 4 dos fluxos de Metas).
+
 ## Migrações em produção
 
 O deploy de produção no Netlify roda `pnpm db:migrate` antes do build (`netlify.toml`). Assim o banco é atualizado no momento do merge na `main`. Se a migração falhar, o build para e a versão anterior continua no ar.
