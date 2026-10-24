@@ -45,6 +45,20 @@ tests/            testes do domain (Vitest) e fluxos (Playwright)
 - **Transações:** cada Server Action que grava mais de uma linha roda numa transação do Drizzle.
 - **Nada de apagar histórico:** a exclusão física só existe nos casos que os documentos permitem. As chaves estrangeiras usam `RESTRICT` ou `SET NULL` conforme os modelos de dados.
 
+## Conta e sessão
+
+Implementado na entrega 1. Responde aos itens "método de sessão autenticada" e "regras de unicidade de e-mail" da seção 15.3 do v0.4.
+
+- **Senha:** só o hash Argon2id é guardado (`usuario.senha_hash`), com os parâmetros mínimos da OWASP (19 MiB, 2 passagens). Mínimo de 8 caracteres.
+- **E-mail:** guardado em minúsculas e sem espaços; único sem diferenciar maiúsculas (índice em `lower(email)`).
+- **Sessão:** um token aleatório fica num cookie `HttpOnly`, `SameSite=Lax` e `Secure` em produção. O banco guarda só o hash SHA-256 do token (tabela `sessao`). A sessão vale 30 dias e é estendida quando passa da metade, então quem usa o app com frequência não precisa entrar de novo. Sair apaga a sessão do banco.
+- **Erro ao entrar:** a mensagem é sempre "E-mail ou senha incorretos", sem dizer qual dos dois.
+- **`fechado_ate`:** nasce como a véspera do cadastro, porque não há dias a fechar antes de a conta existir.
+
+## Migrações em produção
+
+O deploy de produção no Netlify roda `pnpm db:migrate` antes do build (`netlify.toml`). Assim o banco é atualizado no momento do merge na `main`. Se a migração falhar, o build para e a versão anterior continua no ar.
+
 ## Backlog
 
 Cada entrega termina com algo que você consegue usar no celular, publicado no endereço do app. A ordem segue o uso: a partir da entrega 3 você já pode usar o Ascend para as metas do dia, enquanto o resto é construído.

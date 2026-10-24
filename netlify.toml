@@ -10,3 +10,9 @@
 # não tinha o app, então o adaptador do Next.js não foi ativado sozinho.
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+# Só o deploy de produção (a main) aplica as migrações pendentes no banco antes
+# do build. Se a migração falhar, o build para e a versão anterior continua no
+# ar. Deploy previews não mexem no banco.
+[context.production]
+  command = "pnpm db:migrate && pnpm build"
