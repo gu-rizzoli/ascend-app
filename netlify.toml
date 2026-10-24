@@ -1,7 +1,12 @@
-# O Netlify detecta o Next.js e aplica o adaptador oficial sozinho.
+# Build do Netlify. O adaptador do Next.js gera a função de servidor.
 [build]
   command = "pnpm build"
   publish = ".next"
 
 [build.environment]
   NODE_VERSION = "22"
+
+# Declarado explicitamente: o projeto foi criado no Netlify quando a main ainda
+# não tinha o app, então o adaptador do Next.js não foi ativado sozinho.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
