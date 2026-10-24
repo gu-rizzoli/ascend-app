@@ -6,20 +6,54 @@ import {
   formatarNumero,
   lerNumero,
   progresso,
+  type EstadoOcorrencia,
   type ItemDoDia,
 } from "@/domain/metas";
 import {
   alternarConclusao,
+  corrigirConclusao,
+  corrigirValor,
   definirValor,
   somarValor,
 } from "@/server/acoes-metas";
 
-type Props = { item: ItemDoDia; editavel: boolean };
+/**
+ * editar: hoje e datas futuras. ler: dia encerrado. corrigir: dia encerrado
+ * aberto com o botão Corrigir (RF-MET-12).
+ */
+export type Modo = "editar" | "ler" | "corrigir";
 
-function Horario({ horario }: { horario: string | null }) {
-  if (!horario) return null;
+type Props = { item: ItemDoDia; modo: Modo };
+
+/** Editar mexe na vaga (meta, data prevista); corrigir, na ocorrência gravada. */
+function podeTocar(item: ItemDoDia, modo: Modo): boolean {
+  if (modo === "editar") return item.dataPrevista !== null;
+  if (modo === "corrigir") return item.ocorrenciaId !== null;
+  return false;
+}
+
+/** Horário, "Não concluída" e o selo de corrigida, numa linha discreta. */
+function Detalhes({
+  horario,
+  estado,
+  corrigida,
+}: {
+  horario: string | null;
+  estado: EstadoOcorrencia;
+  corrigida: boolean;
+}) {
+  const naoConcluida = estado === "nao_concluida";
+  if (!horario && !naoConcluida && !corrigida) return null;
   return (
-    <span className="text-xs text-neutral-500 tabular-nums">{horario}</span>
+    <span className="flex flex-wrap items-center gap-x-2 text-xs text-neutral-500">
+      {horario && <span className="tabular-nums">{horario}</span>}
+      {naoConcluida && <span>Não concluída</span>}
+      {corrigida && (
+        <span className="rounded bg-amber-100 px-1.5 py-0.5 text-amber-900">
+          Corrigida
+        </span>
+      )}
+    </span>
   );
 }
 
@@ -48,17 +82,26 @@ function Marca({ concluida }: { concluida: boolean }) {
   );
 }
 
-/** Binária: um toque conclui, outro desmarca, salvando na hora. */
-export function LinhaBinaria({ item, editavel }: Props) {
+/**
+ * Binária: um toque conclui, outro desmarca, salvando na hora. Num dia em
+ * correção, alterna entre concluída e não concluída.
+ */
+export function LinhaBinaria({ item, modo }: Props) {
   const [estado, mudarEstado] = useOptimistic(item.estado);
+  const [corrigida, marcarCorrigida] = useOptimistic(item.corrigida);
   const [, iniciar] = useTransition();
   const concluida = estado === "concluida";
-  const podeTocar = editavel && item.dataPrevista !== null;
 
   function alternar() {
     iniciar(async () => {
-      mudarEstado(concluida ? "pendente" : "concluida");
-      await alternarConclusao(item.metaId, item.dataPrevista!);
+      if (modo === "corrigir") {
+        mudarEstado(concluida ? "nao_concluida" : "concluida");
+        marcarCorrigida(true);
+        await corrigirConclusao(item.ocorrenciaId!, !concluida);
+      } else {
+        mudarEstado(concluida ? "pendente" : "concluida");
+        await alternarConclusao(item.metaId, item.dataPrevista!);
+      }
     });
   }
 
@@ -68,7 +111,7 @@ export function LinhaBinaria({ item, editavel }: Props) {
         type="button"
         role="checkbox"
         aria-checked={concluida}
-        disabled={!podeTocar}
+        disabled={!podeTocar(item, modo)}
         onClick={alternar}
         className="flex w-full items-center gap-3 py-3.5 text-left disabled:cursor-default"
       >
@@ -79,7 +122,11 @@ export function LinhaBinaria({ item, editavel }: Props) {
           >
             {item.titulo}
           </span>
-          <Horario horario={item.horario} />
+          <Detalhes
+            horario={item.horario}
+            estado={estado}
+            corrigida={corrigida}
+          />
         </span>
       </button>
     </li>
@@ -90,20 +137,30 @@ const chaveIncremento = (metaId: string) => `ascend:incremento:${metaId}`;
 
 /**
  * Numérica: "1,5 / 3 L", barra que para em 100% e um + que abre atalhos de
- * incremento e o campo de novo total (fluxos-metas.md).
+ * incremento e o campo de novo total (fluxos-metas.md). Num dia em correção,
+ * o painel mostra só o campo do total corrigido.
  */
-export function LinhaNumerica({ item, editavel }: Props) {
+export function LinhaNumerica({ item, modo }: Props) {
   const alvo = item.valorAlvo ?? 0;
   const unidade = item.unidade ?? "";
+  const corrigindo = modo === "corrigir";
   const [valor, mudarValor] = useOptimistic(item.valorAtual ?? 0);
+  const [corrigida, marcarCorrigida] = useOptimistic(item.corrigida);
   const [, iniciar] = useTransition();
   const [aberto, setAberto] = useState(false);
   const [digitado, setDigitado] = useState("");
   // O último incremento usado fica só neste aparelho: o v0.4 não pede log de
   // incrementos (fluxos-metas.md, decisão 4).
   const [ultimo, setUltimo] = useState<number | null>(null);
-  const podeTocar = editavel && item.dataPrevista !== null;
+  const tocavel = podeTocar(item, modo);
   const concluida = valor >= alvo && alvo > 0;
+  // O estado da tela segue o valor otimista; num dia encerrado, abaixo do
+  // alvo é "não concluída".
+  const estado: EstadoOcorrencia = concluida
+    ? "concluida"
+    : modo === "editar"
+      ? "pendente"
+      : "nao_concluida";
 
   useEffect(() => {
     try {
@@ -133,7 +190,12 @@ export function LinhaNumerica({ item, editavel }: Props) {
   function definir(total: number) {
     iniciar(async () => {
       mudarValor(total);
-      await definirValor(item.metaId, item.dataPrevista!, String(total));
+      if (corrigindo) {
+        marcarCorrigida(true);
+        await corrigirValor(item.ocorrenciaId!, String(total));
+      } else {
+        await definirValor(item.metaId, item.dataPrevista!, String(total));
+      }
     });
   }
 
@@ -147,7 +209,11 @@ export function LinhaNumerica({ item, editavel }: Props) {
           <div className="flex items-baseline justify-between gap-2">
             <span className="flex min-w-0 flex-col">
               <span>{item.titulo}</span>
-              <Horario horario={item.horario} />
+              <Detalhes
+                horario={item.horario}
+                estado={estado}
+                corrigida={corrigida}
+              />
             </span>
             <span className="shrink-0 text-sm text-neutral-600 tabular-nums">
               {formatarNumero(valor)} / {formatarNumero(alvo)} {unidade}
@@ -167,7 +233,7 @@ export function LinhaNumerica({ item, editavel }: Props) {
             />
           </div>
         </div>
-        {podeTocar && (
+        {tocavel && (
           <button
             type="button"
             aria-label={`Atualizar ${item.titulo}`}
@@ -180,9 +246,9 @@ export function LinhaNumerica({ item, editavel }: Props) {
         )}
       </div>
 
-      {podeTocar && aberto && (
+      {tocavel && aberto && (
         <div className="mt-3 flex flex-col gap-3 rounded-lg bg-neutral-100 p-3">
-          <div className="flex flex-wrap gap-2">
+          <div className={corrigindo ? "hidden" : "flex flex-wrap gap-2"}>
             <button
               type="button"
               onClick={() => somar(1)}
@@ -218,24 +284,26 @@ export function LinhaNumerica({ item, editavel }: Props) {
               onChange={(e) => setDigitado(e.target.value)}
               className="min-w-0 flex-1 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-base outline-none focus:border-neutral-900"
             />
-            <button
-              type="button"
-              disabled={n === null || n === 0}
-              onClick={() => {
-                if (n === null || n === 0) return;
-                somar(n);
-                setDigitado("");
-              }}
-              className="rounded-lg bg-white px-3 py-2 text-sm font-medium shadow-sm disabled:opacity-50"
-            >
-              Somar
-            </button>
+            {!corrigindo && (
+              <button
+                type="button"
+                disabled={n === null || n === 0}
+                onClick={() => {
+                  if (n === null || n === 0) return;
+                  somar(n);
+                  setDigitado("");
+                }}
+                className="rounded-lg bg-white px-3 py-2 text-sm font-medium shadow-sm disabled:opacity-50"
+              >
+                Somar
+              </button>
+            )}
             <button
               type="submit"
               disabled={n === null}
               className="rounded-lg bg-neutral-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
             >
-              Novo total
+              {corrigindo ? "Corrigir total" : "Novo total"}
             </button>
           </form>
         </div>

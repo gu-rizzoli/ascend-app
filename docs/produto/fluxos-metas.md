@@ -135,6 +135,8 @@ O reagendamento fica disponível só para ocorrências não concluídas. Para ad
 
 **Correção retroativa (RF-MET-12, RF-HIS-10, 11):** no dia encerrado, o botão "Corrigir" permite marcar ou desmarcar a conclusão e mudar o valor numérico, sem pedir justificativa. A ocorrência guarda a data e hora da última alteração e uma marca de "alterada após o encerramento", que aparece como selo no Histórico. O calendário recalcula a taxa do dia.
 
+Na tela (entrega 3): o botão "Corrigir" abre a lista do dia em modo de correção, com um aviso e o botão "Pronto". A binária alterna entre concluída e não concluída, porque um dia encerrado não tem pendentes. A numérica recebe o total corrigido, e o alvo decide se ela foi concluída. Cada mudança salva na hora, e a linha passa a mostrar o selo "Corrigida" também na lista do dia, não só no Histórico.
+
 ## Respostas para a 15.3
 
 A principal decisão é **materializar ocorrências só quando necessário**. Datas futuras são calculadas a partir da regra, e a ocorrência só vira linha no banco quando o dia chega ou quando o usuário mexe nela. O detalhe está em [modelo-dados-metas.md](modelo-dados-metas.md).

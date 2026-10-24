@@ -28,7 +28,7 @@ const versaoVigenteEm = (data: DataCivil) =>
     or(isNull(metaVersao.vigenteAte), gte(metaVersao.vigenteAte, data)),
   );
 
-function regraDa(v: typeof metaVersao.$inferSelect): Regra {
+export function regraDa(v: typeof metaVersao.$inferSelect): Regra {
   return {
     frequencia: v.frequencia,
     vigenteDe: v.vigenteDe as DataCivil,
@@ -90,6 +90,7 @@ export async function listaDoDia(
         data: o.data as DataCivil,
         estado: o.estado,
         valorAtual: o.valorAtual,
+        corrigida: o.corrigidaAposEncerramento,
         versao: {
           titulo: v.titulo,
           horario: horaCurta(v.horario),

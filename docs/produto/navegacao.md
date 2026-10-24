@@ -41,6 +41,7 @@ Cada tela tem um endereço próprio. Assim, o botão voltar do navegador funcion
 | Acesso | `/entrar`, `/cadastro` | Login e cadastro | Entrar |
 | Hoje | `/hoje` | Lista do dia atual | + Nova meta |
 | Hoje | `/dia/2026-10-25` | Mesma lista em outra data, para planejar ou consultar | + Nova meta |
+| Hoje | `/dia/2026-10-20?corrigir=1` | Correção de um dia encerrado | Pronto |
 | Hoje | `/metas/novo`, `/metas/:id` | Criar meta, ou detalhe com editar, pausar e excluir | Salvar |
 | Hoje | `/metas` | Todas as metas: ativas, pausadas e de ocorrência única futura | Reativar |
 | Projetos | `/projetos` | Lista por status, com o atual no topo | + Novo projeto |
@@ -54,7 +55,7 @@ Cada tela tem um endereço próprio. Assim, o botão voltar do navegador funcion
 | Histórico | `/historico/2026-07-10` | Detalhe do dia, com o botão Corrigir | Corrigir |
 | Conta | `/conta` | Nome, e-mail, senha e sair (11.6) | Salvar |
 
-**Dia passado em Hoje ou no Histórico?** Navegar para trás em Hoje leva a `/dia/...` de um dia encerrado, que mostra a lista só para leitura com o botão Corrigir. O detalhe do dia no Histórico mostra mais coisas: projeto em foco, treino do dia e selos de correção. Os dois caminhos levam à mesma correção.
+**Dia passado em Hoje ou no Histórico?** Navegar para trás em Hoje leva a `/dia/...` de um dia encerrado, que mostra a lista só para leitura com o botão Corrigir. O detalhe do dia no Histórico mostra mais coisas: projeto em foco, treino do dia e selos de correção. Os dois caminhos levam à mesma correção: o botão Corrigir abre a lista do dia em modo de correção (`?corrigir=1`), onde cada mudança salva na hora e ganha o selo "Corrigida".
 
 **Atalhos entre áreas:** o projeto atual em Hoje leva para `/projetos/:id`. O treino no detalhe do dia leva para `/treinos/:id`. Um exercício dentro de um treino leva para `/exercicios/:id`. Não existe atalho de Hoje para registrar treino, porque treino e meta são independentes (9.12).
 

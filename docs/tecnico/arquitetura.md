@@ -63,8 +63,18 @@ Implementado na entrega 2, seguindo o [modelo de dados de Metas](../produto/mode
 - **Lista de uma data:** `listaDoDia()` busca as versões vigentes das metas ativas e as ocorrências gravadas com `data` ou `data_prevista` naquele dia. A regra pura `montarListaDoDia()` (em `src/domain/metas.ts`) calcula as vagas e ordena: com horário primeiro, depois as sem horário.
 - **Gravar uma vaga:** só quando o usuário mexe nela. `garantirOcorrencia()` insere com `ON CONFLICT DO NOTHING` sobre a chave única `(meta_id, data_prevista) WHERE origem = 'regra'` e trava a linha até o fim da transação. Dois toques ao mesmo tempo não criam duas ocorrências.
 - **Ocorrência única:** a versão nasce com `vigente_ate = vigente_de`.
-- **Dias passados:** só leitura. Uma alteração que chega depois da meia-noite para o dia anterior é ignorada e a tela recarrega. O encerramento e a correção chegam na entrega 3.
+- **Dias passados:** não se editam direto. Uma alteração que chega depois da meia-noite para o dia anterior é ignorada e a tela recarrega. Mudar um dia encerrado é correção retroativa (próxima seção).
 - **"+ último incremento":** fica guardado só no aparelho (`localStorage`), porque o banco guarda só o valor atual (decisão 4 dos fluxos de Metas).
+
+## Encerramento e correção
+
+Implementado na entrega 3 (RF-MET-11, 12, RF-GLO-10).
+
+- **Quando fecha:** o layout logado e a lista do dia chamam `usuarioComDiasFechados()`, memorizado por pedido. O Next.js renderiza layout e página em paralelo, então a página espera o fechamento antes de ler e nunca mostra um dia passado com pendentes. Se `fechado_ate` lido com a sessão já for ontem, nada é travado nem gravado.
+- **O que faz:** `fecharDiasVencidos()` trava a linha do usuário (`FOR UPDATE`), grava como `nao_concluida` as vagas da regra entre `fechado_ate + 1` e ontem que ninguém abriu (em lotes de 500, com `ON CONFLICT DO NOTHING`), encerra as pendentes com data anterior a hoje preservando o valor parcial, preenche `encerrada_em` das concluídas e avança `fechado_ate`. Tudo numa transação. Dois pedidos ao mesmo tempo fecham uma vez só.
+- **Quais vagas:** `vagasDoPeriodo()` (em `src/domain/fechamento.ts`) usa a vigência de cada versão, sem olhar o estado atual da meta. Assim uma meta pausada ou excluída depois continua com os dias em que estava ativa.
+- **Virada da meia-noite:** com o app aberto, o próximo toque no dia anterior é ignorado, a tela recarrega já no dia novo e o aviso "Um novo dia começou" aparece por alguns segundos.
+- **Correção:** `/dia/AAAA-MM-DD?corrigir=1`. As ações `corrigirConclusao()` e `corrigirValor()` recebem o id da ocorrência, conferem o dono e se a data é anterior a hoje, fecham os dias vencidos antes e marcam `corrigida_apos_encerramento`. Uma correção que não muda nada não marca a ocorrência.
 
 ## Migrações em produção
 

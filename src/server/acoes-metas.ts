@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -9,6 +9,7 @@ import { db } from "@/db";
 import { meta, metaVersao, ocorrencia } from "@/db/schema";
 import { errosPorCampo, type ErrosDeCampo } from "@/domain/conta";
 import { ehDataCivil, hoje, type DataCivil } from "@/domain/datas";
+import { diaCorrigivel, estadoCorrigido } from "@/domain/fechamento";
 import {
   diaEditavel,
   esquemaNovaMeta,
@@ -18,6 +19,7 @@ import {
   type CamposNovaMeta,
 } from "@/domain/metas";
 
+import { fecharSePreciso } from "./fechamento";
 import { garantirOcorrencia, type OcorrenciaParaAlterar } from "./metas";
 import { exigirUsuario } from "./sessao";
 
@@ -171,4 +173,91 @@ export async function definirValor(
   await alterarOcorrencia(metaId, dataPrevista, (o) =>
     n === null ? null : comValor(o, n),
   );
+}
+
+// ---------------------------------------------------------------------------
+// Correção retroativa (7.11, 10.6, RF-MET-12). Só em dias encerrados, sem
+// pedir justificativa. Cada mudança fica marcada como feita depois do
+// encerramento, para que o histórico nunca mude em silêncio.
+
+async function corrigirOcorrencia(
+  ocorrenciaId: string,
+  pedido: { concluida?: boolean; valor?: number },
+): Promise<void> {
+  const usuario = await exigirUsuario();
+  const dataHoje = hoje();
+  if (z.uuid().safeParse(ocorrenciaId).success) {
+    // "Antes de alterar uma ocorrência vencida" (11.5): o dia precisa estar
+    // encerrado para a correção partir do estado final.
+    await fecharSePreciso(usuario, dataHoje);
+    await db().transaction(async (tx) => {
+      const [linha] = await tx
+        .select({ meta, versao: metaVersao, ocorrencia })
+        .from(ocorrencia)
+        .innerJoin(meta, eq(ocorrencia.metaId, meta.id))
+        .innerJoin(metaVersao, eq(ocorrencia.versaoId, metaVersao.id))
+        .where(
+          and(
+            eq(ocorrencia.id, ocorrenciaId),
+            eq(ocorrencia.usuarioId, usuario.id),
+          ),
+        )
+        .for("update", { of: ocorrencia })
+        .limit(1);
+      if (!linha) return;
+      const { meta: m, versao: v, ocorrencia: o } = linha;
+      if (!diaCorrigivel(o.data as DataCivil, dataHoje)) return;
+
+      const valor =
+        m.tipo === "numerica" && pedido.valor !== undefined
+          ? Math.min(VALOR_MAXIMO, Math.max(0, pedido.valor))
+          : undefined;
+      const estado = estadoCorrigido(
+        m.tipo,
+        { concluida: pedido.concluida, valor },
+        o.valorAlvo ?? v.valorAlvo,
+      );
+      if (!estado) return;
+      const mesmoValor = valor === undefined || valor === o.valorAtual;
+      if (estado === o.estado && mesmoValor) return;
+
+      await tx
+        .update(ocorrencia)
+        .set({
+          estado,
+          ...(valor !== undefined && { valorAtual: valor }),
+          concluidaEm:
+            estado !== "concluida"
+              ? null
+              : o.estado === "concluida"
+                ? o.concluidaEm
+                : new Date(),
+          corrigidaAposEncerramento: true,
+          atualizadoEm: new Date(),
+        })
+        .where(eq(ocorrencia.id, o.id));
+    });
+  }
+  refresh();
+}
+
+/** Binária num dia encerrado: concluída ou não concluída. */
+export async function corrigirConclusao(
+  ocorrenciaId: string,
+  concluida: boolean,
+): Promise<void> {
+  await corrigirOcorrencia(ocorrenciaId, { concluida: concluida === true });
+}
+
+/** Numérica num dia encerrado: o novo total decide se foi concluída. */
+export async function corrigirValor(
+  ocorrenciaId: string,
+  total: string,
+): Promise<void> {
+  const n = lerNumero(total);
+  if (n === null) {
+    refresh();
+    return;
+  }
+  await corrigirOcorrencia(ocorrenciaId, { valor: n });
 }

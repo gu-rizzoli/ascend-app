@@ -8,11 +8,11 @@ import {
   type DataCivil,
 } from "@/domain/datas";
 import { diaEditavel, resumoDoDia } from "@/domain/metas";
+import { usuarioComDiasFechados } from "@/server/fechamento";
 import { listaDoDia, temAlgumaMeta } from "@/server/metas";
-import { exigirUsuario } from "@/server/sessao";
 import { classeBotao } from "@/ui/botao";
 
-import { LinhaBinaria, LinhaNumerica } from "./linhas";
+import { LinhaBinaria, LinhaNumerica, type Modo } from "./linhas";
 
 function enderecoDoDia(data: DataCivil, dataHoje: DataCivil): string {
   return data === dataHoje ? "/hoje" : `/dia/${data}`;
@@ -32,16 +32,26 @@ function textoDoResumo(concluidas: number, total: number): string {
 
 /**
  * A lista de uma data (fluxos-metas.md, "Tela Hoje"). Hoje e datas futuras
- * são editáveis; dias passados ficam só para leitura.
+ * são editáveis. Dias passados já estão encerrados: ficam só para leitura,
+ * com o botão Corrigir para a correção retroativa (RF-MET-12).
  */
-export async function TelaDoDia({ data }: { data: DataCivil }) {
-  const usuario = await exigirUsuario();
+export async function TelaDoDia({
+  data,
+  corrigindo = false,
+}: {
+  data: DataCivil;
+  corrigindo?: boolean;
+}) {
+  // Fecha os dias vencidos antes de ler: um dia passado nunca aparece com
+  // metas pendentes.
+  const usuario = await usuarioComDiasFechados();
   const dataHoje = hoje();
   const [itens, temMeta] = await Promise.all([
     listaDoDia(usuario.id, data),
     temAlgumaMeta(usuario.id),
   ]);
   const editavel = diaEditavel(data, dataHoje);
+  const modo: Modo = editavel ? "editar" : corrigindo ? "corrigir" : "ler";
   const { concluidas, total } = resumoDoDia(itens);
   const novaMeta = `/metas/novo?data=${data}`;
   const rotulo = rotuloRelativo(data, dataHoje);
@@ -86,19 +96,42 @@ export async function TelaDoDia({ data }: { data: DataCivil }) {
         )}
       </div>
 
-      {!editavel && (
-        <p className="mt-4 rounded-lg bg-neutral-100 px-3 py-2 text-sm text-neutral-600">
-          Este dia já passou e fica só para leitura.
-        </p>
+      {modo === "ler" && (
+        <div className="mt-4 flex items-center justify-between gap-3 rounded-lg bg-neutral-100 px-3 py-2 text-sm text-neutral-600">
+          <p>Dia encerrado.</p>
+          {itens.length > 0 && (
+            <Link
+              href={`/dia/${data}?corrigir=1`}
+              className="rounded-full bg-white px-3 py-1.5 font-medium text-neutral-900 shadow-sm"
+            >
+              Corrigir
+            </Link>
+          )}
+        </div>
+      )}
+
+      {modo === "corrigir" && (
+        <div className="mt-4 flex items-center justify-between gap-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
+          <p>
+            Corrigindo este dia. Cada mudança salva na hora e fica marcada como
+            corrigida.
+          </p>
+          <Link
+            href={`/dia/${data}`}
+            className="shrink-0 rounded-full bg-neutral-900 px-3 py-1.5 font-medium text-white"
+          >
+            Pronto
+          </Link>
+        </div>
       )}
 
       {itens.length > 0 ? (
         <ul className="mt-4 divide-y divide-neutral-200">
           {itens.map((item) =>
             item.tipo === "numerica" ? (
-              <LinhaNumerica key={item.chave} item={item} editavel={editavel} />
+              <LinhaNumerica key={item.chave} item={item} modo={modo} />
             ) : (
-              <LinhaBinaria key={item.chave} item={item} editavel={editavel} />
+              <LinhaBinaria key={item.chave} item={item} modo={modo} />
             ),
           )}
         </ul>
