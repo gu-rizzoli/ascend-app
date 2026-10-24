@@ -17,7 +17,8 @@ Atualmente:
 - A plataforma será uma aplicação web responsiva mobile-first;
 - Fluxos e modelo de dados de Metas, Projetos e Treinos estão definidos;
 - O banco de dados será PostgreSQL;
-- Navegação, wireframes e stack são as próximas etapas.
+- A navegação está definida (quatro áreas: Hoje, Projetos, Treinos e Histórico);
+- Wireframes e stack são as próximas etapas.
 
 ## Objetivo
 
@@ -52,6 +53,7 @@ Fluxos e modelagem:
 - [Modelo de dados de Metas](docs/produto/modelo-dados-metas.md)
 - [Projetos: fluxos e modelo](docs/produto/projetos.md)
 - [Treinos: fluxos e modelo](docs/produto/treinos.md)
+- [Navegação](docs/produto/navegacao.md)
 
 Versões anteriores estão disponíveis em [`docs/arquivo`](docs/arquivo).
 
@@ -60,7 +62,7 @@ Versões anteriores estão disponíveis em [`docs/arquivo`](docs/arquivo).
 1. ~~Mapear os fluxos de Hoje e Metas~~ (feito);
 2. ~~Modelar o banco de dados de Metas~~ (feito);
 3. ~~Mapear os fluxos e o modelo de dados de Projetos e Treinos~~ (feito);
-4. Definir a navegação e a arquitetura de informação;
+4. ~~Definir a navegação e a arquitetura de informação~~ (feito);
 5. Criar wireframes para celular e computador;
 6. Escolher a stack e definir a arquitetura técnica;
 7. Criar o backlog de desenvolvimento;
