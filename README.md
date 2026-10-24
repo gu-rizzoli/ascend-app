@@ -19,7 +19,7 @@ Atualmente:
 - O banco de dados será PostgreSQL;
 - A navegação está definida (quatro áreas: Hoje, Projetos, Treinos e Histórico);
 - Wireframes, stack e backlog estão definidos;
-- A implementação começou pela entrega 0 (fundação do projeto).
+- Entrega 0 (fundação) concluída; entrega 1 (conta: cadastro, entrar e sair) em revisão.
 
 ## Objetivo
 
@@ -84,7 +84,7 @@ Comandos úteis:
 | `pnpm format` | Formata o código com Prettier |
 | `pnpm build` | Gera o build de produção |
 | `pnpm db:generate` | Gera uma migração a partir de `src/db/schema.ts` |
-| `pnpm db:migrate` | Aplica as migrações no banco de `DATABASE_URL` |
+| `pnpm db:migrate` | Aplica as migrações no banco de `DATABASE_URL` (em produção roda sozinho no deploy) |
 
 O CI (GitHub Actions) roda formatação, lint, tipos, testes e build em cada pull request.
 
