@@ -201,6 +201,7 @@ describe("montarListaDoDia", () => {
       data: D,
       estado: "concluida",
       valorAtual: null,
+      corrigida: false,
       versao: { titulo: metaId, horario: null, valorAlvo: null },
       ajuste: { titulo: null, horario: null, valorAlvo: null },
       ...parcial,
@@ -254,6 +255,15 @@ describe("montarListaDoDia", () => {
   it("vaga adiada para outra data não aparece na data prevista", () => {
     const adiada = gravada("a", { data: d("2026-10-27"), estado: "pendente" });
     expect(montarListaDoDia(D, [versao("a")], [adiada])).toEqual([]);
+  });
+
+  it("leva o selo de corrigida para a linha", () => {
+    const [item] = montarListaDoDia(
+      D,
+      [],
+      [gravada("a", { estado: "nao_concluida", corrigida: true })],
+    );
+    expect(item).toMatchObject({ estado: "nao_concluida", corrigida: true });
   });
 
   it("ajustes de 'só esta' prevalecem sobre a versão", () => {

@@ -5,7 +5,10 @@ import { ehDataCivil, formatarDataLonga, hoje } from "@/domain/datas";
 
 import { TelaDoDia } from "../tela-do-dia";
 
-type Props = { params: Promise<{ data: string }> };
+type Props = {
+  params: Promise<{ data: string }>;
+  searchParams: Promise<{ corrigir?: string | string[] }>;
+};
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { data } = await params;
@@ -13,10 +16,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: `${formatarDataLonga(data)} · Ascend` };
 }
 
-/** A lista de outra data, para planejar ou consultar (navegacao.md). */
-export default async function PaginaDia({ params }: Props) {
+/** A lista de outra data, para planejar, consultar ou corrigir (navegacao.md). */
+export default async function PaginaDia({ params, searchParams }: Props) {
   const { data } = await params;
   if (!ehDataCivil(data)) notFound();
   if (data === hoje()) redirect("/hoje");
-  return <TelaDoDia data={data} />;
+  // "?corrigir=1" abre a correção retroativa de um dia encerrado (RF-MET-12).
+  const { corrigir } = await searchParams;
+  return <TelaDoDia data={data} corrigindo={corrigir !== undefined} />;
 }

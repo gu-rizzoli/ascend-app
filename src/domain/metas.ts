@@ -189,8 +189,8 @@ export function progresso(valor: number, alvo: number): number {
 }
 
 /**
- * Dias passados são só leitura: mudar um dia encerrado é correção retroativa,
- * que tem fluxo próprio (7.11). Hoje e datas futuras podem ser alterados,
+ * Dias passados não se editam direto: mudar um dia encerrado é correção
+ * retroativa, que tem fluxo próprio (7.11, src/domain/fechamento.ts). Hoje e datas futuras podem ser alterados,
  * inclusive concluindo antes da data (fluxos-metas.md, decisão 2).
  */
 export function diaEditavel(data: DataCivil, hoje: DataCivil): boolean {
@@ -222,6 +222,7 @@ export type OcorrenciaGravada = {
   data: DataCivil;
   estado: EstadoOcorrencia;
   valorAtual: number | null;
+  corrigida: boolean;
   versao: { titulo: string; horario: string | null; valorAlvo: number | null };
   // Ajustes de "só esta": quando preenchidos, prevalecem sobre a versão.
   ajuste: {
@@ -245,6 +246,8 @@ export type ItemDoDia = {
   valorAlvo: number | null;
   valorAtual: number | null;
   estado: EstadoOcorrencia;
+  // Alterada depois do encerramento do dia (RF-MET-12): aparece como selo.
+  corrigida: boolean;
 };
 
 const chaveDaVaga = (metaId: string, dataPrevista: DataCivil) =>
@@ -282,6 +285,7 @@ export function montarListaDoDia(
       valorAlvo: g.ajuste.valorAlvo ?? g.versao.valorAlvo,
       valorAtual: g.valorAtual,
       estado: g.estado,
+      corrigida: g.corrigida,
     }));
 
   for (const v of versoes) {
@@ -301,6 +305,7 @@ export function montarListaDoDia(
       valorAlvo: v.valorAlvo,
       valorAtual: v.tipo === "numerica" ? 0 : null,
       estado: "pendente",
+      corrigida: false,
     });
   }
 

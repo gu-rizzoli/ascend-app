@@ -1,17 +1,19 @@
 import Link from "next/link";
 
-import { exigirUsuario } from "@/server/sessao";
+import { hoje } from "@/domain/datas";
+import { usuarioComDiasFechados } from "@/server/fechamento";
 
+import { AvisoNovoDia } from "./aviso-novo-dia";
 import { BarraDeAreas } from "./barra-de-areas";
 
-// Áreas logadas (RF-GLO-04). O fechamento preguiçoso dos dias vencidos
-// (fecharDiasVencidos) entra aqui na entrega 3.
+// Áreas logadas (RF-GLO-04). Antes de renderizar, fecha os dias vencidos
+// (fecharDiasVencidos, 11.5): é o "próximo acesso" que encerra o dia.
 export const dynamic = "force-dynamic";
 
 export default async function LayoutApp({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const usuario = await exigirUsuario();
+  const usuario = await usuarioComDiasFechados();
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col">
@@ -29,6 +31,7 @@ export default async function LayoutApp({
       <div className="flex flex-1 flex-col px-4 pt-4 pb-28">{children}</div>
 
       <BarraDeAreas />
+      <AvisoNovoDia hoje={hoje()} />
     </div>
   );
 }
