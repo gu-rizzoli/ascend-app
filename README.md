@@ -15,7 +15,9 @@ Atualmente:
 - Autenticação simples e regras globais estão definidas;
 - Lembretes e notificações estão fora do MVP;
 - A plataforma será uma aplicação web responsiva mobile-first;
-- Fluxos, navegação, design e arquitetura são as próximas etapas.
+- Fluxos e modelo de dados do módulo de Metas estão definidos;
+- O banco de dados será PostgreSQL;
+- Fluxos de Projetos e Treinos, navegação, design e stack são as próximas etapas.
 
 ## Objetivo
 
@@ -44,14 +46,20 @@ A especificação atual do produto está disponível em:
 
 - [Documentação do MVP](docs/produto/Ascend_Documentacao_Produto_MVP_v0.4.md)
 
+Fluxos e modelagem:
+
+- [Fluxos de Hoje e Metas](docs/produto/fluxos-metas.md)
+- [Modelo de dados de Metas](docs/produto/modelo-dados-metas.md)
+
 Versões anteriores estão disponíveis em [`docs/arquivo`](docs/arquivo).
 
 ## Próximos passos
 
-1. Mapear os fluxos principais do usuário;
-2. Definir a navegação e a arquitetura de informação;
-3. Criar wireframes para celular e computador;
-4. Modelar o banco de dados;
-5. Escolher a stack e definir a arquitetura técnica;
-6. Criar o backlog de desenvolvimento;
-7. Iniciar a implementação em pequenas entregas.
+1. ~~Mapear os fluxos de Hoje e Metas~~ (feito);
+2. ~~Modelar o banco de dados de Metas~~ (feito);
+3. Mapear os fluxos e o modelo de dados de Projetos e Treinos;
+4. Definir a navegação e a arquitetura de informação;
+5. Criar wireframes para celular e computador;
+6. Escolher a stack e definir a arquitetura técnica;
+7. Criar o backlog de desenvolvimento;
+8. Iniciar a implementação em pequenas entregas.
