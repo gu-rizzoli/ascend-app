@@ -15,9 +15,9 @@ Atualmente:
 - Autenticação simples e regras globais estão definidas;
 - Lembretes e notificações estão fora do MVP;
 - A plataforma será uma aplicação web responsiva mobile-first;
-- Fluxos e modelo de dados do módulo de Metas estão definidos;
+- Fluxos e modelo de dados de Metas, Projetos e Treinos estão definidos;
 - O banco de dados será PostgreSQL;
-- Fluxos de Projetos e Treinos, navegação, design e stack são as próximas etapas.
+- Navegação, wireframes e stack são as próximas etapas.
 
 ## Objetivo
 
@@ -50,6 +50,8 @@ Fluxos e modelagem:
 
 - [Fluxos de Hoje e Metas](docs/produto/fluxos-metas.md)
 - [Modelo de dados de Metas](docs/produto/modelo-dados-metas.md)
+- [Projetos: fluxos e modelo](docs/produto/projetos.md)
+- [Treinos: fluxos e modelo](docs/produto/treinos.md)
 
 Versões anteriores estão disponíveis em [`docs/arquivo`](docs/arquivo).
 
@@ -57,7 +59,7 @@ Versões anteriores estão disponíveis em [`docs/arquivo`](docs/arquivo).
 
 1. ~~Mapear os fluxos de Hoje e Metas~~ (feito);
 2. ~~Modelar o banco de dados de Metas~~ (feito);
-3. Mapear os fluxos e o modelo de dados de Projetos e Treinos;
+3. ~~Mapear os fluxos e o modelo de dados de Projetos e Treinos~~ (feito);
 4. Definir a navegação e a arquitetura de informação;
 5. Criar wireframes para celular e computador;
 6. Escolher a stack e definir a arquitetura técnica;
