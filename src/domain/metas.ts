@@ -23,12 +23,19 @@ export const INTERVALO_MAXIMO = 365;
 // ---------------------------------------------------------------------------
 // Números no formato brasileiro ("1,5")
 
-const NUMERO = /^\d+([.,]\d+)?$/;
+const DECIMAL = /^\d+([.,]\d+)?$/;
+// Milhar com ponto, como o próprio app escreve ("1.000", "12.500,5").
+const COM_MILHAR = /^[1-9]\d{0,2}(\.\d{3})+(,\d+)?$/;
 
-/** Lê "1,5" ou "1.5". Devolve null se não for um número não negativo. */
+/**
+ * Lê "1,5", "1.5", "1.000" ou "1.000,5". Ponto seguido de grupos de 3
+ * dígitos é milhar, como em formatarNumero(); qualquer outro ponto é a
+ * vírgula decimal. Devolve null se não for um número não negativo.
+ */
 export function lerNumero(texto: string): number | null {
-  const limpo = texto.trim();
-  if (!NUMERO.test(limpo)) return null;
+  let limpo = texto.trim();
+  if (COM_MILHAR.test(limpo)) limpo = limpo.replaceAll(".", "");
+  else if (!DECIMAL.test(limpo)) return null;
   // Guarda até 3 casas, como a coluna do banco.
   return Math.round(Number(limpo.replace(",", ".")) * 1000) / 1000;
 }

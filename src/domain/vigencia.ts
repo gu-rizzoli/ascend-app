@@ -207,7 +207,8 @@ export type PlanoDeEdicao = {
  *
  * A ocorrência que foi editada (`editadaId`) segue a nova regra mesmo se
  * tiver ajuste: a tela mostrou os valores dela e o usuário os salvou como a
- * regra nova. Quem aponta para uma versão removida sempre passa para a nova.
+ * regra nova. Quem aponta para uma versão removida passa para a nova, menos
+ * quem foi antecipado para antes de D: aí a versão fica, vazia (decisão 22).
  */
 export function planoDeEdicao(
   d: DataCivil,
@@ -227,12 +228,21 @@ export function planoDeEdicao(
 
   const repontar: PlanoDeEdicao["repontar"] = [];
   const apagar: string[] = [];
+  const preservadas = new Set<string>();
   for (const o of ocorrencias) {
     const editada = o.id === editadaId;
     const daNovaFaixa =
       o.origem === "regra" && o.dataPrevista !== null && o.dataPrevista >= d;
     const presa = removidas.has(o.versaoId);
     if (!editada && !daNovaFaixa && !presa) continue;
+
+    // Uma vaga da nova faixa que foi antecipada para antes de D (e pode até
+    // já ter encerrado) fica com a regra antiga: o histórico não muda de
+    // título. Se a versão dela seria removida, ela fica, vazia.
+    if (!editada && o.data < d) {
+      if (presa) preservadas.add(o.versaoId);
+      continue;
+    }
 
     if (o.ajustada && !editada) {
       if (presa) repontar.push({ id: o.id, limparAjuste: false });
@@ -254,7 +264,17 @@ export function planoDeEdicao(
     }
   }
 
-  return { fechar, remover, repontar, apagar };
+  for (const v of versoes) {
+    if (!preservadas.has(v.id)) continue;
+    const vazia = somarDias(v.vigenteDe, -1);
+    if (v.vigenteAte !== vazia) fechar.push({ id: v.id, vigenteAte: vazia });
+  }
+  return {
+    fechar,
+    remover: remover.filter((id) => !preservadas.has(id)),
+    repontar,
+    apagar,
+  };
 }
 
 /**

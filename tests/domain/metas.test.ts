@@ -28,11 +28,22 @@ describe("lerNumero / formatarNumero", () => {
     expect(lerNumero("0")).toBe(0);
   });
 
-  it("recusa textos, negativos e milhar", () => {
+  it("recusa textos e negativos", () => {
     expect(lerNumero("")).toBeNull();
     expect(lerNumero("abc")).toBeNull();
     expect(lerNumero("-1")).toBeNull();
-    expect(lerNumero("1.000,5")).toBeNull();
+    expect(lerNumero("1.00.0")).toBeNull();
+    expect(lerNumero("1,000,5")).toBeNull();
+  });
+
+  it("lê o ponto de milhar que o próprio app escreve", () => {
+    expect(lerNumero("1.000")).toBe(1000);
+    expect(lerNumero("12.500,5")).toBe(12500.5);
+    expect(lerNumero("1.000.000")).toBe(1_000_000);
+    expect(lerNumero(formatarNumero(2500))).toBe(2500);
+    // Sem grupo de 3 ou começando com zero, o ponto é decimal.
+    expect(lerNumero("0.125")).toBe(0.125);
+    expect(lerNumero("1.25")).toBe(1.25);
   });
 
   it("guarda até 3 casas decimais", () => {

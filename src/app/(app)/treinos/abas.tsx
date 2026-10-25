@@ -28,27 +28,6 @@ export function AbasDeTreinos({
   );
 }
 
-/** O botão flutuante da área (navegacao.md, decisão 6). */
-export function BotaoFlutuante({
-  href,
-  rotulo,
-}: {
-  href: string;
-  rotulo: string;
-}) {
-  return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-20 z-10 mx-auto flex max-w-md justify-end px-4">
-      <Link
-        href={href}
-        aria-label={rotulo}
-        className="pointer-events-auto flex size-14 items-center justify-center rounded-full bg-neutral-900 text-3xl leading-none text-white shadow-lg"
-      >
-        +
-      </Link>
-    </div>
-  );
-}
-
 /** O título de um treino na lista e no detalhe. */
 export function tituloDoTreino(t: {
   nome: string | null;

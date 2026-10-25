@@ -299,6 +299,34 @@ describe("planoDeEdicao", () => {
     expect(plano.repontar).toEqual([{ id: "o", limparAjuste: false }]);
   });
 
+  it("antecipada para antes de D fica com a versão dela, mesmo removida", () => {
+    // v2 começa amanhã. A vaga de depois de amanhã foi antecipada para
+    // ontem e encerrou não concluída. Editar a partir de hoje não pode
+    // mudar o título dela no histórico (decisão 22).
+    const depois = d("2026-10-27");
+    const plano = planoDeEdicao(
+      HOJE,
+      diaria(HOJE),
+      [versao("v1", "2026-10-01", HOJE), versao("v2", AMANHA)],
+      [
+        oc("antecipada", depois, {
+          versaoId: "v2",
+          data: ONTEM,
+          estado: "nao_concluida",
+          ajustada: true,
+        }),
+        oc("normal", depois, { versaoId: "v2" }),
+      ],
+      null,
+    );
+    expect(plano.remover).toEqual([]);
+    expect(plano.fechar).toEqual([
+      { id: "v1", vigenteAte: ONTEM },
+      { id: "v2", vigenteAte: HOJE },
+    ]);
+    expect(plano.repontar).toEqual([{ id: "normal", limparAjuste: false }]);
+  });
+
   it("o passado fica com a versão antiga", () => {
     const plano = planoDeEdicao(
       HOJE,

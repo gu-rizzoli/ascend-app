@@ -38,3 +38,12 @@ jobs:
           DATABASE_URL: ${{ env.DATABASE_URL_TESTE }}
       - run: pnpm test
       - run: pnpm build
+      # Ponta a ponta (RNF-05): o build acima rodando contra o mesmo banco.
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright
+          path: test-results/
+          retention-days: 7

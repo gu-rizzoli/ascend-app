@@ -4,7 +4,7 @@ import { hoje } from "@/domain/datas";
 import { usuarioComDiasFechados } from "@/server/fechamento";
 
 import { AvisoNovoDia } from "./aviso-novo-dia";
-import { BarraDeAreas } from "./barra-de-areas";
+import { BarraDeAreas, Conteudo } from "./barra-de-areas";
 
 // Áreas logadas (RF-GLO-04). Antes de renderizar, fecha os dias vencidos
 // (fecharDiasVencidos, 11.5): é o "próximo acesso" que encerra o dia.
@@ -16,8 +16,9 @@ export default async function LayoutApp({
   const usuario = await usuarioComDiasFechados();
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col">
-      <header className="flex items-center justify-between px-4 pt-4">
+    <div className="mx-auto flex min-h-dvh max-w-md flex-col md:max-w-none md:pl-56">
+      {/* No computador o nome do app e a Conta ficam na barra lateral. */}
+      <header className="flex items-center justify-between px-4 pt-4 md:hidden">
         <span className="text-lg font-semibold tracking-tight">Ascend</span>
         <Link
           href="/conta"
@@ -28,9 +29,9 @@ export default async function LayoutApp({
         </Link>
       </header>
 
-      <div className="flex flex-1 flex-col px-4 pt-4 pb-28">{children}</div>
+      <Conteudo>{children}</Conteudo>
 
-      <BarraDeAreas />
+      <BarraDeAreas nome={usuario.nome} />
       <AvisoNovoDia hoje={hoje()} />
     </div>
   );

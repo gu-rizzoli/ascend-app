@@ -13,6 +13,7 @@ import { usuarioComDiasFechados } from "@/server/fechamento";
 import { listaDoDia, temAlgumaMeta } from "@/server/metas";
 import { projetoAtual, projetoEmFoco } from "@/server/projetos";
 import { classeBotao } from "@/ui/botao";
+import { BotaoFlutuante } from "@/ui/botao-flutuante";
 
 import { ProximoPasso, SeloPrazoVencido } from "../projetos/pecas";
 import { LinhaBinaria, LinhaNumerica, type Modo } from "./linhas";
@@ -210,15 +211,7 @@ export async function TelaDoDia({
       )}
 
       {editavel && temMeta && (
-        <div className="pointer-events-none fixed inset-x-0 bottom-20 z-10 mx-auto flex max-w-md justify-end px-4">
-          <Link
-            href={novaMeta}
-            aria-label="Nova meta"
-            className="pointer-events-auto flex size-14 items-center justify-center rounded-full bg-neutral-900 text-3xl leading-none text-white shadow-lg"
-          >
-            +
-          </Link>
-        </div>
+        <BotaoFlutuante href={novaMeta} rotulo="Nova meta" />
       )}
     </>
   );

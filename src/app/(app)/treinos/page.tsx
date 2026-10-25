@@ -6,8 +6,9 @@ import { rotuloDaData } from "@/domain/treinos";
 import { exigirUsuario } from "@/server/sessao";
 import { treinosDoUsuario } from "@/server/treinos";
 import { classeBotao } from "@/ui/botao";
+import { BotaoFlutuante } from "@/ui/botao-flutuante";
 
-import { AbasDeTreinos, BotaoFlutuante, tituloDoTreino } from "./abas";
+import { AbasDeTreinos, tituloDoTreino } from "./abas";
 
 export const metadata: Metadata = { title: "Treinos · Ascend" };
 

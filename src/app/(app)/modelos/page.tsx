@@ -4,8 +4,9 @@ import Link from "next/link";
 import { exigirUsuario } from "@/server/sessao";
 import { modelosDoUsuario } from "@/server/treinos";
 import { classeBotao } from "@/ui/botao";
+import { BotaoFlutuante } from "@/ui/botao-flutuante";
 
-import { AbasDeTreinos, BotaoFlutuante } from "../treinos/abas";
+import { AbasDeTreinos } from "../treinos/abas";
 
 export const metadata: Metadata = { title: "Modelos · Ascend" };
 
