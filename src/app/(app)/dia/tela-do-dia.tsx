@@ -13,6 +13,7 @@ import { listaDoDia, temAlgumaMeta } from "@/server/metas";
 import { classeBotao } from "@/ui/botao";
 
 import { LinhaBinaria, LinhaNumerica, type Modo } from "./linhas";
+import { SetaDoDia } from "./seta-do-dia";
 
 function enderecoDoDia(data: DataCivil, dataHoje: DataCivil): string {
   return data === dataHoje ? "/hoje" : `/dia/${data}`;
@@ -59,13 +60,12 @@ export async function TelaDoDia({
   return (
     <>
       <header className="flex items-center justify-between gap-2">
-        <Link
+        <SetaDoDia
           href={enderecoDoDia(somarDias(data, -1), dataHoje)}
-          aria-label="Dia anterior"
-          className="flex size-10 items-center justify-center rounded-full text-2xl text-neutral-600 hover:bg-neutral-100"
+          rotulo="Dia anterior"
         >
           ‹
-        </Link>
+        </SetaDoDia>
         <div className="text-center">
           {rotulo && (
             <p className="text-xs font-medium tracking-wide text-neutral-500 uppercase">
@@ -74,13 +74,12 @@ export async function TelaDoDia({
           )}
           <h1 className="text-xl font-semibold">{formatarDataLonga(data)}</h1>
         </div>
-        <Link
+        <SetaDoDia
           href={enderecoDoDia(somarDias(data, 1), dataHoje)}
-          aria-label="Próximo dia"
-          className="flex size-10 items-center justify-center rounded-full text-2xl text-neutral-600 hover:bg-neutral-100"
+          rotulo="Próximo dia"
         >
           ›
-        </Link>
+        </SetaDoDia>
       </header>
 
       <div className="mt-1 flex min-h-6 items-center justify-center gap-3 text-sm">
@@ -90,7 +89,7 @@ export async function TelaDoDia({
           </span>
         )}
         {data !== dataHoje && (
-          <Link href="/hoje" className="font-medium underline">
+          <Link href="/hoje" prefetch className="font-medium underline">
             Voltar para hoje
           </Link>
         )}

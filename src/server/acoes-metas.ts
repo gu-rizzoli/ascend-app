@@ -1,7 +1,7 @@
 "use server";
 
 import { and, eq } from "drizzle-orm";
-import { refresh } from "next/cache";
+import { refresh, revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
@@ -83,6 +83,9 @@ export async function criarMeta(
     });
   });
 
+  // A meta nova pode aparecer em muitos dias, inclusive nos vizinhos que a
+  // tela do dia já carregou em segundo plano: descarta essas cópias.
+  revalidatePath("/", "layout");
   redirect(enderecoDoDia(nova.regra.vigenteDe));
 }
 
