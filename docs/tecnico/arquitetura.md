@@ -118,6 +118,7 @@ Implementado na entrega 7 (RF-HIS-01 a 15), seguindo [Histórico](../produto/his
 - **Fechamento:** as telas chamam `usuarioComDiasFechados()` antes de ler, então um dia passado nunca aparece com pendentes.
 - **Correção:** a escrita saiu da Server Action para `corrigir()` em `src/server/correcao.ts`, que também tira a cópia pendente de uma original reagendada corrigida para concluída (decisão 21 dos fluxos de Metas) e avisa para revalidar os outros dias.
 - **Telas:** `/historico`, `/historico/lista` e `/historico/AAAA-MM-DD`. A aba Histórico da barra passa a funcionar.
+- **Abas instantâneas:** as 4 abas da barra usam prefetch completo, como as setas do dia, e o nome pulsa se o toque chegar antes. Qualquer outro link mostra o esqueleto de `src/app/(app)/loading.tsx` na hora. Por isso, toda escrita que muda outra área chama `revalidatePath("/", "layout")`, inclusive a correção retroativa, que muda o Histórico. Marcar uma meta de hoje ou do futuro continua com `refresh()`, porque o Histórico só mostra até ontem.
 
 ## Migrações em produção
 

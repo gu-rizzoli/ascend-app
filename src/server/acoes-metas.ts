@@ -184,14 +184,15 @@ async function corrigirOcorrencia(
     // "Antes de alterar uma ocorrência vencida" (11.5): o dia precisa estar
     // encerrado para a correção partir do estado final.
     await fecharSePreciso(usuario, dataHoje);
-    const { copiaRemovida } = await corrigir(
+    const { alterou } = await corrigir(
       usuario.id,
       ocorrenciaId,
       pedido,
       dataHoje,
     );
-    // A cópia reagendada fica em outro dia, que pode estar pré-carregado.
-    if (copiaRemovida) {
+    // A correção muda o Histórico, e a cópia reagendada fica em outro dia;
+    // as duas telas podem estar pré-carregadas.
+    if (alterou) {
       revalidatePath("/", "layout");
       return;
     }

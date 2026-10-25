@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 
 const AREAS = [
@@ -37,8 +37,11 @@ export function BarraDeAreas() {
       <ul className="mx-auto grid max-w-md grid-cols-4 text-center text-xs">
         {AREAS.map((area) => (
           <li key={area.href}>
+            {/* As abas são carregadas inteiras em segundo plano (prefetch):
+                o toque troca de área na hora. */}
             <Link
               href={area.href}
+              prefetch
               aria-current={
                 area.inclui.some((p) => caminho.startsWith(p))
                   ? "page"
@@ -46,11 +49,21 @@ export function BarraDeAreas() {
               }
               className="block py-4 text-neutral-500 aria-[current=page]:font-semibold aria-[current=page]:text-neutral-900"
             >
-              {area.nome}
+              <Nome>{area.nome}</Nome>
             </Link>
           </li>
         ))}
       </ul>
     </nav>
+  );
+}
+
+/** Se o toque chegar antes da área estar pronta, o nome pulsa até ela abrir. */
+function Nome({ children }: { children: React.ReactNode }) {
+  const { pending } = useLinkStatus();
+  return (
+    <span className={pending ? "animate-pulse opacity-50" : undefined}>
+      {children}
+    </span>
   );
 }
