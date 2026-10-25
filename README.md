@@ -86,7 +86,14 @@ Comandos úteis:
 | `pnpm db:generate` | Gera uma migração a partir de `src/db/schema.ts` |
 | `pnpm db:migrate` | Aplica as migrações no banco de `DATABASE_URL` (em produção roda sozinho no deploy) |
 
-O CI (GitHub Actions) roda formatação, lint, tipos, testes e build em cada pull request.
+Os testes de `tests/server` gravam num PostgreSQL de verdade e só rodam com `DATABASE_URL_TESTE` apontando para um banco local já migrado (nunca o Neon); sem ela, são pulados:
+
+```bash
+DATABASE_URL=postgresql://localhost/ascend_teste pnpm db:migrate
+DATABASE_URL_TESTE=postgresql://localhost/ascend_teste pnpm test
+```
+
+O CI (GitHub Actions) roda formatação, lint, tipos, testes (com um PostgreSQL descartável) e build em cada pull request.
 
 ## Próximos passos
 
