@@ -52,6 +52,7 @@ function edicao(parcial: Partial<EdicaoMeta> = {}): EdicaoMeta {
     descricao: null,
     valorAlvo: null,
     horario: null,
+    projetoId: null,
     frequencia: { frequencia: "diaria", diasSemana: null, intervaloDias: null },
     ...parcial,
   };

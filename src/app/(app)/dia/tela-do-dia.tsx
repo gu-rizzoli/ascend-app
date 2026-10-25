@@ -8,10 +8,13 @@ import {
   type DataCivil,
 } from "@/domain/datas";
 import { diaEditavel, resumoDoDia } from "@/domain/metas";
+import { prazoVencido } from "@/domain/projetos";
 import { usuarioComDiasFechados } from "@/server/fechamento";
 import { listaDoDia, temAlgumaMeta } from "@/server/metas";
+import { projetoAtual } from "@/server/projetos";
 import { classeBotao } from "@/ui/botao";
 
+import { ProximoPasso, SeloPrazoVencido } from "../projetos/pecas";
 import { LinhaBinaria, LinhaNumerica, type Modo } from "./linhas";
 import { SetaDoDia } from "./seta-do-dia";
 
@@ -47,9 +50,12 @@ export async function TelaDoDia({
   // metas pendentes.
   const usuario = await usuarioComDiasFechados();
   const dataHoje = hoje();
-  const [itens, temMeta] = await Promise.all([
+  // O projeto atual é de agora: aparece só em Hoje. O foco de outras datas
+  // é do Histórico (RF-HIS-09).
+  const [itens, temMeta, projeto] = await Promise.all([
     listaDoDia(usuario.id, data),
     temAlgumaMeta(usuario.id),
+    data === dataHoje ? projetoAtual(usuario.id) : null,
   ]);
   const editavel = diaEditavel(data, dataHoje);
   const modo: Modo = editavel ? "editar" : corrigindo ? "corrigir" : "ler";
@@ -99,6 +105,25 @@ export async function TelaDoDia({
           </Link>
         )}
       </div>
+
+      {projeto && (
+        // Projeto atual (fluxos-metas.md, "Tela Hoje", item 3).
+        <section className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2">
+          <div className="flex items-center gap-2">
+            <span aria-hidden="true" className="text-amber-500">
+              ★
+            </span>
+            <Link
+              href={`/projetos/${projeto.id}`}
+              className="min-w-0 truncate text-sm font-medium"
+            >
+              {projeto.nome}
+            </Link>
+            {prazoVencido(projeto, dataHoje) && <SeloPrazoVencido />}
+          </div>
+          <ProximoPasso projetoId={projeto.id} texto={projeto.proximoPasso} />
+        </section>
+      )}
 
       {modo === "ler" && (
         <div className="mt-4 flex items-center justify-between gap-3 rounded-lg bg-neutral-100 px-3 py-2 text-sm text-neutral-600">

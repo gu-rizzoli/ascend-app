@@ -9,7 +9,7 @@ import { editarMeta } from "@/server/acoes-recorrencia";
 import { Botao } from "@/ui/botao";
 import { Campo } from "@/ui/campo";
 
-import { CamposFrequencia, Erro } from "../../campos-meta";
+import { CampoProjeto, CamposFrequencia, Erro } from "../../campos-meta";
 import type { ContextoDaMeta } from "../../enderecos";
 
 /**
@@ -34,14 +34,19 @@ type Props = {
   pergunta: Pergunta;
   voltar: string;
   inicial: CamposEdicaoMeta;
+  projetos: { id: string; nome: string }[];
 };
 
-/** Descrição e frequência são da regra: mudá-las não cabe em "só esta". */
+/**
+ * Descrição, frequência e projeto são da regra: mudá-los não cabe em "só
+ * esta".
+ */
 function mudouARegra(form: HTMLFormElement, inicial: CamposEdicaoMeta) {
   const dados = new FormData(form);
   const texto = (campo: string) => String(dados.get(campo) ?? "").trim();
   const frequencia = texto("frequencia");
   if (texto("descricao") !== inicial.descricao.trim()) return true;
+  if (texto("projeto") !== inicial.projeto) return true;
   if (frequencia !== inicial.frequencia) return true;
   if (frequencia === "semanal") {
     const dias = dados.getAll("diasSemana").map(String).sort().join();
@@ -88,6 +93,7 @@ export function FormularioEdicao({
   pergunta,
   voltar,
   inicial,
+  projetos,
 }: Props) {
   const [estado, acao, enviando] = useActionState(editarMeta, {});
   const v = estado.valores ?? inicial;
@@ -174,6 +180,7 @@ export function FormularioEdicao({
         <>
           <input type="hidden" name="frequencia" value={inicial.frequencia} />
           <input type="hidden" name="descricao" value={inicial.descricao} />
+          <input type="hidden" name="projeto" value={inicial.projeto} />
           {inicial.diasSemana.map((d) => (
             <input key={d} type="hidden" name="diasSemana" value={d} />
           ))}
@@ -204,6 +211,15 @@ export function FormularioEdicao({
             />
             <Erro id="descricao-erro" texto={erros.descricao} />
           </label>
+          {projetos.length > 0 ? (
+            <CampoProjeto
+              projetos={projetos}
+              valor={v.projeto}
+              erro={erros.projeto}
+            />
+          ) : (
+            <input type="hidden" name="projeto" value="" />
+          )}
         </>
       )}
 
@@ -226,7 +242,8 @@ export function FormularioEdicao({
             </BotaoEscopo>
             {!perguntando.soEsta && (
               <p className="text-xs text-neutral-600">
-                Frequência e descrição só mudam para esta e as próximas.
+                Frequência, descrição e projeto só mudam para esta e as
+                próximas.
               </p>
             )}
             <BotaoEscopo escopo="proximas">Esta e as próximas</BotaoEscopo>

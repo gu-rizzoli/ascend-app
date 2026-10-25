@@ -79,6 +79,7 @@ describe("esquemaNovaMeta", () => {
     intervaloDias: "",
     horario: "",
     dataInicio: "2026-10-24",
+    projeto: "",
   };
   const validar = (campos: Partial<CamposNovaMeta>) =>
     esquemaNovaMeta(HOJE).safeParse({ ...base, ...campos });
@@ -96,6 +97,7 @@ describe("esquemaNovaMeta", () => {
       unidade: null,
       valorAlvo: null,
       horario: null,
+      projetoId: null,
       regra: {
         frequencia: "diaria",
         vigenteDe: "2026-10-24",
@@ -321,7 +323,20 @@ describe("esquemaEdicaoMeta", () => {
     diasSemana: [],
     intervaloDias: "",
     horario: "",
+    projeto: "",
     ...parcial,
+  });
+
+  it("o projeto é um id ou vazio", () => {
+    const id = "6f1c2b4e-8a9d-4c3b-9e2f-1a2b3c4d5e6f";
+    const r = esquemaEdicaoMeta("binaria", true).safeParse(
+      campos({ projeto: id }),
+    );
+    expect(r.success && r.data.projetoId).toBe(id);
+    expect(
+      esquemaEdicaoMeta("binaria", true).safeParse(campos({ projeto: "x" }))
+        .success,
+    ).toBe(false);
   });
 
   it("lê os campos que podem mudar", () => {
@@ -333,6 +348,7 @@ describe("esquemaEdicaoMeta", () => {
       descricao: null,
       valorAlvo: 2.5,
       horario: "07:30",
+      projetoId: null,
       frequencia: {
         frequencia: "diaria",
         diasSemana: null,

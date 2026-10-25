@@ -12,6 +12,7 @@ import { versaoDeReferencia } from "@/domain/vigencia";
 
 import { fecharSePreciso } from "./fechamento";
 import { metaDoUsuario } from "./metas";
+import { projetoValidoParaMeta } from "./projetos";
 import {
   adiar,
   editar,
@@ -83,12 +84,21 @@ export async function editarMeta(
     diasSemana: form.getAll("diasSemana").map(String),
     intervaloDias: texto(form, "intervaloDias"),
     horario: texto(form, "horario"),
+    projeto: texto(form, "projeto"),
   };
   const referencia = versaoDeReferencia(m.versoes, dataHoje);
   const recorrente = referencia?.frequencia !== "unica";
   const resultado = esquemaEdicaoMeta(m.tipo, recorrente).safeParse(valores);
   if (!resultado.success) {
     return { erros: errosPorCampo(resultado.error), valores };
+  }
+  const projetoValido = await projetoValidoParaMeta(
+    usuario.id,
+    resultado.data.projetoId,
+    referencia?.projetoId ?? null,
+  );
+  if (!projetoValido) {
+    return { erros: { projeto: "Escolha outro projeto." }, valores };
   }
 
   const escopo: Escopo =

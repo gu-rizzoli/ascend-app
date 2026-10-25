@@ -127,8 +127,8 @@ export const meta = pgTable(
  * fecham uma versão e abrem outra; as versões não se sobrepõem. Uma versão
  * que ainda não tinha começado quando a meta foi pausada fica vazia
  * (vigente_ate = vigente_de - 1): não gera nada, mas continua existindo para
- * as ocorrências que apontam para ela. O projeto associado (projeto_id) entra
- * com a tabela projeto, na entrega 5.
+ * as ocorrências que apontam para ela. O projeto associado é da versão: trocar
+ * de projeto em "esta e as próximas" não muda o passado.
  */
 export const metaVersao = pgTable(
   "meta_versao",
@@ -147,12 +147,17 @@ export const metaVersao = pgTable(
     frequencia: frequenciaMeta("frequencia").notNull(),
     diasSemana: smallint("dias_semana").array(),
     intervaloDias: integer("intervalo_dias"),
+    // Excluir o projeto tira a associação e mantém a meta (RF-PRO-12).
+    projetoId: uuid("projeto_id").references(() => projeto.id, {
+      onDelete: "set null",
+    }),
     criadoEm: timestamp("criado_em", { withTimezone: true })
       .notNull()
       .defaultNow(),
   },
   (t) => [
     index("meta_versao_meta_idx").on(t.metaId),
+    index("meta_versao_projeto_idx").on(t.projetoId),
     check(
       "meta_versao_vigencia",
       sql`${t.vigenteAte} is null or ${t.vigenteAte} >= ${t.vigenteDe} - 1`,
@@ -246,6 +251,77 @@ export const ocorrencia = pgTable(
     check(
       "ocorrencia_valor_atual",
       sql`${t.valorAtual} is null or ${t.valorAtual} >= 0`,
+    ),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// Projetos (docs/produto/projetos.md)
+
+export const statusProjeto = pgEnum("status_projeto", [
+  "planejado",
+  "em_andamento",
+  "pausado",
+  "concluido",
+  "arquivado",
+]);
+
+/** Um contexto de foco com status e próximo passo, sem tarefas (D-016, D-019). */
+export const projeto = pgTable(
+  "projeto",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    usuarioId: uuid("usuario_id")
+      .notNull()
+      .references(() => usuario.id, { onDelete: "restrict" }),
+    nome: text("nome").notNull(),
+    descricao: text("descricao"),
+    status: statusProjeto("status").notNull().default("em_andamento"),
+    proximoPasso: text("proximo_passo"),
+    dataInicio: date("data_inicio").notNull(),
+    prazo: date("prazo"),
+    criadoEm: timestamp("criado_em", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    atualizadoEm: timestamp("atualizado_em", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("projeto_usuario_idx").on(t.usuarioId),
+    check(
+      "projeto_prazo",
+      sql`${t.prazo} is null or ${t.prazo} >= ${t.dataInicio}`,
+    ),
+  ],
+);
+
+/**
+ * Cada troca de projeto atual (D-053). O atual é a última troca do usuário;
+ * o foco de uma data é a última troca com `data` até ela (RF-HIS-09). Não há
+ * coluna "atual" no projeto, então existe no máximo um por construção.
+ */
+export const projetoAtualTroca = pgTable(
+  "projeto_atual_troca",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    usuarioId: uuid("usuario_id")
+      .notNull()
+      .references(() => usuario.id, { onDelete: "restrict" }),
+    // Nulo = nenhum projeto atual. Excluir o projeto também deixa nulo.
+    projetoId: uuid("projeto_id").references(() => projeto.id, {
+      onDelete: "set null",
+    }),
+    data: date("data").notNull(),
+    criadoEm: timestamp("criado_em", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("projeto_atual_troca_usuario_idx").on(
+      t.usuarioId,
+      t.data,
+      t.criadoEm,
     ),
   ],
 );

@@ -9,13 +9,14 @@ import { criarMeta } from "@/server/acoes-metas";
 import { Botao } from "@/ui/botao";
 import { Campo } from "@/ui/campo";
 
-import { CamposFrequencia, Erro, Opcao } from "../campos-meta";
+import { CampoProjeto, CamposFrequencia, Erro, Opcao } from "../campos-meta";
 
 type Props = {
   dataAberta: DataCivil;
   hoje: DataCivil;
   frequenciaInicial: Frequencia;
   voltar: string;
+  projetos: { id: string; nome: string }[];
 };
 
 export function FormularioNovaMeta({
@@ -23,6 +24,7 @@ export function FormularioNovaMeta({
   hoje,
   frequenciaInicial,
   voltar,
+  projetos,
 }: Props) {
   const [estado, acao, enviando] = useActionState(criarMeta, {});
   const v = estado.valores;
@@ -34,7 +36,10 @@ export function FormularioNovaMeta({
   );
   const [maisOpcoes, setMaisOpcoes] = useState(false);
   const abrirMaisOpcoes =
-    maisOpcoes || Boolean(erros.descricao || erros.horario || erros.dataInicio);
+    maisOpcoes ||
+    Boolean(
+      erros.descricao || erros.horario || erros.dataInicio || erros.projeto,
+    );
 
   // Em "Dias da semana", o dia da data aberta já vem marcado.
   const diasMarcados = v?.diasSemana ?? [String(diaDaSemana(dataAberta))];
@@ -143,6 +148,13 @@ export function FormularioNovaMeta({
             defaultValue={v?.dataInicio ?? dataAberta}
             erro={erros.dataInicio}
           />
+          {projetos.length > 0 && (
+            <CampoProjeto
+              projetos={projetos}
+              valor={v?.projeto ?? ""}
+              erro={erros.projeto}
+            />
+          )}
         </div>
       </details>
 

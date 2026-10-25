@@ -4,6 +4,8 @@ import Link from "next/link";
 import { ehDataCivil, hoje } from "@/domain/datas";
 import { diaEditavel } from "@/domain/metas";
 import { frequenciaPadrao } from "@/domain/recorrencia";
+import { projetosParaAssociar } from "@/server/projetos";
+import { exigirUsuario } from "@/server/sessao";
 
 import { FormularioNovaMeta } from "./formulario";
 
@@ -13,6 +15,7 @@ type Props = { searchParams: Promise<{ data?: string | string[] }> };
 
 /** Criar meta (RF-MET-01 a 05). A data vem da lista que estava aberta. */
 export default async function PaginaNovaMeta({ searchParams }: Props) {
+  const usuario = await exigirUsuario();
   const { data: pedida } = await searchParams;
   const dataHoje = hoje();
   const data =
@@ -40,6 +43,7 @@ export default async function PaginaNovaMeta({ searchParams }: Props) {
         hoje={dataHoje}
         frequenciaInicial={frequenciaPadrao(data, dataHoje)}
         voltar={voltar}
+        projetos={await projetosParaAssociar(usuario.id)}
       />
     </>
   );
