@@ -76,6 +76,16 @@ Implementado na entrega 3 (RF-MET-11, 12, RF-GLO-10).
 - **Virada da meia-noite:** com o app aberto, o próximo toque no dia anterior é ignorado, a tela recarrega já no dia novo e o aviso "Um novo dia começou" aparece por alguns segundos.
 - **Correção:** `/dia/AAAA-MM-DD?corrigir=1`. As ações `corrigirConclusao()` e `corrigirValor()` recebem o id da ocorrência, conferem o dono e se a data é anterior a hoje, fecham os dias vencidos antes e marcam `corrigida_apos_encerramento`. Uma correção que não muda nada não marca a ocorrência.
 
+## Recorrência completa
+
+Implementado na entrega 4 (RF-MET-09, 10, 13), seguindo a seção "Recorrência" dos [fluxos de Metas](../produto/fluxos-metas.md).
+
+- **Planos puros:** `src/domain/vigencia.ts` decide o que muda sem tocar no banco: `planoDeEdicao()` ("esta e as próximas"), `planoDeEncerramento()` (pausar e excluir), `planoDeReativacao()`, `ajusteSoEsta()`, `podeAdiar()` e `podeReagendar()`. Os testes cobrem cada regra dos fluxos.
+- **Escritas:** `src/server/recorrencia.ts` aplica os planos numa transação, com a linha da meta travada (`FOR UPDATE`). As Server Actions ficam em `src/server/acoes-recorrencia.ts`, conferem o dono, fecham os dias vencidos antes e chamam `revalidatePath("/", "layout")`, porque mudam muitos dias de uma vez.
+- **Versão vazia:** pausar uma regra que ainda não começou deixa a versão com `vigente_ate = vigente_de − 1` em vez de apagá-la, porque ocorrências podem apontar para ela. A restrição `meta_versao_vigencia` aceita esse caso (migração 0002).
+- **Telas:** o título de cada linha abre `/metas/:id?dia=…&vaga=…` (ou `&ocorrencia=…` numa reagendada). A edição fica em `/metas/:id/editar`, com o mesmo contexto. `/metas` lista recorrentes, datas marcadas e pausadas.
+- **Reagendadas:** não ocupam vaga da regra, então as ações de marcar e somar recebem uma referência (`RefOcorrencia`) que é a vaga ou o id da ocorrência.
+
 ## Migrações em produção
 
 O deploy de produção no Netlify roda `pnpm db:migrate` antes do build (`netlify.toml`). Assim o banco é atualizado no momento do merge na `main`. Se a migração falhar, o build para e a versão anterior continua no ar.

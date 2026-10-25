@@ -8,7 +8,7 @@ import { z } from "zod";
 import { db } from "@/db";
 import { meta, metaVersao, ocorrencia } from "@/db/schema";
 import { errosPorCampo, type ErrosDeCampo } from "@/domain/conta";
-import { ehDataCivil, hoje, type DataCivil } from "@/domain/datas";
+import { hoje, type DataCivil } from "@/domain/datas";
 import { diaCorrigivel, estadoCorrigido } from "@/domain/fechamento";
 import {
   diaEditavel,
@@ -17,10 +17,11 @@ import {
   lerNumero,
   VALOR_MAXIMO,
   type CamposNovaMeta,
+  type RefOcorrencia,
 } from "@/domain/metas";
 
 import { fecharSePreciso } from "./fechamento";
-import { garantirOcorrencia, type OcorrenciaParaAlterar } from "./metas";
+import { ocorrenciaDaRef, type OcorrenciaParaAlterar } from "./metas";
 import { exigirUsuario } from "./sessao";
 
 export type EstadoNovaMeta = {
@@ -91,49 +92,37 @@ export async function criarMeta(
 
 // ---------------------------------------------------------------------------
 // Marcar e somar valor (RF-MET-07, 08). A vaga é gravada na primeira vez que
-// é tocada; datas futuras também valem (fluxos-metas.md, decisão 2).
-
-const vaga = z.object({
-  metaId: z.uuid(),
-  dataPrevista: z.string().refine(ehDataCivil),
-});
+// é tocada; datas futuras também valem (fluxos-metas.md, decisão 2). Uma
+// reagendada é achada pelo id, porque não ocupa vaga da regra.
 
 /**
- * Roda `alterar` sobre a ocorrência da vaga, numa transação. Se a data já
+ * Roda `alterar` sobre a ocorrência da linha, numa transação. Se a data já
  * passou (o dia virou com a tela aberta), não grava nada: a tela recarrega e
  * mostra o dia como só leitura.
  */
 async function alterarOcorrencia(
-  metaId: string,
-  dataPrevista: string,
+  ref: RefOcorrencia,
   alterar: (
     o: OcorrenciaParaAlterar,
   ) => Partial<typeof ocorrencia.$inferInsert> | null,
 ): Promise<void> {
   const usuario = await exigirUsuario();
-  const entrada = vaga.safeParse({ metaId, dataPrevista });
-  if (entrada.success) {
-    const data = entrada.data.dataPrevista as DataCivil;
-    await db().transaction(async (tx) => {
-      const o = await garantirOcorrencia(tx, usuario.id, metaId, data);
-      if (!o || !diaEditavel(o.data, hoje())) return;
-      const mudanca = alterar(o);
-      if (!mudanca) return;
-      await tx
-        .update(ocorrencia)
-        .set({ ...mudanca, atualizadoEm: new Date() })
-        .where(eq(ocorrencia.id, o.id));
-    });
-  }
+  await db().transaction(async (tx) => {
+    const o = await ocorrenciaDaRef(tx, usuario.id, ref);
+    if (!o || !diaEditavel(o.data, hoje())) return;
+    const mudanca = alterar(o);
+    if (!mudanca) return;
+    await tx
+      .update(ocorrencia)
+      .set({ ...mudanca, atualizadoEm: new Date() })
+      .where(eq(ocorrencia.id, o.id));
+  });
   refresh();
 }
 
 /** Binária: um toque conclui, outro volta a pendente. */
-export async function alternarConclusao(
-  metaId: string,
-  dataPrevista: string,
-): Promise<void> {
-  await alterarOcorrencia(metaId, dataPrevista, (o) => {
+export async function alternarConclusao(ref: RefOcorrencia): Promise<void> {
+  await alterarOcorrencia(ref, (o) => {
     if (o.tipo !== "binaria") return null;
     return o.estado === "concluida"
       ? { estado: "pendente", concluidaEm: null }
@@ -156,26 +145,22 @@ function comValor(o: OcorrenciaParaAlterar, valor: number) {
 
 /** Numérica: soma um incremento ao valor atual. */
 export async function somarValor(
-  metaId: string,
-  dataPrevista: string,
+  ref: RefOcorrencia,
   incremento: string,
 ): Promise<void> {
   const n = lerNumero(incremento);
-  await alterarOcorrencia(metaId, dataPrevista, (o) =>
+  await alterarOcorrencia(ref, (o) =>
     n === null || n === 0 ? null : comValor(o, (o.valorAtual ?? 0) + n),
   );
 }
 
 /** Numérica: troca o valor atual por um novo total, que pode ser menor. */
 export async function definirValor(
-  metaId: string,
-  dataPrevista: string,
+  ref: RefOcorrencia,
   total: string,
 ): Promise<void> {
   const n = lerNumero(total);
-  await alterarOcorrencia(metaId, dataPrevista, (o) =>
-    n === null ? null : comValor(o, n),
-  );
+  await alterarOcorrencia(ref, (o) => (n === null ? null : comValor(o, n)));
 }
 
 // ---------------------------------------------------------------------------

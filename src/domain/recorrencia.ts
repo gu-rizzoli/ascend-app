@@ -1,4 +1,9 @@
-import { diaDaSemana, diferencaEmDias, type DataCivil } from "./datas";
+import {
+  diaDaSemana,
+  diferencaEmDias,
+  formatarDataCurta,
+  type DataCivil,
+} from "./datas";
 
 /**
  * Frequências do MVP (7.4). `unica` acontece só em `vigenteDe`; as outras se
@@ -56,4 +61,27 @@ export function frequenciaPadrao(
   hoje: DataCivil,
 ): Frequencia {
   return dataAberta > hoje ? "unica" : "diaria";
+}
+
+const DIAS_CURTOS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+
+/** Ex.: "Todo dia", "Seg, Qua e Sex", "A cada 3 dias", "Só em 28/10". */
+export function descreverFrequencia(regra: Regra): string {
+  switch (regra.frequencia) {
+    case "unica":
+      return `Só em ${formatarDataCurta(regra.vigenteDe)}`;
+    case "diaria":
+      return "Todo dia";
+    case "semanal": {
+      const dias = [...(regra.diasSemana ?? [])].sort();
+      if (dias.length === 7) return "Todo dia";
+      if (dias.join() === "1,2,3,4,5") return "Segunda a sexta";
+      const nomes = dias.map((d) => DIAS_CURTOS[d]);
+      return nomes.length === 1
+        ? nomes[0]!
+        : `${nomes.slice(0, -1).join(", ")} e ${nomes.at(-1)}`;
+    }
+    case "intervalo":
+      return `A cada ${regra.intervaloDias} dias`;
+  }
 }

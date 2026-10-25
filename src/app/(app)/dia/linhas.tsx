@@ -1,11 +1,14 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useOptimistic, useState, useTransition } from "react";
 
+import { formatarDataCurta, type DataCivil } from "@/domain/datas";
 import {
   formatarNumero,
   lerNumero,
   progresso,
+  refDoItem,
   type EstadoOcorrencia,
   type ItemDoDia,
 } from "@/domain/metas";
@@ -17,37 +20,61 @@ import {
   somarValor,
 } from "@/server/acoes-metas";
 
+import { contextoDoItem, enderecoDoDetalhe } from "../metas/enderecos";
+
 /**
  * editar: hoje e datas futuras. ler: dia encerrado. corrigir: dia encerrado
  * aberto com o botão Corrigir (RF-MET-12).
  */
 export type Modo = "editar" | "ler" | "corrigir";
 
-type Props = { item: ItemDoDia; modo: Modo };
+// `dia` é a data da lista, para o detalhe saber para onde voltar.
+type Props = { item: ItemDoDia; modo: Modo; dia: DataCivil };
 
-/** Editar mexe na vaga (meta, data prevista); corrigir, na ocorrência gravada. */
+/**
+ * Editar mexe na vaga (meta, data prevista) ou, numa reagendada, na
+ * ocorrência; corrigir, sempre na ocorrência gravada.
+ */
 function podeTocar(item: ItemDoDia, modo: Modo): boolean {
-  if (modo === "editar") return item.dataPrevista !== null;
+  if (modo === "editar") return true;
   if (modo === "corrigir") return item.ocorrenciaId !== null;
   return false;
 }
 
-/** Horário, "Não concluída" e o selo de corrigida, numa linha discreta. */
+/** Horário, "Não concluída" e os selos, numa linha discreta. */
 function Detalhes({
-  horario,
+  item,
   estado,
   corrigida,
 }: {
-  horario: string | null;
+  item: ItemDoDia;
   estado: EstadoOcorrencia;
   corrigida: boolean;
 }) {
   const naoConcluida = estado === "nao_concluida";
-  if (!horario && !naoConcluida && !corrigida) return null;
+  const { horario, reagendadaDe, reagendadaPara } = item;
+  if (
+    !horario &&
+    !naoConcluida &&
+    !corrigida &&
+    !reagendadaDe &&
+    !reagendadaPara
+  )
+    return null;
   return (
-    <span className="flex flex-wrap items-center gap-x-2 text-xs text-neutral-500">
+    <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-neutral-500">
       {horario && <span className="tabular-nums">{horario}</span>}
       {naoConcluida && <span>Não concluída</span>}
+      {reagendadaDe && (
+        <span className="rounded bg-neutral-200 px-1.5 py-0.5 text-neutral-700">
+          Reagendada de {formatarDataCurta(reagendadaDe)}
+        </span>
+      )}
+      {reagendadaPara && (
+        <span className="rounded bg-neutral-200 px-1.5 py-0.5 text-neutral-700">
+          Reagendada para {formatarDataCurta(reagendadaPara)}
+        </span>
+      )}
       {corrigida && (
         <span className="rounded bg-amber-100 px-1.5 py-0.5 text-amber-900">
           Corrigida
@@ -86,7 +113,7 @@ function Marca({ concluida }: { concluida: boolean }) {
  * Binária: um toque conclui, outro desmarca, salvando na hora. Num dia em
  * correção, alterna entre concluída e não concluída.
  */
-export function LinhaBinaria({ item, modo }: Props) {
+export function LinhaBinaria({ item, modo, dia }: Props) {
   const [estado, mudarEstado] = useOptimistic(item.estado);
   const [corrigida, marcarCorrigida] = useOptimistic(item.corrigida);
   const [, iniciar] = useTransition();
@@ -100,35 +127,35 @@ export function LinhaBinaria({ item, modo }: Props) {
         await corrigirConclusao(item.ocorrenciaId!, !concluida);
       } else {
         mudarEstado(concluida ? "pendente" : "concluida");
-        await alternarConclusao(item.metaId, item.dataPrevista!);
+        await alternarConclusao(refDoItem(item));
       }
     });
   }
 
   return (
-    <li>
+    <li className="flex items-center gap-3 py-3.5">
       <button
         type="button"
         role="checkbox"
         aria-checked={concluida}
+        aria-label={item.titulo}
         disabled={!podeTocar(item, modo)}
         onClick={alternar}
-        className="flex w-full items-center gap-3 py-3.5 text-left disabled:cursor-default"
+        className="-m-2 p-2 disabled:cursor-default"
       >
         <Marca concluida={concluida} />
-        <span className="flex min-w-0 flex-1 flex-col">
-          <span
-            className={concluida ? "text-neutral-500 line-through" : undefined}
-          >
-            {item.titulo}
-          </span>
-          <Detalhes
-            horario={item.horario}
-            estado={estado}
-            corrigida={corrigida}
-          />
-        </span>
       </button>
+      <Link
+        href={enderecoDoDetalhe(item.metaId, contextoDoItem(item, dia))}
+        className="flex min-w-0 flex-1 flex-col"
+      >
+        <span
+          className={concluida ? "text-neutral-500 line-through" : undefined}
+        >
+          {item.titulo}
+        </span>
+        <Detalhes item={item} estado={estado} corrigida={corrigida} />
+      </Link>
     </li>
   );
 }
@@ -145,7 +172,7 @@ const paraCampo = (valor: number) =>
  * um valor errado (fluxos-metas.md). Num dia em correção, o painel mostra só o
  * campo do total corrigido.
  */
-export function LinhaNumerica({ item, modo }: Props) {
+export function LinhaNumerica({ item, modo, dia }: Props) {
   const alvo = item.valorAlvo ?? 0;
   const unidade = item.unidade ?? "";
   const corrigindo = modo === "corrigir";
@@ -190,7 +217,7 @@ export function LinhaNumerica({ item, modo }: Props) {
     setTotalDigitado(paraCampo(valor + incremento));
     iniciar(async () => {
       mudarValor(valor + incremento);
-      await somarValor(item.metaId, item.dataPrevista!, String(incremento));
+      await somarValor(refDoItem(item), String(incremento));
     });
   }
 
@@ -201,7 +228,7 @@ export function LinhaNumerica({ item, modo }: Props) {
         marcarCorrigida(true);
         await corrigirValor(item.ocorrenciaId!, String(total));
       } else {
-        await definirValor(item.metaId, item.dataPrevista!, String(total));
+        await definirValor(refDoItem(item), String(total));
       }
     });
   }
@@ -222,14 +249,13 @@ export function LinhaNumerica({ item, modo }: Props) {
         <Marca concluida={concluida} />
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           <div className="flex items-baseline justify-between gap-2">
-            <span className="flex min-w-0 flex-col">
+            <Link
+              href={enderecoDoDetalhe(item.metaId, contextoDoItem(item, dia))}
+              className="flex min-w-0 flex-col"
+            >
               <span>{item.titulo}</span>
-              <Detalhes
-                horario={item.horario}
-                estado={estado}
-                corrigida={corrigida}
-              />
-            </span>
+              <Detalhes item={item} estado={estado} corrigida={corrigida} />
+            </Link>
             <span className="shrink-0 text-sm text-neutral-600 tabular-nums">
               {formatarNumero(valor)} / {formatarNumero(alvo)} {unidade}
             </span>

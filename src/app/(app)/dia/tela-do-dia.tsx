@@ -93,6 +93,11 @@ export async function TelaDoDia({
             Voltar para hoje
           </Link>
         )}
+        {temMeta && (
+          <Link href="/metas" className="text-neutral-600 underline">
+            Todas as metas
+          </Link>
+        )}
       </div>
 
       {modo === "ler" && (
@@ -128,9 +133,19 @@ export async function TelaDoDia({
         <ul className="mt-4 divide-y divide-neutral-200">
           {itens.map((item) =>
             item.tipo === "numerica" ? (
-              <LinhaNumerica key={item.chave} item={item} modo={modo} />
+              <LinhaNumerica
+                key={item.chave}
+                item={item}
+                modo={modo}
+                dia={data}
+              />
             ) : (
-              <LinhaBinaria key={item.chave} item={item} modo={modo} />
+              <LinhaBinaria
+                key={item.chave}
+                item={item}
+                modo={modo}
+                dia={data}
+              />
             ),
           )}
         </ul>

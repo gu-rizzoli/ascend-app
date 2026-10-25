@@ -163,3 +163,21 @@ A principal decisão é **materializar ocorrências só quando necessário**. Da
 | 6 | Reagendar vs. mudar a data | Reagendar só para não concluídas. Uma pendente de hoje é adiada mudando a data ("só esta"), sem registrar falha |
 | 7 | "Esta e as próximas" com ajustes individuais | Os ajustes individuais são mantidos |
 | 8 | Futuras ao pausar | Pendentes já ajustadas são apagadas; concluídas antecipadamente são mantidas |
+
+## Detalhes definidos na entrega 4 (25/10/2026)
+
+Pontos que os fluxos acima não fechavam e que a entrega 4 precisou decidir. Todos podem ser revistos na revisão da PR.
+
+| # | Situação | Como ficou |
+| --- | --- | --- |
+| 9 | Tocar numa meta da lista | A bolinha marca e desmarca. O título abre o detalhe, com editar, mudar a data, reagendar, pausar e excluir |
+| 10 | O que "só esta" muda | Título, horário e alvo. Descrição e frequência são da regra e só mudam em "esta e as próximas". Tirar o horário de uma só ocorrência também não dá: isso é feito em "esta e as próximas" |
+| 11 | Ocorrência editada com "esta e as próximas" | Ela segue a regra nova e perde os ajustes que tinha, porque a tela mostrou os valores dela e você os salvou como a regra |
+| 12 | Nova regra que não cai mais numa data já mexida | Ocorrência futura intocada some. Se já tiver valor ou conclusão, fica |
+| 13 | Recorrente vira "Só nesta data"? | Não. Para encerrar uma recorrente existem Pausar e Excluir. Uma meta de ocorrência única pode virar recorrente |
+| 14 | Editar a partir de Todas as metas | Vale de hoje em diante (ou da data de início, se a meta ainda não começou), sem a pergunta |
+| 15 | Pausar meta de ocorrência única | Não aparece: pausar é só para recorrentes |
+| 16 | Excluir e o futuro | O futuro todo sai, inclusive o que foi concluído antes da data. Uma meta que fica sem nenhuma ocorrência gravada não tem história e é apagada de verdade |
+| 17 | Reagendar duas vezes | Cada não concluída é reagendada uma vez. Se a nova também falhar, ela pode ser reagendada |
+| 18 | Mudar a data | Vale para pendentes de hoje e do futuro, inclusive reagendadas. Com atalhos "Hoje" e "Amanhã" e um calendário, como no reagendamento |
+| 19 | Reativar no mesmo dia da pausa | A regra volta como estava, sem versão nova. Depois de dias pausados, nasce uma versão nova a partir de hoje |

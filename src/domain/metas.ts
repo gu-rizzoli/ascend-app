@@ -1,7 +1,12 @@
 import { z } from "zod";
 
 import { ehDataCivil, type DataCivil } from "./datas";
-import { caiNaData, FREQUENCIAS, type Regra } from "./recorrencia";
+import {
+  caiNaData,
+  FREQUENCIAS,
+  type Frequencia,
+  type Regra,
+} from "./recorrencia";
 
 /** Regras de Metas (7.2 a 7.9) que não dependem de banco nem de tela. */
 
@@ -73,6 +78,75 @@ export type NovaMeta = {
   regra: Regra;
 };
 
+type Problema<C> = (campo: keyof C, mensagem: string) => void;
+
+function lerAlvo(
+  texto: string,
+  problema: Problema<{ valorAlvo: string }>,
+): number | null {
+  const valorAlvo = lerNumero(texto);
+  if (valorAlvo === null || valorAlvo <= 0) {
+    problema("valorAlvo", "Digite um alvo maior que zero.");
+  } else if (valorAlvo > VALOR_MAXIMO) {
+    problema("valorAlvo", "Alvo grande demais.");
+  }
+  return valorAlvo;
+}
+
+type CamposFrequencia = {
+  frequencia: Frequencia;
+  diasSemana: string[];
+  intervaloDias: string;
+};
+
+function lerFrequencia(
+  c: CamposFrequencia,
+  problema: Problema<CamposFrequencia>,
+): Pick<Regra, "frequencia" | "diasSemana" | "intervaloDias"> {
+  let diasSemana: number[] | null = null;
+  if (c.frequencia === "semanal") {
+    diasSemana = [...new Set(c.diasSemana.map(Number))]
+      .filter((d) => Number.isInteger(d) && d >= 0 && d <= 6)
+      .sort();
+    if (diasSemana.length === 0) {
+      problema("diasSemana", "Escolha pelo menos um dia.");
+    }
+  }
+
+  let intervaloDias: number | null = null;
+  if (c.frequencia === "intervalo") {
+    intervaloDias = Number(c.intervaloDias);
+    if (
+      !/^\d+$/.test(c.intervaloDias) ||
+      intervaloDias < 2 ||
+      intervaloDias > INTERVALO_MAXIMO
+    ) {
+      problema("intervaloDias", `Digite um número de 2 a ${INTERVALO_MAXIMO}.`);
+    }
+  }
+  return { frequencia: c.frequencia, diasSemana, intervaloDias };
+}
+
+const camposComuns = {
+  titulo: z
+    .string()
+    .trim()
+    .min(1, "Digite um título.")
+    .max(TITULO_MAXIMO, `Use no máximo ${TITULO_MAXIMO} caracteres.`),
+  descricao: textoOpcional(
+    DESCRICAO_MAXIMA,
+    `Use no máximo ${DESCRICAO_MAXIMA} caracteres.`,
+  ),
+  valorAlvo: z.string(),
+  frequencia: z.enum(FREQUENCIAS, "Escolha a frequência."),
+  diasSemana: z.array(z.string()),
+  intervaloDias: z.string().trim(),
+  horario: z
+    .string()
+    .trim()
+    .refine((v) => v === "" || HORARIO.test(v), "Horário inválido."),
+};
+
 /**
  * Valida o formulário de nova meta. `hoje` vem de fora porque a data de
  * início não pode ficar no passado: dias passados são só leitura.
@@ -80,25 +154,9 @@ export type NovaMeta = {
 export function esquemaNovaMeta(hoje: DataCivil) {
   return z
     .object({
-      titulo: z
-        .string()
-        .trim()
-        .min(1, "Digite um título.")
-        .max(TITULO_MAXIMO, `Use no máximo ${TITULO_MAXIMO} caracteres.`),
-      descricao: textoOpcional(
-        DESCRICAO_MAXIMA,
-        `Use no máximo ${DESCRICAO_MAXIMA} caracteres.`,
-      ),
+      ...camposComuns,
       tipo: z.enum(TIPOS, "Escolha o tipo."),
-      valorAlvo: z.string(),
       unidade: z.string().trim(),
-      frequencia: z.enum(FREQUENCIAS, "Escolha a frequência."),
-      diasSemana: z.array(z.string()),
-      intervaloDias: z.string().trim(),
-      horario: z
-        .string()
-        .trim()
-        .refine((v) => v === "" || HORARIO.test(v), "Horário inválido."),
       dataInicio: z
         .string()
         .refine(ehDataCivil, "Escolha uma data válida.")
@@ -107,47 +165,16 @@ export function esquemaNovaMeta(hoje: DataCivil) {
     .transform((c, ctx): NovaMeta => {
       const problema = (campo: keyof CamposNovaMeta, message: string) => {
         ctx.addIssue({ code: "custom", path: [campo], message });
-        return z.NEVER;
       };
 
       let valorAlvo: number | null = null;
       let unidade: string | null = null;
       if (c.tipo === "numerica") {
-        valorAlvo = lerNumero(c.valorAlvo);
-        if (valorAlvo === null || valorAlvo <= 0) {
-          problema("valorAlvo", "Digite um alvo maior que zero.");
-        } else if (valorAlvo > VALOR_MAXIMO) {
-          problema("valorAlvo", "Alvo grande demais.");
-        }
+        valorAlvo = lerAlvo(c.valorAlvo, problema);
         unidade = c.unidade;
         if (unidade === "") problema("unidade", "Digite a unidade, ex.: L.");
         else if (unidade.length > UNIDADE_MAXIMA) {
           problema("unidade", `Use no máximo ${UNIDADE_MAXIMA} caracteres.`);
-        }
-      }
-
-      let diasSemana: number[] | null = null;
-      if (c.frequencia === "semanal") {
-        diasSemana = [...new Set(c.diasSemana.map(Number))]
-          .filter((d) => Number.isInteger(d) && d >= 0 && d <= 6)
-          .sort();
-        if (diasSemana.length === 0) {
-          problema("diasSemana", "Escolha pelo menos um dia.");
-        }
-      }
-
-      let intervaloDias: number | null = null;
-      if (c.frequencia === "intervalo") {
-        intervaloDias = Number(c.intervaloDias);
-        if (
-          !/^\d+$/.test(c.intervaloDias) ||
-          intervaloDias < 2 ||
-          intervaloDias > INTERVALO_MAXIMO
-        ) {
-          problema(
-            "intervaloDias",
-            `Digite um número de 2 a ${INTERVALO_MAXIMO}.`,
-          );
         }
       }
 
@@ -160,15 +187,57 @@ export function esquemaNovaMeta(hoje: DataCivil) {
         valorAlvo,
         horario: c.horario === "" ? null : c.horario,
         regra: {
-          frequencia: c.frequencia,
+          ...lerFrequencia(c, problema),
           vigenteDe,
           // A ocorrência única já nasce com a vigência fechada no mesmo dia.
           vigenteAte: c.frequencia === "unica" ? vigenteDe : null,
-          diasSemana,
-          intervaloDias,
         },
       };
     });
+}
+
+// ---------------------------------------------------------------------------
+// Editar meta (RF-MET-09). Tipo e unidade não mudam: trocar de tipo é criar
+// outra meta (modelo-dados-metas.md).
+
+/** Campos crus do formulário de edição, todos como texto. */
+export type CamposEdicaoMeta = Omit<
+  CamposNovaMeta,
+  "tipo" | "unidade" | "dataInicio"
+>;
+
+/** O que a edição pode mudar. A vigência é decidida por quem grava. */
+export type EdicaoMeta = {
+  titulo: string;
+  descricao: string | null;
+  valorAlvo: number | null;
+  horario: string | null;
+  frequencia: Pick<Regra, "frequencia" | "diasSemana" | "intervaloDias">;
+};
+
+/**
+ * Valida o formulário de edição. Uma meta recorrente não vira "Só nesta
+ * data": para encerrá-la existem Pausar e Excluir.
+ */
+export function esquemaEdicaoMeta(tipo: TipoMeta, recorrente: boolean) {
+  return z.object(camposComuns).transform((c, ctx): EdicaoMeta => {
+    const problema = (campo: keyof CamposEdicaoMeta, message: string) => {
+      ctx.addIssue({ code: "custom", path: [campo], message });
+    };
+    if (recorrente && c.frequencia === "unica") {
+      problema(
+        "frequencia",
+        "Para encerrar uma meta recorrente, use Pausar ou Excluir.",
+      );
+    }
+    return {
+      titulo: c.titulo,
+      descricao: c.descricao,
+      valorAlvo: tipo === "numerica" ? lerAlvo(c.valorAlvo, problema) : null,
+      horario: c.horario === "" ? null : c.horario,
+      frequencia: lerFrequencia(c, problema),
+    };
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -223,6 +292,9 @@ export type OcorrenciaGravada = {
   estado: EstadoOcorrencia;
   valorAtual: number | null;
   corrigida: boolean;
+  // Datas do vínculo de reagendamento (RF-MET-13), para os selos.
+  reagendadaDe: DataCivil | null;
+  reagendadaPara: DataCivil | null;
   versao: { titulo: string; horario: string | null; valorAlvo: number | null };
   // Ajustes de "só esta": quando preenchidos, prevalecem sobre a versão.
   ajuste: {
@@ -248,6 +320,9 @@ export type ItemDoDia = {
   estado: EstadoOcorrencia;
   // Alterada depois do encerramento do dia (RF-MET-12): aparece como selo.
   corrigida: boolean;
+  // "Reagendada de 12/07" na nova, "reagendada para 15/07" na original.
+  reagendadaDe: DataCivil | null;
+  reagendadaPara: DataCivil | null;
 };
 
 const chaveDaVaga = (metaId: string, dataPrevista: DataCivil) =>
@@ -270,46 +345,74 @@ export function montarListaDoDia(
       .map((g) => chaveDaVaga(g.metaId, data)),
   );
 
-  const itens: ItemDoDia[] = gravadas
-    .filter((g) => g.data === data)
-    .map((g) => ({
-      // A mesma chave da vaga virtual: gravar a vaga não remonta a linha.
-      chave: g.dataPrevista ? chaveDaVaga(g.metaId, g.dataPrevista) : g.id,
-      metaId: g.metaId,
-      dataPrevista: g.dataPrevista,
-      ocorrenciaId: g.id,
-      tipo: g.tipo,
-      unidade: g.unidade,
-      titulo: g.ajuste.titulo ?? g.versao.titulo,
-      horario: g.ajuste.horario ?? g.versao.horario,
-      valorAlvo: g.ajuste.valorAlvo ?? g.versao.valorAlvo,
-      valorAtual: g.valorAtual,
-      estado: g.estado,
-      corrigida: g.corrigida,
-    }));
+  const itens = gravadas.filter((g) => g.data === data).map(itemDaGravada);
 
   for (const v of versoes) {
     if (!caiNaData(v.regra, data)) continue;
     const chave = chaveDaVaga(v.metaId, data);
     if (ocupadas.has(chave)) continue;
     ocupadas.add(chave);
-    itens.push({
-      chave,
-      metaId: v.metaId,
-      dataPrevista: data,
-      ocorrenciaId: null,
-      tipo: v.tipo,
-      unidade: v.unidade,
-      titulo: v.titulo,
-      horario: v.horario,
-      valorAlvo: v.valorAlvo,
-      valorAtual: v.tipo === "numerica" ? 0 : null,
-      estado: "pendente",
-      corrigida: false,
-    });
+    itens.push(itemDaVaga(v, data));
   }
 
   return ordenarItens(itens);
+}
+
+/** A linha de uma ocorrência gravada, com os ajustes de "só esta" aplicados. */
+export function itemDaGravada(g: OcorrenciaGravada): ItemDoDia {
+  return {
+    // A mesma chave da vaga virtual: gravar a vaga não remonta a linha.
+    chave: g.dataPrevista ? chaveDaVaga(g.metaId, g.dataPrevista) : g.id,
+    metaId: g.metaId,
+    dataPrevista: g.dataPrevista,
+    ocorrenciaId: g.id,
+    tipo: g.tipo,
+    unidade: g.unidade,
+    titulo: g.ajuste.titulo ?? g.versao.titulo,
+    horario: g.ajuste.horario ?? g.versao.horario,
+    valorAlvo: g.ajuste.valorAlvo ?? g.versao.valorAlvo,
+    valorAtual: g.valorAtual,
+    estado: g.estado,
+    corrigida: g.corrigida,
+    reagendadaDe: g.reagendadaDe,
+    reagendadaPara: g.reagendadaPara,
+  };
+}
+
+/** A linha de uma vaga que a regra calcula e ninguém mexeu ainda. */
+export function itemDaVaga(v: VersaoDoDia, data: DataCivil): ItemDoDia {
+  return {
+    chave: chaveDaVaga(v.metaId, data),
+    metaId: v.metaId,
+    dataPrevista: data,
+    ocorrenciaId: null,
+    tipo: v.tipo,
+    unidade: v.unidade,
+    titulo: v.titulo,
+    horario: v.horario,
+    valorAlvo: v.valorAlvo,
+    valorAtual: v.tipo === "numerica" ? 0 : null,
+    estado: "pendente",
+    corrigida: false,
+    reagendadaDe: null,
+    reagendadaPara: null,
+  };
+}
+
+/**
+ * Como uma ação acha a ocorrência de uma linha: pela vaga (meta, data
+ * prevista), que pode ainda ser virtual, ou pelo id, no caso de uma
+ * reagendada, que não ocupa vaga da regra.
+ */
+export type RefOcorrencia =
+  { metaId: string; dataPrevista: string } | { ocorrenciaId: string };
+
+export function refDoItem(
+  item: Pick<ItemDoDia, "metaId" | "dataPrevista" | "ocorrenciaId">,
+): RefOcorrencia {
+  return item.dataPrevista !== null
+    ? { metaId: item.metaId, dataPrevista: item.dataPrevista }
+    : { ocorrenciaId: item.ocorrenciaId! };
 }
 
 /** Com horário primeiro, em ordem cronológica; depois as sem horário (7.5). */

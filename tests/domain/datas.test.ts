@@ -4,6 +4,7 @@ import {
   diaDaSemana,
   diferencaEmDias,
   ehDataCivil,
+  formatarDataCurta,
   formatarDataLonga,
   hoje,
   paraDataCivil,
@@ -68,5 +69,12 @@ describe("formatarDataLonga", () => {
     expect(formatarDataLonga(d("2027-01-01"))).toBe(
       "Sexta-feira, 1 de janeiro",
     );
+  });
+});
+
+describe("formatarDataCurta", () => {
+  it("dia e mês com dois dígitos", () => {
+    expect(formatarDataCurta(d("2026-07-05"))).toBe("05/07");
+    expect(formatarDataCurta(d("2026-12-25"))).toBe("25/12");
   });
 });

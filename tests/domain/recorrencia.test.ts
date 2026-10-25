@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { paraDataCivil, somarDias, type DataCivil } from "@/domain/datas";
 import {
   caiNaData,
+  descreverFrequencia,
   frequenciaPadrao,
   vigenteEm,
   type Regra,
@@ -118,5 +119,30 @@ describe("frequenciaPadrao", () => {
   it("todo dia quando a data aberta é hoje; só nesta data quando é futura", () => {
     expect(frequenciaPadrao(d("2026-10-24"), d("2026-10-24"))).toBe("diaria");
     expect(frequenciaPadrao(d("2026-10-25"), d("2026-10-24"))).toBe("unica");
+  });
+});
+
+describe("descreverFrequencia", () => {
+  it("escreve a frequência como na tela", () => {
+    expect(descreverFrequencia(regra({ frequencia: "diaria" }))).toBe(
+      "Todo dia",
+    );
+    expect(
+      descreverFrequencia(
+        regra({ frequencia: "unica", vigenteDe: d("2026-10-28") }),
+      ),
+    ).toBe("Só em 28/10");
+    expect(
+      descreverFrequencia(regra({ frequencia: "intervalo", intervaloDias: 3 })),
+    ).toBe("A cada 3 dias");
+  });
+
+  it("lista os dias da semana", () => {
+    const semanal = (diasSemana: number[]) =>
+      descreverFrequencia(regra({ frequencia: "semanal", diasSemana }));
+    expect(semanal([5, 1, 3])).toBe("Seg, Qua e Sex");
+    expect(semanal([0])).toBe("Dom");
+    expect(semanal([1, 2, 3, 4, 5])).toBe("Segunda a sexta");
+    expect(semanal([0, 1, 2, 3, 4, 5, 6])).toBe("Todo dia");
   });
 });
