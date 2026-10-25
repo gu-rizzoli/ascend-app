@@ -105,7 +105,7 @@ Entrega 6. O desenho está em [Treinos](../produto/treinos.md).
 - **Tabelas:** `exercicio`, `modelo_treino`, `modelo_exercicio`, `treino`, `treino_exercicio` e `serie` (migração 0004). As referências a `exercicio` usam `RESTRICT`; modelo e treino apagam os filhos em cascata; `treino.modelo_id` usa `SET NULL`.
 - **Regras puras:** `src/domain/treinos.ts` normaliza nomes (`normalizarNome()`), busca no catálogo (`buscarExercicios()`), valida o treino descartando séries vazias (`validarTreino()`), monta o formulário a partir do modelo (`treinoDoModelo()`) e valida o modelo (`validarModelo()`).
 - **Escritas:** `src/server/treinos.ts` grava treino e modelo inteiros numa transação, substituindo exercícios e séries ao editar, e confere que todo exercício é do usuário. As Server Actions ficam em `src/server/acoes-treinos.ts`; os formulários de treino e modelo mandam o conteúdo como JSON num campo só.
-- **Catálogo inicial:** `EXERCICIOS_INICIAIS` entra no cadastro, na mesma transação da conta (`semearExercicios()`); a migração 0005 grava a lista nas contas que já existiam.
+- **Catálogo inicial:** `EXERCICIOS_INICIAIS` entra no cadastro, na mesma transação da conta (`semearExercicios()`); as migrações 0005 e 0006 gravam a lista nas contas que já existiam. A 0006 também cria `exercicio.grupo` (enum `grupo_muscular`).
 - **Criar exercício no registro:** `novoExercicio()` usa `ON CONFLICT DO NOTHING` sobre `(usuario_id, nome_normalizado)`. Se o nome já existe, devolve o existente (e o desarquiva).
 - **Telas:** `/treinos`, `/treinos/novo` (escolha, depois `?livre=1` ou `?modelo=…`), `/treinos/:id`, `/treinos/:id/editar`, `/exercicios`, `/exercicios/:id`, `/modelos`, `/modelos/novo` e `/modelos/:id`. Exercícios e Modelos são abas de Treinos.
 

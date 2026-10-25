@@ -68,6 +68,7 @@ comBanco("treinos no banco", () => {
     expect(r.ok && r.exercicio).toEqual({
       id,
       nome: "Supino Reto",
+      grupo: null,
       arquivado: false,
     });
     // Parecido não é igual.
@@ -216,6 +217,10 @@ comBanco("catálogo inicial", () => {
     const nomes = (await exerciciosDoUsuario(u)).map((e) => e.nome);
     expect(nomes).toHaveLength(EXERCICIOS_INICIAIS.length);
     expect(nomes).toContain("supino RETO");
+    const stiff = (await exerciciosDoUsuario(u)).find(
+      (e) => e.nome === "Stiff",
+    );
+    expect(stiff?.grupo).toBe("posteriores");
     expect(nomes).not.toContain("Supino reto");
   });
 });

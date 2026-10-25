@@ -4,16 +4,22 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { buscarExercicios } from "@/domain/treinos";
+import {
+  agruparPorGrupo,
+  buscarExercicios,
+  type GrupoMuscular,
+} from "@/domain/treinos";
 
 import {
   EscolherExercicio,
   type ExercicioDoCatalogo,
 } from "../treinos/escolher-exercicio";
+import { FiltroDeGrupo } from "../treinos/grupos";
 
 /**
  * O catálogo com busca (RF-TRE-01, 02). "Novo exercício" usa a mesma busca:
- * os parecidos aparecem antes de criar, e o nome igual não vira outro.
+ * os parecidos aparecem antes de criar, e o nome igual não vira outro. A
+ * lista vem separada por grupo muscular, com fichas para filtrar.
  */
 export function Catalogo({
   exercicios,
@@ -23,7 +29,11 @@ export function Catalogo({
   const router = useRouter();
   const [criando, setCriando] = useState(false);
   const [busca, setBusca] = useState("");
-  const achados = buscarExercicios(busca, exercicios);
+  const [grupo, setGrupo] = useState<GrupoMuscular | null>(null);
+  const achados = buscarExercicios(
+    busca,
+    grupo ? exercicios.filter((e) => e.grupo === grupo) : exercicios,
+  );
 
   if (criando) {
     return (
@@ -57,27 +67,37 @@ export function Catalogo({
           Novo exercício
         </button>
       </div>
+      <div className="mt-3">
+        <FiltroDeGrupo grupo={grupo} aoEscolher={setGrupo} />
+      </div>
       {exercicios.length === 0 ? (
         <p className="mt-6 text-center text-neutral-600">
           Nenhum exercício ainda. Crie aqui ou direto ao registrar um treino.
         </p>
       ) : achados.length === 0 ? (
         <p className="mt-6 text-center text-neutral-600">
-          Nenhum exercício com esse nome.
+          Nenhum exercício encontrado.
         </p>
       ) : (
-        <ul className="mt-2 divide-y divide-neutral-200">
-          {achados.map((e) => (
-            <li key={e.id}>
-              <Link
-                href={`/exercicios/${e.id}`}
-                className="block truncate py-3"
-              >
-                {e.nome}
-              </Link>
-            </li>
-          ))}
-        </ul>
+        agruparPorGrupo(achados).map((g) => (
+          <section key={g.grupo ?? "sem"} className="mt-4">
+            <h2 className="text-xs font-medium tracking-wide text-neutral-500 uppercase">
+              {g.nome} · {g.exercicios.length}
+            </h2>
+            <ul className="divide-y divide-neutral-200">
+              {g.exercicios.map((e) => (
+                <li key={e.id}>
+                  <Link
+                    href={`/exercicios/${e.id}`}
+                    className="block truncate py-3"
+                  >
+                    {e.nome}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
       )}
     </>
   );

@@ -2,13 +2,17 @@ import { readFileSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
 
+import { grupoMuscular } from "@/db/schema";
 import { paraDataCivil } from "@/domain/datas";
 import {
   avisoDeDescartadas,
+  agruparPorGrupo,
   buscarExercicios,
   EXERCICIOS_INICIAIS,
   faixaDeRepeticoes,
   formatarSeries,
+  GRUPOS_MUSCULARES,
+  lerGrupo,
   lerCarga,
   mover,
   nomeJaExiste,
@@ -298,22 +302,42 @@ describe("modelos", () => {
 });
 
 describe("catálogo inicial", () => {
-  it("não tem nomes repetidos e a migração 0005 grava a mesma lista", () => {
-    const normalizados = EXERCICIOS_INICIAIS.map(normalizarNome);
-    expect(new Set(normalizados).size).toBe(EXERCICIOS_INICIAIS.length);
-    const sql = readFileSync(
-      new URL(
-        "../../src/db/migrations/0005_exercicios_iniciais.sql",
-        import.meta.url,
-      ),
+  const ler = (arquivo: string) =>
+    readFileSync(
+      new URL(`../../src/db/migrations/${arquivo}`, import.meta.url),
       "utf8",
     );
-    const linhas = [...sql.matchAll(/\('([^']+)', '([^']+)'\)/g)].map((m) => [
-      m[1],
-      m[2],
-    ]);
+
+  it("não tem nomes repetidos e usa os grupos do banco", () => {
+    const normalizados = EXERCICIOS_INICIAIS.map((e) => normalizarNome(e.nome));
+    expect(new Set(normalizados).size).toBe(EXERCICIOS_INICIAIS.length);
+    expect([...grupoMuscular.enumValues]).toEqual([...GRUPOS_MUSCULARES]);
+  });
+
+  it("a migração 0006 grava a lista toda, e a 0005 era parte dela", () => {
+    const linhas = [
+      ...ler("0006_grupos_musculares.sql").matchAll(
+        /\('([^']+)', '([^']+)', '([^']+)'\)/g,
+      ),
+    ].map((m) => [m[1], m[2], m[3]]);
     expect(linhas).toEqual(
-      EXERCICIOS_INICIAIS.map((n) => [n, normalizarNome(n)]),
+      EXERCICIOS_INICIAIS.map((e) => [e.nome, normalizarNome(e.nome), e.grupo]),
     );
+    const antigos = [
+      ...ler("0005_exercicios_iniciais.sql").matchAll(/\('([^']+)', '/g),
+    ].map((m) => m[1]);
+    const nomes = EXERCICIOS_INICIAIS.map((e) => e.nome);
+    expect(antigos.filter((n) => !nomes.includes(n!))).toEqual([]);
+  });
+
+  it("agrupa na ordem dos grupos, com os sem grupo no fim", () => {
+    const g = agruparPorGrupo([
+      { nome: "Meu", grupo: null },
+      { nome: "Stiff", grupo: "posteriores" as const },
+      { nome: "Supino", grupo: "peito" as const },
+    ]);
+    expect(g.map((x) => x.nome)).toEqual(["Peito", "Posteriores", "Sem grupo"]);
+    expect(lerGrupo("peito")).toBe("peito");
+    expect(lerGrupo("x")).toBeNull();
   });
 });

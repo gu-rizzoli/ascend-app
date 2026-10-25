@@ -32,55 +32,133 @@ export function normalizarNome(nome: string): string {
 }
 
 /**
- * O catálogo com que toda conta começa: os exercícios mais comuns, para o
- * primeiro registro não exigir cadastro. São exercícios como os outros: dá
- * para renomear, arquivar ou excluir (treinos.md, decisão 16). A migração
- * 0005 grava a mesma lista nas contas que já existiam.
+ * Grupos musculares para organizar o catálogo (treinos.md, decisão 17). Um
+ * exercício tem no máximo um grupo, o principal; sem grupo também vale.
  */
-export const EXERCICIOS_INICIAIS = [
-  // Peito
-  "Supino reto",
-  "Supino inclinado",
-  "Supino declinado",
-  "Crucifixo",
-  "Crossover",
-  "Flexão",
-  // Costas
-  "Puxada frontal",
-  "Barra fixa",
-  "Remada curvada",
-  "Remada baixa",
-  "Remada unilateral",
-  "Levantamento terra",
-  // Ombros
-  "Desenvolvimento",
-  "Elevação lateral",
-  "Elevação frontal",
-  "Crucifixo inverso",
-  // Bíceps
-  "Rosca direta",
-  "Rosca alternada",
-  "Rosca martelo",
-  "Rosca Scott",
-  // Tríceps
-  "Tríceps pulley",
-  "Tríceps testa",
-  "Tríceps francês",
-  "Paralelas",
-  // Pernas
-  "Agachamento livre",
-  "Leg press",
-  "Cadeira extensora",
-  "Mesa flexora",
-  "Stiff",
-  "Afundo",
-  "Elevação pélvica",
-  "Cadeira abdutora",
-  "Panturrilha em pé",
-  // Abdômen
-  "Abdominal",
-  "Abdominal infra",
+export const GRUPOS_MUSCULARES = [
+  "peito",
+  "costas",
+  "ombros",
+  "biceps",
+  "triceps",
+  "antebracos",
+  "quadriceps",
+  "posteriores",
+  "gluteos",
+  "panturrilhas",
+  "abdomen",
 ] as const;
+export type GrupoMuscular = (typeof GRUPOS_MUSCULARES)[number];
+
+export const NOME_DO_GRUPO: Record<GrupoMuscular, string> = {
+  peito: "Peito",
+  costas: "Costas",
+  ombros: "Ombros",
+  biceps: "Bíceps",
+  triceps: "Tríceps",
+  antebracos: "Antebraços",
+  quadriceps: "Quadríceps",
+  posteriores: "Posteriores",
+  gluteos: "Glúteos",
+  panturrilhas: "Panturrilhas",
+  abdomen: "Abdômen",
+};
+
+/** Os exercícios que a pessoa criou sem escolher grupo. */
+export const SEM_GRUPO = "Sem grupo";
+
+/**
+ * O catálogo com que toda conta começa: os exercícios mais comuns, cada um
+ * com o grupo principal, para o primeiro registro não exigir cadastro. São
+ * exercícios como os outros: dá para renomear, arquivar ou excluir (decisão
+ * 16). As migrações 0005 e 0006 gravam a lista nas contas que já existiam.
+ */
+export const EXERCICIOS_INICIAIS: readonly {
+  nome: string;
+  grupo: GrupoMuscular;
+}[] = [
+  { nome: "Supino reto", grupo: "peito" },
+  { nome: "Supino inclinado", grupo: "peito" },
+  { nome: "Supino declinado", grupo: "peito" },
+  { nome: "Supino reto com halteres", grupo: "peito" },
+  { nome: "Supino inclinado com halteres", grupo: "peito" },
+  { nome: "Crucifixo", grupo: "peito" },
+  { nome: "Crucifixo inclinado", grupo: "peito" },
+  { nome: "Crossover", grupo: "peito" },
+  { nome: "Peck deck", grupo: "peito" },
+  { nome: "Flexão", grupo: "peito" },
+  { nome: "Pullover", grupo: "peito" },
+  { nome: "Puxada frontal", grupo: "costas" },
+  { nome: "Puxada triângulo", grupo: "costas" },
+  { nome: "Barra fixa", grupo: "costas" },
+  { nome: "Remada curvada", grupo: "costas" },
+  { nome: "Remada baixa", grupo: "costas" },
+  { nome: "Remada unilateral", grupo: "costas" },
+  { nome: "Remada cavalinho", grupo: "costas" },
+  { nome: "Remada máquina", grupo: "costas" },
+  { nome: "Pulldown", grupo: "costas" },
+  { nome: "Levantamento terra", grupo: "costas" },
+  { nome: "Hiperextensão lombar", grupo: "costas" },
+  { nome: "Desenvolvimento", grupo: "ombros" },
+  { nome: "Desenvolvimento com halteres", grupo: "ombros" },
+  { nome: "Desenvolvimento Arnold", grupo: "ombros" },
+  { nome: "Elevação lateral", grupo: "ombros" },
+  { nome: "Elevação lateral no cabo", grupo: "ombros" },
+  { nome: "Elevação frontal", grupo: "ombros" },
+  { nome: "Crucifixo inverso", grupo: "ombros" },
+  { nome: "Face pull", grupo: "ombros" },
+  { nome: "Remada alta", grupo: "ombros" },
+  { nome: "Encolhimento", grupo: "ombros" },
+  { nome: "Rosca direta", grupo: "biceps" },
+  { nome: "Rosca alternada", grupo: "biceps" },
+  { nome: "Rosca martelo", grupo: "biceps" },
+  { nome: "Rosca Scott", grupo: "biceps" },
+  { nome: "Rosca concentrada", grupo: "biceps" },
+  { nome: "Rosca no cabo", grupo: "biceps" },
+  { nome: "Rosca inversa", grupo: "biceps" },
+  { nome: "Tríceps pulley", grupo: "triceps" },
+  { nome: "Tríceps corda", grupo: "triceps" },
+  { nome: "Tríceps testa", grupo: "triceps" },
+  { nome: "Tríceps francês", grupo: "triceps" },
+  { nome: "Tríceps coice", grupo: "triceps" },
+  { nome: "Paralelas", grupo: "triceps" },
+  { nome: "Mergulho no banco", grupo: "triceps" },
+  { nome: "Supino fechado", grupo: "triceps" },
+  { nome: "Rosca de punho", grupo: "antebracos" },
+  { nome: "Rosca de punho inversa", grupo: "antebracos" },
+  { nome: "Agachamento livre", grupo: "quadriceps" },
+  { nome: "Agachamento frontal", grupo: "quadriceps" },
+  { nome: "Agachamento búlgaro", grupo: "quadriceps" },
+  { nome: "Agachamento hack", grupo: "quadriceps" },
+  { nome: "Agachamento sumô", grupo: "quadriceps" },
+  { nome: "Leg press", grupo: "quadriceps" },
+  { nome: "Cadeira extensora", grupo: "quadriceps" },
+  { nome: "Afundo", grupo: "quadriceps" },
+  { nome: "Passada", grupo: "quadriceps" },
+  { nome: "Sissy squat", grupo: "quadriceps" },
+  { nome: "Mesa flexora", grupo: "posteriores" },
+  { nome: "Cadeira flexora", grupo: "posteriores" },
+  { nome: "Flexora em pé", grupo: "posteriores" },
+  { nome: "Stiff", grupo: "posteriores" },
+  { nome: "Levantamento terra romeno", grupo: "posteriores" },
+  { nome: "Bom dia", grupo: "posteriores" },
+  { nome: "Elevação pélvica", grupo: "gluteos" },
+  { nome: "Glúteo na polia", grupo: "gluteos" },
+  { nome: "Glúteo na máquina", grupo: "gluteos" },
+  { nome: "Cadeira abdutora", grupo: "gluteos" },
+  { nome: "Cadeira adutora", grupo: "gluteos" },
+  { nome: "Abdução no cabo", grupo: "gluteos" },
+  { nome: "Panturrilha em pé", grupo: "panturrilhas" },
+  { nome: "Panturrilha sentado", grupo: "panturrilhas" },
+  { nome: "Panturrilha no leg press", grupo: "panturrilhas" },
+  { nome: "Abdominal", grupo: "abdomen" },
+  { nome: "Abdominal infra", grupo: "abdomen" },
+  { nome: "Abdominal oblíquo", grupo: "abdomen" },
+  { nome: "Abdominal na polia", grupo: "abdomen" },
+  { nome: "Elevação de pernas", grupo: "abdomen" },
+  { nome: "Abdominal na roda", grupo: "abdomen" },
+  { nome: "Russian twist", grupo: "abdomen" },
+];
 
 /** O nome como fica gravado: só sem espaços sobrando. */
 export function limparNome(nome: string): string {
@@ -125,6 +203,27 @@ export function buscarExercicios<T extends ComNome>(
         peso(a.nome) - peso(b.nome) || a.nome.localeCompare(b.nome, "pt-BR"),
     )
     .map(({ e }) => e);
+}
+
+/**
+ * O catálogo separado por grupo, na ordem dos grupos, com os sem grupo no
+ * fim. Grupos vazios não aparecem.
+ */
+export function agruparPorGrupo<T extends { grupo: GrupoMuscular | null }>(
+  exercicios: readonly T[],
+): { grupo: GrupoMuscular | null; nome: string; exercicios: T[] }[] {
+  return [...GRUPOS_MUSCULARES, null]
+    .map((grupo) => ({
+      grupo,
+      nome: grupo ? NOME_DO_GRUPO[grupo] : SEM_GRUPO,
+      exercicios: exercicios.filter((e) => e.grupo === grupo),
+    }))
+    .filter((g) => g.exercicios.length > 0);
+}
+
+/** Lê o grupo vindo do formulário; vazio ou desconhecido é sem grupo. */
+export function lerGrupo(valor: string): GrupoMuscular | null {
+  return GRUPOS_MUSCULARES.find((g) => g === valor) ?? null;
 }
 
 /** Já existe um exercício com esse nome? Só o nome igual bloqueia. */

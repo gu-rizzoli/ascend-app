@@ -10,6 +10,7 @@ import { exercicio } from "@/db/schema";
 import { hoje } from "@/domain/datas";
 import {
   esquemaNomeExercicio,
+  lerGrupo,
   validarModelo,
   validarTreino,
   type ModeloDoFormulario,
@@ -19,6 +20,7 @@ import {
 import { exigirUsuario } from "./sessao";
 import {
   criarExercicio,
+  definirGrupo,
   excluirModelo,
   excluirTreino,
   exercicioDoUsuario,
@@ -95,13 +97,21 @@ export type EstadoFormulario = { erro?: string };
  * Cria um exercício pelo nome, no catálogo ou durante o registro, sem sair
  * dele (RF-TRE-03). Um nome que já existe devolve o exercício existente.
  */
-export async function novoExercicio(nome: string): Promise<ResultadoExercicio> {
+export async function novoExercicio(
+  nome: string,
+  grupo: string | null = null,
+): Promise<ResultadoExercicio> {
   const usuario = await exigirUsuario();
   const r = esquemaNomeExercicio.safeParse(nome);
   if (!r.success) {
     return { ok: false, erro: r.error.issues[0]?.message ?? "Nome inválido." };
   }
-  const resultado = await criarExercicio(db(), usuario.id, r.data);
+  const resultado = await criarExercicio(
+    db(),
+    usuario.id,
+    r.data,
+    lerGrupo(grupo ?? ""),
+  );
   revalidatePath("/", "layout");
   return resultado;
 }
@@ -119,6 +129,16 @@ export async function renomear(
   if (erro) return { erro };
   revalidatePath("/", "layout");
   return {};
+}
+
+/** Escolhe o grupo muscular do exercício (decisão 17). */
+export async function mudarGrupo(form: FormData): Promise<void> {
+  const usuario = await exigirUsuario();
+  const exercicioId = uuidOuNull(texto(form, "exercicioId"));
+  if (exercicioId) {
+    await definirGrupo(usuario.id, exercicioId, lerGrupo(texto(form, "grupo")));
+  }
+  revalidatePath("/", "layout");
 }
 
 /** Arquivar tira da busca; desarquivar devolve (9.4, decisão 6). */

@@ -17,6 +17,7 @@ import {
   EXERCICIOS_INICIAIS,
   limparNome,
   normalizarNome,
+  type GrupoMuscular,
   type ModeloValido,
   type TreinoValido,
 } from "@/domain/treinos";
@@ -32,21 +33,29 @@ const ehUuid = (valor: string) => z.uuid().safeParse(valor).success;
 // ---------------------------------------------------------------------------
 // Exercícios
 
-export type Exercicio = { id: string; nome: string; arquivado: boolean };
+export type Exercicio = {
+  id: string;
+  nome: string;
+  grupo: GrupoMuscular | null;
+  arquivado: boolean;
+};
 
 const colunasExercicio = {
   id: exercicio.id,
   nome: exercicio.nome,
+  grupo: exercicio.grupo,
   arquivadoEm: exercicio.arquivadoEm,
 };
 
 const paraExercicio = (e: {
   id: string;
   nome: string;
+  grupo: GrupoMuscular | null;
   arquivadoEm: Date | null;
 }): Exercicio => ({
   id: e.id,
   nome: e.nome,
+  grupo: e.grupo,
   arquivado: e.arquivadoEm !== null,
 });
 
@@ -117,12 +126,13 @@ export async function criarExercicio(
   executor: Executor,
   usuarioId: string,
   nome: string,
+  grupo: GrupoMuscular | null = null,
 ): Promise<ResultadoExercicio> {
   const limpo = limparNome(nome);
   const nomeNormalizado = normalizarNome(limpo);
   const [criado] = await executor
     .insert(exercicio)
-    .values({ usuarioId, nome: limpo, nomeNormalizado })
+    .values({ usuarioId, nome: limpo, nomeNormalizado, grupo })
     .onConflictDoNothing()
     .returning(colunasExercicio);
   if (criado) {
@@ -147,10 +157,11 @@ export async function semearExercicios(executor: Executor, usuarioId: string) {
   await executor
     .insert(exercicio)
     .values(
-      EXERCICIOS_INICIAIS.map((nome) => ({
+      EXERCICIOS_INICIAIS.map(({ nome, grupo }) => ({
         usuarioId,
         nome,
         nomeNormalizado: normalizarNome(nome),
+        grupo,
       })),
     )
     .onConflictDoNothing();
@@ -183,6 +194,21 @@ export async function renomearExercicio(
       and(eq(exercicio.id, exercicioId), eq(exercicio.usuarioId, usuarioId)),
     );
   return null;
+}
+
+/** Troca o grupo do exercício (nulo = sem grupo). */
+export async function definirGrupo(
+  usuarioId: string,
+  exercicioId: string,
+  grupo: GrupoMuscular | null,
+): Promise<void> {
+  if (!ehUuid(exercicioId)) return;
+  await db()
+    .update(exercicio)
+    .set({ grupo })
+    .where(
+      and(eq(exercicio.id, exercicioId), eq(exercicio.usuarioId, usuarioId)),
+    );
 }
 
 /** Todos os ids são exercícios deste usuário? */

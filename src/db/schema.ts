@@ -329,6 +329,20 @@ export const projetoAtualTroca = pgTable(
 // ---------------------------------------------------------------------------
 // Treinos (docs/produto/treinos.md)
 
+export const grupoMuscular = pgEnum("grupo_muscular", [
+  "peito",
+  "costas",
+  "ombros",
+  "biceps",
+  "triceps",
+  "antebracos",
+  "quadriceps",
+  "posteriores",
+  "gluteos",
+  "panturrilhas",
+  "abdomen",
+]);
+
 /**
  * O catálogo de exercícios (9.3). Renomear muda o nome em todos os treinos,
  * porque é o mesmo exercício. Um exercício usado não é apagado: é arquivado
@@ -345,6 +359,8 @@ export const exercicio = pgTable(
     // Minúsculas, sem acentos e com espaços simples: "Supino  Reto" e
     // "supino reto" são o mesmo nome (treinos.md, decisão 5).
     nomeNormalizado: text("nome_normalizado").notNull(),
+    // O grupo principal, só para organizar o catálogo. Opcional.
+    grupo: grupoMuscular("grupo"),
     arquivadoEm: timestamp("arquivado_em", { withTimezone: true }),
     criadoEm: timestamp("criado_em", { withTimezone: true })
       .notNull()

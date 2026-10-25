@@ -56,7 +56,7 @@ erDiagram
 
 | Tabela | Colunas | Regras |
 | --- | --- | --- |
-| exercicio | id, usuario_id, nome, nome_normalizado, arquivado_em, criado_em | `UNIQUE (usuario_id, nome_normalizado)`. `nome_normalizado` = minúsculas, sem acentos, espaços simples |
+| exercicio | id, usuario_id, nome, nome_normalizado, grupo, arquivado_em, criado_em | `UNIQUE (usuario_id, nome_normalizado)`. `nome_normalizado` = minúsculas, sem acentos, espaços simples. `grupo` opcional (decisão 17) |
 | modelo_treino | id, usuario_id, nome, observacao, criado_em, atualizado_em | |
 | modelo_exercicio | id, modelo_id, exercicio_id, ordem, series_sugeridas, reps_min, reps_max | `series_sugeridas >= 1`. `reps_max` opcional e maior ou igual a `reps_min`. Apagado junto com o modelo |
 | treino | id, usuario_id, nome, data, observacao, modelo_id, criado_em, atualizado_em | `data` é data civil. `modelo_id` é só informativo, com `ON DELETE SET NULL` |
@@ -102,4 +102,5 @@ Pontos que a especificação deixava em aberto e foram resolvidos ao construir, 
 | 13 | Onde fica o "Novo exercício" | No catálogo, usando a mesma busca do registro: os parecidos aparecem antes de criar |
 | 14 | Editar treino muda o modelo de origem? | Não; a referência ao modelo fica como no registro |
 | 15 | Título de um treino sem nome | Os nomes dos exercícios, na ordem ("Supino reto, Flexão") |
-| 16 | Catálogo vazio no primeiro acesso? | Não: toda conta começa com cerca de 35 exercícios comuns (supino, agachamento, rosca…), que se renomeiam, arquivam ou excluem como os outros. Pedido em 25/10/2026 |
+| 16 | Catálogo vazio no primeiro acesso? | Não: toda conta começa com 81 exercícios comuns (supino, agachamento, rosca…), que se renomeiam, arquivam ou excluem como os outros. Pedido em 25/10/2026 |
+| 17 | Organizar o catálogo | Cada exercício tem um grupo muscular principal, opcional: Peito, Costas, Ombros, Bíceps, Tríceps, Antebraços, Quadríceps, Posteriores, Glúteos, Panturrilhas ou Abdômen. O catálogo e a busca do registro filtram por grupo com fichas; criar com uma ficha escolhida já põe o exercício no grupo, e o grupo se troca na página do exercício. Pedido em 25/10/2026. Coluna `exercicio.grupo` (migração 0006) |

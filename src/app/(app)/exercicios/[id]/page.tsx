@@ -13,6 +13,7 @@ import {
 } from "@/server/treinos";
 
 import { ExcluirComConfirmacao } from "../../treinos/[id]/excluir";
+import { GrupoDoExercicio } from "./grupo";
 import { NomeDoExercicio } from "./renomear";
 
 export const metadata: Metadata = { title: "Exercício · Ascend" };
@@ -47,6 +48,7 @@ export default async function PaginaExercicio({ params }: Props) {
         </Link>
         <NomeDoExercicio exercicioId={e.id} nome={e.nome} />
       </header>
+      <GrupoDoExercicio exercicioId={e.id} grupo={e.grupo} />
       {e.arquivado && (
         <p className="mt-2 rounded-lg bg-neutral-100 px-3 py-2 text-sm text-neutral-600">
           Arquivado: não aparece na busca, mas continua nos treinos antigos.

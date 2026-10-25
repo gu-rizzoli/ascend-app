@@ -43,6 +43,13 @@
       "when": 1792898090668,
       "tag": "0005_exercicios_iniciais",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792898483267,
+      "tag": "0006_grupos_musculares",
+      "breakpoints": true
     }
   ]
 }
