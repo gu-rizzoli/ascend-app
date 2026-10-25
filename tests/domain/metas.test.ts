@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { paraDataCivil } from "@/domain/datas";
 import {
   diaEditavel,
+  esquemaEdicaoMeta,
   esquemaNovaMeta,
   estadoPeloValor,
   formatarNumero,
@@ -10,6 +11,7 @@ import {
   montarListaDoDia,
   progresso,
   resumoDoDia,
+  type CamposEdicaoMeta,
   type CamposNovaMeta,
   type OcorrenciaGravada,
   type VersaoDoDia,
@@ -202,6 +204,8 @@ describe("montarListaDoDia", () => {
       estado: "concluida",
       valorAtual: null,
       corrigida: false,
+      reagendadaDe: null,
+      reagendadaPara: null,
       versao: { titulo: metaId, horario: null, valorAlvo: null },
       ajuste: { titulo: null, horario: null, valorAlvo: null },
       ...parcial,
@@ -305,5 +309,65 @@ describe("montarListaDoDia", () => {
       [gravada("a")],
     );
     expect(resumoDoDia(lista)).toEqual({ concluidas: 1, total: 3 });
+  });
+});
+
+describe("esquemaEdicaoMeta", () => {
+  const campos = (parcial: Partial<CamposEdicaoMeta> = {}) => ({
+    titulo: "Beber água",
+    descricao: "",
+    valorAlvo: "3",
+    frequencia: "diaria",
+    diasSemana: [],
+    intervaloDias: "",
+    horario: "",
+    ...parcial,
+  });
+
+  it("lê os campos que podem mudar", () => {
+    const r = esquemaEdicaoMeta("numerica", true).safeParse(
+      campos({ valorAlvo: "2,5", horario: "07:30" }),
+    );
+    expect(r.success && r.data).toEqual({
+      titulo: "Beber água",
+      descricao: null,
+      valorAlvo: 2.5,
+      horario: "07:30",
+      frequencia: {
+        frequencia: "diaria",
+        diasSemana: null,
+        intervaloDias: null,
+      },
+    });
+  });
+
+  it("binária não tem alvo", () => {
+    const r = esquemaEdicaoMeta("binaria", true).safeParse(
+      campos({ valorAlvo: "abc" }),
+    );
+    expect(r.success && r.data.valorAlvo).toBeNull();
+  });
+
+  it("recorrente não vira 'Só nesta data'", () => {
+    const r = esquemaEdicaoMeta("binaria", true).safeParse(
+      campos({ frequencia: "unica" }),
+    );
+    expect(r.success).toBe(false);
+    const unica = esquemaEdicaoMeta("binaria", false).safeParse(
+      campos({ frequencia: "unica" }),
+    );
+    expect(unica.success).toBe(true);
+  });
+
+  it("valida alvo e dias da semana como na criação", () => {
+    expect(
+      esquemaEdicaoMeta("numerica", true).safeParse(campos({ valorAlvo: "0" }))
+        .success,
+    ).toBe(false);
+    expect(
+      esquemaEdicaoMeta("binaria", true).safeParse(
+        campos({ frequencia: "semanal" }),
+      ).success,
+    ).toBe(false);
   });
 });

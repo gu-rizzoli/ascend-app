@@ -1,0 +1,3 @@
+ALTER TABLE "meta_versao" DROP CONSTRAINT "meta_versao_vigencia";--> statement-breakpoint
+CREATE UNIQUE INDEX "ocorrencia_reagendada_unica" ON "ocorrencia" USING btree ("reagendada_de_id") WHERE "ocorrencia"."reagendada_de_id" is not null;--> statement-breakpoint
+ALTER TABLE "meta_versao" ADD CONSTRAINT "meta_versao_vigencia" CHECK ("meta_versao"."vigente_ate" is null or "meta_versao"."vigente_ate" >= "meta_versao"."vigente_de" - 1);

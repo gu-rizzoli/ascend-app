@@ -89,3 +89,9 @@ export function formatarDataLonga(data: DataCivil): string {
   );
   return texto.charAt(0).toUpperCase() + texto.slice(1);
 }
+
+/** Ex.: "12/07", para selos como "reagendada de 12/07". */
+export function formatarDataCurta(data: DataCivil): string {
+  const [, m, d] = partes(data);
+  return `${String(d).padStart(2, "0")}/${String(m).padStart(2, "0")}`;
+}

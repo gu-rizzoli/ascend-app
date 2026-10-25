@@ -13,11 +13,11 @@ const AREAS = [
 
 // Formulários ocupam a tela toda e escondem a barra, para dar espaço ao
 // teclado (navegacao.md, "Celular e computador").
-const FORMULARIOS = ["/metas/novo"];
+const FORMULARIOS = [/^\/metas\/novo/, /^\/metas\/[^/]+\/editar/];
 
 export function BarraDeAreas() {
   const caminho = usePathname();
-  if (FORMULARIOS.some((f) => caminho.startsWith(f))) return null;
+  if (FORMULARIOS.some((f) => f.test(caminho))) return null;
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-10 border-t border-neutral-200 bg-white">

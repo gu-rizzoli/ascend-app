@@ -9,60 +9,7 @@ import { criarMeta } from "@/server/acoes-metas";
 import { Botao } from "@/ui/botao";
 import { Campo } from "@/ui/campo";
 
-const FREQUENCIAS: { valor: Frequencia; nome: string }[] = [
-  { valor: "unica", nome: "Só nesta data" },
-  { valor: "diaria", nome: "Todo dia" },
-  { valor: "semanal", nome: "Dias da semana" },
-  { valor: "intervalo", nome: "A cada X dias" },
-];
-
-const DIAS = [
-  { valor: 0, letra: "D", nome: "Domingo" },
-  { valor: 1, letra: "S", nome: "Segunda" },
-  { valor: 2, letra: "T", nome: "Terça" },
-  { valor: 3, letra: "Q", nome: "Quarta" },
-  { valor: 4, letra: "Q", nome: "Quinta" },
-  { valor: 5, letra: "S", nome: "Sexta" },
-  { valor: 6, letra: "S", nome: "Sábado" },
-];
-
-function Erro({ id, texto }: { id: string; texto?: string }) {
-  if (!texto) return null;
-  return (
-    <span id={id} className="text-sm text-red-700">
-      {texto}
-    </span>
-  );
-}
-
-/** Opções lado a lado, com cara de botão, para escolher com um toque. */
-function Opcao({
-  name,
-  value,
-  checked,
-  onChange,
-  children,
-}: {
-  name: string;
-  value: string;
-  checked: boolean;
-  onChange: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <label className="flex-1 cursor-pointer rounded-lg border border-neutral-300 px-3 py-2.5 text-center text-sm font-medium has-checked:border-neutral-900 has-checked:bg-neutral-900 has-checked:text-white">
-      <input
-        type="radio"
-        name={name}
-        value={value}
-        checked={checked}
-        onChange={onChange}
-        className="sr-only"
-      />
-      {children}
-    </label>
-  );
-}
+import { CamposFrequencia, Erro, Opcao } from "../campos-meta";
 
 type Props = {
   dataAberta: DataCivil;
@@ -153,72 +100,13 @@ export function FormularioNovaMeta({
         </div>
       )}
 
-      <fieldset className="flex flex-col gap-2">
-        <legend className="mb-1 text-sm font-medium">Frequência</legend>
-        <div className="grid grid-cols-2 gap-2">
-          {FREQUENCIAS.map((f) => (
-            <Opcao
-              key={f.valor}
-              name="frequencia"
-              value={f.valor}
-              checked={frequencia === f.valor}
-              onChange={() => setFrequencia(f.valor)}
-            >
-              {f.nome}
-            </Opcao>
-          ))}
-        </div>
-
-        {frequencia === "semanal" && (
-          <div className="flex flex-col gap-1">
-            <div
-              className="flex justify-between gap-1"
-              aria-describedby={
-                erros.diasSemana ? "diasSemana-erro" : undefined
-              }
-            >
-              {DIAS.map((dia) => (
-                <label
-                  key={dia.valor}
-                  title={dia.nome}
-                  className="flex size-10 cursor-pointer items-center justify-center rounded-full border border-neutral-300 text-sm font-medium has-checked:border-neutral-900 has-checked:bg-neutral-900 has-checked:text-white"
-                >
-                  <input
-                    type="checkbox"
-                    name="diasSemana"
-                    value={dia.valor}
-                    aria-label={dia.nome}
-                    defaultChecked={diasMarcados.includes(String(dia.valor))}
-                    className="sr-only"
-                  />
-                  {dia.letra}
-                </label>
-              ))}
-            </div>
-            <Erro id="diasSemana-erro" texto={erros.diasSemana} />
-          </div>
-        )}
-
-        {frequencia === "intervalo" && (
-          <div className="flex flex-col gap-1">
-            <label className="flex items-center gap-2 text-sm">
-              A cada
-              <input
-                name="intervaloDias"
-                inputMode="numeric"
-                defaultValue={v?.intervaloDias ?? "2"}
-                aria-invalid={erros.intervaloDias ? true : undefined}
-                aria-describedby={
-                  erros.intervaloDias ? "intervaloDias-erro" : undefined
-                }
-                className="w-16 rounded-lg border border-neutral-300 px-3 py-2 text-center text-base outline-none focus:border-neutral-900 aria-invalid:border-red-600"
-              />
-              dias
-            </label>
-            <Erro id="intervaloDias-erro" texto={erros.intervaloDias} />
-          </div>
-        )}
-      </fieldset>
+      <CamposFrequencia
+        frequencia={frequencia}
+        mudarFrequencia={setFrequencia}
+        diasMarcados={diasMarcados}
+        intervalo={v?.intervaloDias ?? "2"}
+        erros={erros}
+      />
 
       <details
         open={abrirMaisOpcoes}

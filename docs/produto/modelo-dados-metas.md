@@ -48,7 +48,7 @@ A regra da meta com vigência. Cada "esta e as próximas", pausa ou reativação
 | id | uuid | PK |
 | meta_id | uuid | FK meta |
 | vigente_de | date | Obrigatório |
-| vigente_ate | date | Nulo enquanto estiver aberta. As versões de uma meta não se sobrepõem |
+| vigente_ate | date | Nulo enquanto estiver aberta. As versões de uma meta não se sobrepõem. Pode ser `vigente_de − 1` (versão vazia): uma regra que ainda não tinha começado quando a meta foi pausada ou excluída |
 | titulo | text | Obrigatório |
 | descricao | text | Opcional |
 | horario | time | Opcional, hora local de São Paulo |
@@ -82,7 +82,7 @@ A meta em uma data, com o que de fato aconteceu. É a fonte do Histórico e das 
 | corrigida_apos_encerramento | boolean | RF-MET-12 |
 | criado_em, atualizado_em | timestamptz | |
 
-A restrição principal é `UNIQUE (meta_id, data_prevista) WHERE origem = 'regra'`. Ela impede duplicatas e torna a geração idempotente (13.8): inserir a mesma vaga duas vezes não cria nada.
+A restrição principal é `UNIQUE (meta_id, data_prevista) WHERE origem = 'regra'`. Ela impede duplicatas e torna a geração idempotente (13.8): inserir a mesma vaga duas vezes não cria nada. Outra, `UNIQUE (reagendada_de_id)`, garante que cada ocorrência seja reagendada uma vez só.
 
 ### Tabelas de apoio
 

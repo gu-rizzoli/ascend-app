@@ -124,8 +124,11 @@ export const meta = pgTable(
 
 /**
  * A regra da meta com vigência. "Esta e as próximas", pausa e reativação
- * (entrega 4) fecham uma versão e abrem outra; as versões não se sobrepõem.
- * O projeto associado (projeto_id) entra com a tabela projeto, na entrega 5.
+ * fecham uma versão e abrem outra; as versões não se sobrepõem. Uma versão
+ * que ainda não tinha começado quando a meta foi pausada fica vazia
+ * (vigente_ate = vigente_de - 1): não gera nada, mas continua existindo para
+ * as ocorrências que apontam para ela. O projeto associado (projeto_id) entra
+ * com a tabela projeto, na entrega 5.
  */
 export const metaVersao = pgTable(
   "meta_versao",
@@ -152,7 +155,7 @@ export const metaVersao = pgTable(
     index("meta_versao_meta_idx").on(t.metaId),
     check(
       "meta_versao_vigencia",
-      sql`${t.vigenteAte} is null or ${t.vigenteAte} >= ${t.vigenteDe}`,
+      sql`${t.vigenteAte} is null or ${t.vigenteAte} >= ${t.vigenteDe} - 1`,
     ),
     check(
       "meta_versao_dias_semana",
@@ -226,6 +229,10 @@ export const ocorrencia = pgTable(
     uniqueIndex("ocorrencia_vaga_unica")
       .on(t.metaId, t.dataPrevista)
       .where(sql`${t.origem} = 'regra'`),
+    // Uma ocorrência é reagendada no máximo uma vez (RF-MET-13).
+    uniqueIndex("ocorrencia_reagendada_unica")
+      .on(t.reagendadaDeId)
+      .where(sql`${t.reagendadaDeId} is not null`),
     index("ocorrencia_usuario_data_idx").on(t.usuarioId, t.data),
     index("ocorrencia_usuario_data_prevista_idx").on(
       t.usuarioId,
