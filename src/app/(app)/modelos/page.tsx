@@ -17,7 +17,7 @@ export default async function PaginaModelos() {
 
   return (
     <>
-      <h1 className="text-xl font-semibold">Treinos</h1>
+      <h1 className="text-xl font-bold tracking-tight">Treinos</h1>
       <div className="mt-3">
         <AbasDeTreinos atual="/modelos" />
       </div>
@@ -34,7 +34,7 @@ export default async function PaginaModelos() {
         </section>
       ) : (
         <>
-          <ul className="mt-4 divide-y divide-neutral-200">
+          <ul className="bg-superficie mt-4 divide-y divide-neutral-200 rounded-2xl px-4 shadow-sm">
             {modelos.map((m) => (
               <li key={m.id} className="flex items-center gap-2 py-2">
                 <Link href={`/modelos/${m.id}`} className="min-w-0 flex-1 py-1">

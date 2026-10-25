@@ -104,7 +104,9 @@ export default async function PaginaDiaDoHistorico({ params }: Props) {
             >
               Histórico
             </Link>
-            <h1 className="text-xl font-semibold">{formatarDataLonga(data)}</h1>
+            <h1 className="text-xl font-bold tracking-tight">
+              {formatarDataLonga(data)}
+            </h1>
           </div>
           <SetaDoDia
             href={enderecoDaData(seguinte, dataHoje)}
@@ -136,7 +138,7 @@ export default async function PaginaDiaDoHistorico({ params }: Props) {
             <p>Dia encerrado.</p>
             <Link
               href={`/dia/${data}?corrigir=1&voltar=historico`}
-              className="rounded-full bg-white px-3 py-1.5 font-medium text-neutral-900 shadow-sm"
+              className="bg-superficie text-acento rounded-full px-3 py-1.5 font-medium shadow-sm"
             >
               Corrigir
             </Link>
@@ -152,7 +154,7 @@ export default async function PaginaDiaDoHistorico({ params }: Props) {
             {metas.length > 0 && (
               <section className="mt-4">
                 <h2 className="text-sm font-medium text-neutral-500">Metas</h2>
-                <ul className="divide-y divide-neutral-200">
+                <ul className="bg-superficie mt-2 divide-y divide-neutral-200 rounded-2xl px-4 shadow-sm">
                   {metas.map((m) => (
                     <LinhaDoHistorico
                       key={m.ocorrenciaId}
@@ -169,7 +171,7 @@ export default async function PaginaDiaDoHistorico({ params }: Props) {
                 <h2 className="text-sm font-medium text-neutral-500">
                   {treinos.length === 1 ? "Treino" : "Treinos"}
                 </h2>
-                <ul className="divide-y divide-neutral-200">
+                <ul className="bg-superficie mt-2 divide-y divide-neutral-200 rounded-2xl px-4 shadow-sm">
                   {treinos.map((t) => (
                     <LinhaDoTreino key={t.id} treino={t} />
                   ))}

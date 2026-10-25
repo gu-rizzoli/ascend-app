@@ -68,7 +68,7 @@ export default async function PaginaProjeto({ params }: Props) {
         >
           ‹
         </Link>
-        <h1 className="min-w-0 flex-1 pt-1 text-xl font-semibold break-words">
+        <h1 className="min-w-0 flex-1 pt-1 text-xl font-bold tracking-tight break-words">
           {p.nome}
         </h1>
         {!encerrado && <Estrela projetoId={p.id} atual={p.id === atualId} />}
@@ -108,7 +108,7 @@ export default async function PaginaProjeto({ params }: Props) {
           Metas ativas
         </h2>
         {ativas.length > 0 ? (
-          <ul className="mt-1 divide-y divide-neutral-200">
+          <ul className="bg-superficie mt-1 divide-y divide-neutral-200 rounded-2xl px-4 shadow-sm">
             {ativas.map((m) => (
               <li key={m.id}>
                 <Link href={`/metas/${m.id}`} className="flex flex-col py-2.5">

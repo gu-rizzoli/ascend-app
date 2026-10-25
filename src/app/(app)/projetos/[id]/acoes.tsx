@@ -17,7 +17,7 @@ import {
 const classeSecundario =
   "w-full rounded-lg border border-neutral-300 px-4 py-3 text-center font-medium disabled:opacity-50";
 const classePrincipal =
-  "flex-1 rounded-lg bg-neutral-900 px-4 py-3 font-medium text-white disabled:opacity-50";
+  "flex-1 rounded-lg bg-acento px-4 py-3 font-medium text-white disabled:opacity-50";
 const classeCancelar =
   "flex-1 rounded-lg px-4 py-3 font-medium text-neutral-600";
 
@@ -80,7 +80,7 @@ export function Encerrar({
         <BotaoEnviar
           className={
             principal
-              ? "w-full rounded-lg bg-neutral-900 px-4 py-3 font-medium text-white disabled:opacity-50"
+              ? "bg-acento w-full rounded-lg px-4 py-3 font-medium text-white disabled:opacity-50"
               : classeSecundario
           }
         >
@@ -118,7 +118,7 @@ export function Encerrar({
         {DESTINOS.filter((d) => n > 1 || d.valor !== "escolher").map((d) => (
           <label
             key={d.valor}
-            className="flex cursor-pointer items-center gap-3 rounded-lg bg-white px-3 py-2.5 text-sm font-medium shadow-sm has-checked:ring-2 has-checked:ring-neutral-900"
+            className="bg-superficie has-checked:ring-acento flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium shadow-sm has-checked:ring-2"
           >
             <input
               type="radio"
@@ -126,7 +126,7 @@ export function Encerrar({
               value={d.valor}
               checked={destino === d.valor}
               onChange={() => setDestino(d.valor)}
-              className="accent-neutral-900"
+              className="accent-acento"
             />
             {n === 1 && d.valor === "pausar_todas" ? "Pausar" : d.nome}
           </label>
@@ -146,7 +146,7 @@ export function Encerrar({
                 type="checkbox"
                 name="pausar"
                 value={m.id}
-                className="size-4 accent-neutral-900"
+                className="accent-acento size-4"
               />
               <span className="min-w-0 truncate">{m.titulo}</span>
             </label>
@@ -197,14 +197,14 @@ export function Reabrir({ projetoId }: { projetoId: string }) {
         {STATUS_ABERTOS.map((s) => (
           <label
             key={s}
-            className="flex cursor-pointer items-center gap-3 rounded-lg bg-white px-3 py-2.5 text-sm font-medium shadow-sm has-checked:ring-2 has-checked:ring-neutral-900"
+            className="bg-superficie has-checked:ring-acento flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium shadow-sm has-checked:ring-2"
           >
             <input
               type="radio"
               name="status"
               value={s}
               defaultChecked={s === "em_andamento"}
-              className="accent-neutral-900"
+              className="accent-acento"
             />
             {NOME_DO_STATUS[s]}
           </label>
@@ -298,7 +298,7 @@ export function Excluir({
               autoComplete="off"
               value={digitado}
               onChange={(e) => setDigitado(e.target.value)}
-              className="rounded-lg border border-red-300 bg-white px-3 py-2.5 text-base outline-none focus:border-red-700"
+              className="bg-superficie rounded-lg border border-red-300 px-3 py-2.5 text-base outline-none focus:border-red-700"
             />
           </label>
         )}

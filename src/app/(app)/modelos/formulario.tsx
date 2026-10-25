@@ -23,9 +23,9 @@ import {
 } from "../treinos/saida";
 
 const classeCampo =
-  "rounded-lg border border-neutral-300 px-3 py-2.5 text-base outline-none focus:border-neutral-900";
+  "rounded-lg border border-neutral-300 px-3 py-2.5 text-base outline-none focus:border-acento";
 const classeNumero =
-  "w-full min-w-0 rounded-md border border-neutral-300 px-2 py-2 text-base outline-none focus:border-neutral-900";
+  "w-full min-w-0 rounded-md border border-neutral-300 px-2 py-2 text-base outline-none focus:border-acento";
 
 /**
  * Criar ou editar modelo (RF-TRE-06, 07): nome, observação e exercícios na
@@ -80,7 +80,7 @@ export function FormularioModelo({
           >
             ‹
           </LinkDeSaida>
-          <h1 className="text-xl font-semibold">{titulo}</h1>
+          <h1 className="text-xl font-bold tracking-tight">{titulo}</h1>
         </header>
 
         {modeloId && <input type="hidden" name="modeloId" value={modeloId} />}

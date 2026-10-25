@@ -129,7 +129,7 @@ export function FormularioNovaMeta({
               rows={2}
               maxLength={500}
               defaultValue={v?.descricao}
-              className="rounded-lg border border-neutral-300 px-3 py-2.5 text-base outline-none focus:border-neutral-900"
+              className="focus:border-acento rounded-lg border border-neutral-300 px-3 py-2.5 text-base outline-none"
             />
             <Erro id="descricao-erro" texto={erros.descricao} />
           </label>

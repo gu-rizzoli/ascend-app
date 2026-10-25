@@ -96,7 +96,7 @@ export function ProximoPasso({
             setEditando(false);
           }
         }}
-        className="w-full rounded-md border border-neutral-300 bg-white px-2 py-1 text-sm outline-none focus:border-neutral-900"
+        className="bg-superficie focus:border-acento w-full rounded-md border border-neutral-300 px-2 py-1 text-sm outline-none"
       />
     );
   }

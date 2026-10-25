@@ -8,11 +8,11 @@ export const metadata: Metadata = { title: "Criar conta · Ascend" };
 export default function PaginaCadastro() {
   return (
     <>
-      <h1 className="text-xl font-semibold">Criar conta</h1>
+      <h1 className="text-xl font-bold tracking-tight">Criar conta</h1>
       <FormularioCadastro />
       <p className="text-center text-sm text-neutral-600">
         Já tem conta?{" "}
-        <Link href="/entrar" className="font-medium text-neutral-900 underline">
+        <Link href="/entrar" className="text-acento font-medium underline">
           Entrar
         </Link>
       </p>

@@ -60,7 +60,7 @@ export default async function PaginaExercicio({ params }: Props) {
           Histórico
         </h2>
         {historico.length > 0 ? (
-          <ul className="mt-1 divide-y divide-neutral-200">
+          <ul className="bg-superficie mt-1 divide-y divide-neutral-200 rounded-2xl px-4 shadow-sm">
             {historico.map((h) => (
               <li key={h.treinoId}>
                 <Link

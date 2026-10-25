@@ -28,13 +28,13 @@ export function AbasDoHistorico({
     { id: "lista", nome: "Lista", href: "/historico/lista" },
   ] as const;
   return (
-    <nav className="grid grid-cols-2 gap-1 rounded-lg bg-neutral-100 p-1 text-center text-sm">
+    <nav className="grid grid-cols-2 gap-1 rounded-xl bg-neutral-200/70 p-1 text-center text-sm">
       {abas.map((a) => (
         <Link
           key={a.id}
           href={`${a.href}${parametrosDosFiltros(filtros)}`}
           aria-current={a.id === atual ? "page" : undefined}
-          className="rounded-md py-2 font-medium text-neutral-600 aria-[current=page]:bg-white aria-[current=page]:text-neutral-900 aria-[current=page]:shadow-sm"
+          className="aria-[current=page]:bg-superficie aria-[current=page]:text-acento-forte rounded-lg py-2 font-medium text-neutral-600 aria-[current=page]:shadow-sm"
         >
           {a.nome}
         </Link>
@@ -44,7 +44,7 @@ export function AbasDoHistorico({
 }
 
 const classeSelect =
-  "rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-base outline-none focus:border-neutral-900";
+  "rounded-lg border border-neutral-300 bg-superficie px-3 py-2.5 text-base outline-none focus:border-acento";
 
 /**
  * Período, tipo de registro e projeto (10.7). É um formulário GET comum: os
@@ -68,7 +68,7 @@ export function FormularioDeFiltros({
     (filtros.tipo !== "tudo" ? 1 : 0) + (filtros.projetoId ? 1 : 0);
   return (
     <details
-      className="mt-3 rounded-lg border border-neutral-200"
+      className="bg-superficie mt-3 rounded-2xl shadow-sm"
       open={ativos > 0}
     >
       <summary className="cursor-pointer px-3 py-2 text-sm font-medium">
@@ -132,7 +132,7 @@ export function FormularioDeFiltros({
         <div className="flex items-center gap-3">
           <button
             type="submit"
-            className="rounded-lg bg-neutral-900 px-4 py-2 font-medium text-white"
+            className="bg-acento rounded-lg px-4 py-2 font-medium text-white"
           >
             Aplicar
           </button>
@@ -152,8 +152,8 @@ export function FormularioDeFiltros({
 
 function Numero({ valor, rotulo }: { valor: string; rotulo: string }) {
   return (
-    <div className="rounded-lg bg-neutral-100 px-3 py-2">
-      <p className="text-lg font-semibold tabular-nums">{valor}</p>
+    <div className="bg-superficie rounded-2xl px-4 py-3 shadow-sm">
+      <p className="text-acento text-2xl font-bold tabular-nums">{valor}</p>
       <p className="text-xs text-neutral-600">{rotulo}</p>
     </div>
   );
@@ -232,7 +232,7 @@ export function LinhaDoHistorico({
         aria-label={concluida ? "Concluída" : "Não concluída"}
         className={`mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border-2 text-[10px] ${
           concluida
-            ? "border-neutral-900 bg-neutral-900 text-white"
+            ? "border-acento bg-acento text-white"
             : "border-neutral-300"
         }`}
       >
@@ -289,7 +289,7 @@ export function LinhaDoTreino({ treino }: { treino: TreinoDoHistorico }) {
         href={`/treinos/${treino.id}`}
         className="flex items-center gap-3 py-2.5"
       >
-        <span className="shrink-0 rounded bg-sky-100 px-1.5 py-0.5 text-xs font-medium text-sky-900">
+        <span className="bg-acento-suave text-acento-forte shrink-0 rounded px-1.5 py-0.5 text-xs font-medium">
           Treino
         </span>
         <span className="min-w-0 flex-1 truncate">{treino.titulo}</span>

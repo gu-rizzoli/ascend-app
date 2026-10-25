@@ -89,9 +89,7 @@ function Marca({ concluida }: { concluida: boolean }) {
     <span
       aria-hidden="true"
       className={`flex size-7 shrink-0 items-center justify-center rounded-full border-2 ${
-        concluida
-          ? "border-neutral-900 bg-neutral-900 text-white"
-          : "border-neutral-300"
+        concluida ? "border-acento bg-acento text-white" : "border-neutral-300"
       }`}
     >
       {concluida && (
@@ -269,7 +267,7 @@ export function LinhaNumerica({ item, modo, dia }: Props) {
             className="h-1.5 overflow-hidden rounded-full bg-neutral-200"
           >
             <div
-              className="h-full rounded-full bg-neutral-900 transition-[width]"
+              className="bg-acento h-full rounded-full transition-[width]"
               style={{ width: `${progresso(valor, alvo) * 100}%` }}
             />
           </div>
@@ -280,7 +278,7 @@ export function LinhaNumerica({ item, modo, dia }: Props) {
             aria-label={`Atualizar ${item.titulo}`}
             aria-expanded={aberto}
             onClick={alternarPainel}
-            className="flex size-10 shrink-0 items-center justify-center rounded-full border border-neutral-300 text-xl leading-none"
+            className="bg-acento-suave text-acento-forte flex size-10 shrink-0 items-center justify-center rounded-full text-xl leading-none font-semibold"
           >
             {aberto ? "×" : "+"}
           </button>
@@ -298,7 +296,7 @@ export function LinhaNumerica({ item, modo, dia }: Props) {
                 <button
                   type="button"
                   onClick={() => somar(1)}
-                  className="rounded-full bg-white px-4 py-2 text-sm font-medium shadow-sm"
+                  className="bg-superficie rounded-full px-4 py-2 text-sm font-medium shadow-sm"
                 >
                   +1 {unidade}
                 </button>
@@ -306,7 +304,7 @@ export function LinhaNumerica({ item, modo, dia }: Props) {
                   <button
                     type="button"
                     onClick={() => somar(ultimo)}
-                    className="rounded-full bg-white px-4 py-2 text-sm font-medium shadow-sm"
+                    className="bg-superficie rounded-full px-4 py-2 text-sm font-medium shadow-sm"
                   >
                     +{formatarNumero(ultimo)} {unidade}
                   </button>
@@ -327,12 +325,12 @@ export function LinhaNumerica({ item, modo, dia }: Props) {
                   placeholder="Outro valor"
                   value={somaDigitada}
                   onChange={(e) => setSomaDigitada(e.target.value)}
-                  className="min-w-0 flex-1 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-base outline-none focus:border-neutral-900"
+                  className="bg-superficie focus:border-acento min-w-0 flex-1 rounded-lg border border-neutral-300 px-3 py-2 text-base outline-none"
                 />
                 <button
                   type="submit"
                   disabled={soma === null || soma === 0}
-                  className="rounded-lg bg-white px-4 py-2 text-sm font-medium shadow-sm disabled:opacity-50"
+                  className="bg-superficie rounded-lg px-4 py-2 text-sm font-medium shadow-sm disabled:opacity-50"
                 >
                   Somar
                 </button>
@@ -361,13 +359,13 @@ export function LinhaNumerica({ item, modo, dia }: Props) {
                 value={totalDigitado}
                 onChange={(e) => setTotalDigitado(e.target.value)}
                 onFocus={(e) => e.currentTarget.select()}
-                className="min-w-0 flex-1 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-base outline-none focus:border-neutral-900"
+                className="bg-superficie focus:border-acento min-w-0 flex-1 rounded-lg border border-neutral-300 px-3 py-2 text-base outline-none"
               />
               <span className="text-sm text-neutral-600">{unidade}</span>
               <button
                 type="submit"
                 disabled={total === null}
-                className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+                className="bg-acento rounded-lg px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
               >
                 Salvar
               </button>

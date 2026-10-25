@@ -15,11 +15,11 @@ import {
 
 // Uma cor só, mais forte quanto maior a taxa (10.3).
 const FUNDO = {
-  1: "bg-sky-50",
-  2: "bg-sky-100",
-  3: "bg-sky-200",
-  4: "bg-sky-300",
-  5: "bg-sky-400",
+  1: "bg-calor-1",
+  2: "bg-calor-2",
+  3: "bg-calor-3",
+  4: "bg-calor-4",
+  5: "bg-calor-5",
 } as const;
 
 const SEMANA = ["D", "S", "T", "Q", "Q", "S", "S"];
@@ -51,15 +51,15 @@ function Dia({
       {treino && (
         <span
           aria-hidden="true"
-          className="absolute top-1 right-1 size-1.5 rounded-full bg-neutral-900"
+          className="bg-acento absolute top-1 right-1 size-1.5 rounded-full"
         />
       )}
     </>
   );
-  const classe = `relative flex aspect-square flex-col items-center justify-center gap-0.5 rounded-lg text-sm ${
+  const classe = `relative flex aspect-square flex-col items-center justify-center gap-0.5 rounded-xl text-sm ${
     taxa !== null ? FUNDO[nivelDaTaxa(taxa)] : ""
-  } ${data === dataHoje ? "ring-2 ring-neutral-900" : ""} ${
-    aberto ? "ring-2 ring-sky-600" : ""
+  } ${data === dataHoje ? "ring-2 ring-acento" : ""} ${
+    aberto ? "ring-2 ring-acento-forte" : ""
   }`;
   const rotulo = [
     data,

@@ -69,7 +69,7 @@ export default async function PaginaListaDoHistorico({ searchParams }: Props) {
 
   return (
     <>
-      <h1 className="text-xl font-semibold">Histórico</h1>
+      <h1 className="text-xl font-bold tracking-tight">Histórico</h1>
       <div className="mt-3">
         <AbasDoHistorico atual="lista" filtros={filtros} />
       </div>
@@ -97,7 +97,7 @@ export default async function PaginaListaDoHistorico({ searchParams }: Props) {
             return (
               <li
                 key={dia.data}
-                className="rounded-lg border border-neutral-200 px-3 pt-2"
+                className="bg-superficie rounded-2xl px-4 pt-3 shadow-sm"
               >
                 <Link
                   href={

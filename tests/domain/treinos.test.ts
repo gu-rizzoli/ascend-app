@@ -182,6 +182,8 @@ describe("validarTreino", () => {
       "3 séries sem repetições foram descartadas.",
     );
     expect(avisoDeDescartadas(0)).toBeNull();
+    // Aberto da lista, sem ?descartadas no endereço: Number(undefined) é NaN.
+    expect(avisoDeDescartadas(Number(undefined))).toBeNull();
   });
 
   it("recusa treino sem nenhuma série com repetições", () => {

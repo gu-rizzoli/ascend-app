@@ -119,7 +119,7 @@ export function EscolherData({
             type="button"
             aria-pressed={escolhida === a.data}
             onClick={() => setEscolhida(a.data)}
-            className="flex-1 rounded-full bg-white px-4 py-2 text-sm font-medium shadow-sm aria-pressed:bg-neutral-900 aria-pressed:text-white"
+            className="bg-superficie aria-pressed:bg-acento flex-1 rounded-full px-4 py-2 text-sm font-medium shadow-sm aria-pressed:text-white"
           >
             {a.nome}
           </button>
@@ -135,7 +135,7 @@ export function EscolherData({
           min={hoje}
           value={escolhida}
           onChange={(e) => setEscolhida(e.target.value)}
-          className="rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-base outline-none focus:border-neutral-900"
+          className="bg-superficie focus:border-acento rounded-lg border border-neutral-300 px-3 py-2.5 text-base outline-none"
         />
       </label>
       {estado.erro && <p className="text-sm text-red-700">{estado.erro}</p>}
@@ -147,7 +147,7 @@ export function EscolherData({
         >
           Cancelar
         </button>
-        <BotaoEnviar className="flex-1 rounded-lg bg-neutral-900 px-4 py-3 font-medium text-white disabled:opacity-50">
+        <BotaoEnviar className="bg-acento flex-1 rounded-lg px-4 py-3 font-medium text-white disabled:opacity-50">
           {rotulo}
         </BotaoEnviar>
       </div>

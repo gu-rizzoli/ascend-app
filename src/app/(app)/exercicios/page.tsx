@@ -22,7 +22,7 @@ export default async function PaginaExercicios({ searchParams }: Props) {
 
   return (
     <>
-      <h1 className="text-xl font-semibold">Treinos</h1>
+      <h1 className="text-xl font-bold tracking-tight">Treinos</h1>
       <div className="mt-3">
         <AbasDeTreinos atual="/exercicios" />
       </div>
@@ -33,7 +33,7 @@ export default async function PaginaExercicios({ searchParams }: Props) {
             Arquivados não aparecem na busca, mas continuam nos treinos antigos.
           </p>
           {exercicios.length > 0 ? (
-            <ul className="mt-2 divide-y divide-neutral-200">
+            <ul className="bg-superficie mt-2 divide-y divide-neutral-200 rounded-2xl px-4 shadow-sm">
               {exercicios.map((e) => (
                 <li key={e.id}>
                   <Link

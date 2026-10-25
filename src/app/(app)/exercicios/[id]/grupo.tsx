@@ -36,7 +36,7 @@ export function GrupoDoExercicio({
             await mudarGrupo(form);
           });
         }}
-        className="rounded-lg border border-neutral-300 bg-white px-3 py-2 text-base outline-none focus:border-neutral-900"
+        className="bg-superficie focus:border-acento rounded-lg border border-neutral-300 px-3 py-2 text-base outline-none"
       >
         <option value="">{SEM_GRUPO}</option>
         {GRUPOS_MUSCULARES.map((g) => (

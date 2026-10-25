@@ -1,21 +1,98 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #1f1f1f;
+/*
+ * Cores do app como variáveis (tokens). Os componentes usam só nomes de
+ * papel: fundo, superficie, acento, calor-1 a 5 (calendário) e a escala
+ * neutral, que cada estilo tinge do seu jeito.
+ *
+ * Dois estilos (navegacao.md, decisão 11): Menta, claro, e Noite, escuro. O
+ * data-tema do <html> é decidido por src/ui/aparencia.tsx.
+ */
+@theme {
+  --color-fundo: var(--fundo);
+  --color-superficie: var(--superficie);
+  --color-texto: var(--texto);
+  --color-acento: var(--acento);
+  --color-acento-suave: var(--acento-suave);
+  --color-acento-forte: var(--acento-forte);
+  --color-calor-1: var(--calor-1);
+  --color-calor-2: var(--calor-2);
+  --color-calor-3: var(--calor-3);
+  --color-calor-4: var(--calor-4);
+  --color-calor-5: var(--calor-5);
+  --font-sans:
+    var(--fonte-jakarta), system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+/* Menta: claro, verde de progresso, fundo levemente esverdeado. */
+:root {
+  --fundo: #eef5f1;
+  --superficie: #ffffff;
+  --texto: #13231c;
+  --acento: #0b7f54;
+  --acento-suave: #d6f1e4;
+  --acento-forte: #075c3c;
+  --calor-1: #e1f5eb;
+  --calor-2: #b9e8d1;
+  --calor-3: #86d6b0;
+  --calor-4: #4fbf8c;
+  --calor-5: #22a56b;
+  --color-neutral-100: #e9f0ec;
+  --color-neutral-200: #d9e3dd;
+  --color-neutral-300: #bfcdc5;
+  --color-neutral-400: #95a59c;
+  --color-neutral-500: #66776e;
+  --color-neutral-600: #4b5b53;
+  --color-neutral-700: #364540;
+}
+
+/* Noite: escuro, violeta, cartões em azul profundo. */
+[data-tema="escuro"] {
+  color-scheme: dark;
+  --fundo: #0d0f1e;
+  --superficie: #171a2e;
+  --texto: #e9eaf5;
+  --acento: #7457f5;
+  --acento-suave: #2a2552;
+  --acento-forte: #b7a8ff;
+  --calor-1: #26224a;
+  --calor-2: #362d72;
+  --calor-3: #4a3a9c;
+  --calor-4: #6247cc;
+  --calor-5: #7d5cf5;
+  /* A escala neutra invertida: 100 é painel, 700 é texto claro. */
+  --color-neutral-100: #20243b;
+  --color-neutral-200: #2a2f4a;
+  --color-neutral-300: #3b405f;
+  --color-neutral-400: #5c6286;
+  --color-neutral-500: #8d93b4;
+  --color-neutral-600: #a9aecb;
+  --color-neutral-700: #c9cce2;
+  --color-amber-50: #2a2213;
+  --color-amber-100: #463716;
+  --color-amber-200: #4d3d18;
+  --color-amber-500: #fbbf24;
+  --color-amber-800: #fcd34d;
+  --color-amber-900: #fde68a;
+  --color-red-50: #3a1519;
+  --color-red-100: #4a1a1f;
+  --color-red-300: #7f2a33;
+  --color-red-700: #f05252;
+  --color-red-800: #fca5a5;
+  --color-red-900: #fecaca;
+  --color-green-700: #4ade80;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family:
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    sans-serif;
+  background: var(--fundo);
+  color: var(--texto);
+}
+
+/* Campos sobre a superfície, para se destacarem do fundo tingido. */
+@layer base {
+  input:not([type="checkbox"], [type="radio"]),
+  textarea,
+  select {
+    background-color: var(--superficie);
+  }
 }

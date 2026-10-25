@@ -16,7 +16,7 @@ export function Campo({ rotulo, name, erro, ...input }: Props) {
         name={name}
         aria-invalid={erro ? true : undefined}
         aria-describedby={erro ? idErro : undefined}
-        className="rounded-lg border border-neutral-300 px-3 py-2.5 text-base outline-none focus:border-neutral-900 aria-invalid:border-red-600"
+        className="focus:border-acento rounded-lg border border-neutral-300 px-3 py-2.5 text-base outline-none aria-invalid:border-red-600"
         {...input}
       />
       {erro && (

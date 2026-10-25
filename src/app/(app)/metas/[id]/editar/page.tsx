@@ -83,7 +83,7 @@ export default async function PaginaEditarMeta({
         >
           ‹
         </Link>
-        <h1 className="text-xl font-semibold">Editar meta</h1>
+        <h1 className="text-xl font-bold tracking-tight">Editar meta</h1>
       </header>
       <FormularioEdicao
         metaId={m.id}

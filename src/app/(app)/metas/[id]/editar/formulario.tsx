@@ -76,8 +76,8 @@ function BotaoEscopo({
       disabled={disabled || pending}
       className={
         escopo === "proximas"
-          ? "rounded-lg bg-neutral-900 px-4 py-3 font-medium text-white disabled:opacity-50"
-          : "rounded-lg border border-neutral-300 bg-white px-4 py-3 font-medium disabled:opacity-40"
+          ? "bg-acento rounded-lg px-4 py-3 font-medium text-white disabled:opacity-50"
+          : "bg-superficie rounded-lg border border-neutral-300 px-4 py-3 font-medium disabled:opacity-40"
       }
     >
       {children}
@@ -160,7 +160,7 @@ export function FormularioEdicao({
               inputMode="decimal"
               defaultValue={v.valorAlvo}
               aria-invalid={erros.valorAlvo ? true : undefined}
-              className="min-w-0 flex-1 rounded-lg border border-neutral-300 px-3 py-2.5 text-base outline-none focus:border-neutral-900 aria-invalid:border-red-600"
+              className="focus:border-acento min-w-0 flex-1 rounded-lg border border-neutral-300 px-3 py-2.5 text-base outline-none aria-invalid:border-red-600"
             />
             <span className="text-sm text-neutral-600">{unidade}</span>
           </span>
@@ -207,7 +207,7 @@ export function FormularioEdicao({
               rows={2}
               maxLength={500}
               defaultValue={v.descricao}
-              className="rounded-lg border border-neutral-300 px-3 py-2.5 text-base outline-none focus:border-neutral-900"
+              className="focus:border-acento rounded-lg border border-neutral-300 px-3 py-2.5 text-base outline-none"
             />
             <Erro id="descricao-erro" texto={erros.descricao} />
           </label>

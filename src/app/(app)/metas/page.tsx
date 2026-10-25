@@ -66,7 +66,9 @@ function Secao({
       <h2 className="text-xs font-medium tracking-wide text-neutral-500 uppercase">
         {titulo}
       </h2>
-      <ul className="mt-1 divide-y divide-neutral-200">{children}</ul>
+      <ul className="bg-superficie mt-1 divide-y divide-neutral-200 rounded-2xl px-4 shadow-sm">
+        {children}
+      </ul>
     </section>
   );
 }
@@ -95,7 +97,7 @@ export default async function PaginaTodasAsMetas() {
         >
           ‹
         </Link>
-        <h1 className="text-xl font-semibold">Todas as metas</h1>
+        <h1 className="text-xl font-bold tracking-tight">Todas as metas</h1>
       </header>
 
       {vazio ? (
