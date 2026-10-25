@@ -6,35 +6,57 @@ export const SENHA_MINIMA = 8;
 // Argon2 aceita senhas longas, mas um limite evita hash de textos enormes.
 export const SENHA_MAXIMA = 128;
 
+const nome = z
+  .string()
+  .trim()
+  .min(1, "Digite seu nome.")
+  .max(80, "Use no máximo 80 caracteres.");
+
 const email = z
   .string()
   .trim()
   .toLowerCase()
   .pipe(z.email("Digite um e-mail válido."));
 
-export const esquemaCadastro = z.object({
-  nome: z
-    .string()
-    .trim()
-    .min(1, "Digite seu nome.")
-    .max(80, "Use no máximo 80 caracteres."),
-  email,
-  senha: z
-    .string()
-    .min(
-      SENHA_MINIMA,
-      `A senha precisa ter pelo menos ${SENHA_MINIMA} caracteres.`,
-    )
-    .max(SENHA_MAXIMA, `Use no máximo ${SENHA_MAXIMA} caracteres.`),
-});
+const senhaNova = z
+  .string()
+  .min(
+    SENHA_MINIMA,
+    `A senha precisa ter pelo menos ${SENHA_MINIMA} caracteres.`,
+  )
+  .max(SENHA_MAXIMA, `Use no máximo ${SENHA_MAXIMA} caracteres.`);
 
-export const esquemaEntrada = z.object({
-  email,
-  senha: z.string().min(1, "Digite sua senha.").max(SENHA_MAXIMA),
-});
+const senhaDigitada = z.string().min(1, "Digite sua senha.").max(SENHA_MAXIMA);
+
+export const esquemaCadastro = z.object({ nome, email, senha: senhaNova });
+
+export const esquemaEntrada = z.object({ email, senha: senhaDigitada });
+
+/*
+ * Configurações mínimas (11.6, RF-GLO-11). Trocar e-mail ou senha pede a
+ * senha atual: quem pegar o celular desbloqueado não toma a conta. A nova
+ * senha é digitada duas vezes porque o MVP não tem "esqueci minha senha".
+ */
+export const esquemaNome = z.object({ nome });
+
+export const esquemaEmail = z.object({ email, senhaAtual: senhaDigitada });
+
+export const esquemaSenha = z
+  .object({
+    senhaAtual: senhaDigitada,
+    novaSenha: senhaNova,
+    confirmacao: z.string(),
+  })
+  .refine((d) => d.novaSenha === d.confirmacao, {
+    path: ["confirmacao"],
+    message: "As duas senhas não são iguais.",
+  });
 
 export type DadosCadastro = z.infer<typeof esquemaCadastro>;
 export type DadosEntrada = z.infer<typeof esquemaEntrada>;
+export type DadosNome = z.infer<typeof esquemaNome>;
+export type DadosEmail = z.infer<typeof esquemaEmail>;
+export type DadosSenha = z.infer<typeof esquemaSenha>;
 
 export type ErrosDeCampo<T> = Partial<Record<keyof T, string>>;
 

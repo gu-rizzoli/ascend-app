@@ -4,7 +4,10 @@ import {
   DIAS_DE_SESSAO,
   errosPorCampo,
   esquemaCadastro,
+  esquemaEmail,
   esquemaEntrada,
+  esquemaNome,
+  esquemaSenha,
   expiracaoDaSessao,
   sessaoExpirada,
   sessaoPrecisaRenovar,
@@ -84,5 +87,52 @@ describe("sessão", () => {
     expect(sessaoPrecisaRenovar(expira, new Date("2026-11-08T13:00:00Z"))).toBe(
       true,
     );
+  });
+});
+
+describe("alterações da conta (11.6)", () => {
+  it("o nome segue as regras do cadastro", () => {
+    expect(esquemaNome.parse({ nome: " Gu " })).toEqual({ nome: "Gu" });
+    expect(esquemaNome.safeParse({ nome: "  " }).success).toBe(false);
+  });
+
+  it("trocar o e-mail normaliza e pede a senha atual", () => {
+    expect(
+      esquemaEmail.parse({ email: " Novo@X.com ", senhaAtual: "abc" }),
+    ).toEqual({ email: "novo@x.com", senhaAtual: "abc" });
+    const r = esquemaEmail.safeParse({ email: "novo@x.com", senhaAtual: "" });
+    expect(r.success).toBe(false);
+    if (!r.success) {
+      expect(errosPorCampo(r.error).senhaAtual).toBe("Digite sua senha.");
+    }
+  });
+
+  it("a nova senha tem o mínimo do cadastro e precisa ser repetida", () => {
+    const curta = esquemaSenha.safeParse({
+      senhaAtual: "velha",
+      novaSenha: "curta",
+      confirmacao: "curta",
+    });
+    expect(curta.success).toBe(false);
+
+    const diferente = esquemaSenha.safeParse({
+      senhaAtual: "velha",
+      novaSenha: "12345678",
+      confirmacao: "12345679",
+    });
+    expect(diferente.success).toBe(false);
+    if (!diferente.success) {
+      expect(errosPorCampo(diferente.error)).toEqual({
+        confirmacao: "As duas senhas não são iguais.",
+      });
+    }
+
+    expect(
+      esquemaSenha.safeParse({
+        senhaAtual: "velha",
+        novaSenha: "12345678",
+        confirmacao: "12345678",
+      }).success,
+    ).toBe(true);
   });
 });

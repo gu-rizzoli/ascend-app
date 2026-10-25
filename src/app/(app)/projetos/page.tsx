@@ -15,6 +15,7 @@ import {
 } from "@/server/projetos";
 import { exigirUsuario } from "@/server/sessao";
 import { classeBotao } from "@/ui/botao";
+import { BotaoFlutuante } from "@/ui/botao-flutuante";
 
 import { Estrela, ProximoPasso, SeloPrazoVencido } from "./pecas";
 
@@ -178,15 +179,7 @@ export default async function PaginaProjetos() {
             dataHoje={dataHoje}
           />
 
-          <div className="pointer-events-none fixed inset-x-0 bottom-20 z-10 mx-auto flex max-w-md justify-end px-4">
-            <Link
-              href="/projetos/novo"
-              aria-label="Novo projeto"
-              className="pointer-events-auto flex size-14 items-center justify-center rounded-full bg-neutral-900 text-3xl leading-none text-white shadow-lg"
-            >
-              +
-            </Link>
-          </div>
+          <BotaoFlutuante href="/projetos/novo" rotulo="Novo projeto" />
         </>
       )}
     </>

@@ -54,6 +54,7 @@ Implementado na entrega 1. Responde aos itens "método de sessão autenticada" e
 - **Sessão:** um token aleatório fica num cookie `HttpOnly`, `SameSite=Lax` e `Secure` em produção. O banco guarda só o hash SHA-256 do token (tabela `sessao`). A sessão vale 30 dias e é estendida quando passa da metade, então quem usa o app com frequência não precisa entrar de novo. Sair apaga a sessão do banco.
 - **Erro ao entrar:** a mensagem é sempre "E-mail ou senha incorretos", sem dizer qual dos dois.
 - **`fechado_ate`:** nasce como a véspera do cadastro, porque não há dias a fechar antes de a conta existir.
+- **Alterar a conta (entrega 8, RF-GLO-11):** `/conta` tem um formulário para cada coisa: nome, e-mail e senha (`alterarNome()`, `alterarEmail()` e `alterarSenha()` em `src/server/conta.ts`). Trocar e-mail ou senha pede a senha atual. A nova senha é digitada duas vezes, porque o MVP não tem "esqueci minha senha". Trocar a senha apaga as sessões dos outros aparelhos, na mesma transação, e mantém a deste.
 
 ## Metas: lista do dia e materialização
 
@@ -119,6 +120,18 @@ Implementado na entrega 7 (RF-HIS-01 a 15), seguindo [Histórico](../produto/his
 - **Correção:** a escrita saiu da Server Action para `corrigir()` em `src/server/correcao.ts`, que também tira a cópia pendente de uma original reagendada corrigida para concluída (decisão 21 dos fluxos de Metas) e avisa para revalidar os outros dias.
 - **Telas:** `/historico`, `/historico/lista` e `/historico/AAAA-MM-DD`. A aba Histórico da barra passa a funcionar.
 - **Abas instantâneas:** as 4 abas da barra usam prefetch completo, como as setas do dia, e o nome pulsa se o toque chegar antes. Qualquer outro link mostra o esqueleto de `src/app/(app)/loading.tsx` na hora. Por isso, toda escrita que muda outra área chama `revalidatePath("/", "layout")`, inclusive a correção retroativa, que muda o Histórico. Marcar uma meta de hoje ou do futuro continua com `refresh()`, porque o Histórico só mostra até ontem.
+
+## Computador e testes de ponta a ponta
+
+Entrega 8 (RNF-05), seguindo [Navegação](../produto/navegacao.md), "Celular e computador". Sem migração.
+
+- **Layout:** a partir de 768 px (`md:` do Tailwind) a barra de baixo vira a barra lateral, com a Conta no fim, e o botão redondo vira um botão com nome no topo (`src/ui/botao-flutuante.tsx`). O conteúdo fica numa coluna de até 768 px, e os formulários em até 576 px.
+- **Histórico:** o detalhe do dia lê o mês inteiro de uma vez e, no computador, mostra o calendário ao lado (`CalendarioDoMes` em `historico/calendario.tsx`). O celular continua igual.
+- **Testes:** Playwright em `e2e/`, contra o build de produção (`pnpm build`, depois `pnpm test:e2e`) e o banco de `DATABASE_URL_TESTE`, que nunca pode ser o Neon. Cada teste cria a própria conta e roda duas vezes: celular (Pixel 7) e computador (1280 × 800). O CI roda depois do build.
+
+## Região do banco
+
+O Netlify grátis roda as funções em Ohio (`us-east-2`) e só os planos Pro e Enterprise escolhem outra região. Com o banco em São Paulo, cada consulta atravessava o continente (~120 ms). Em 25/10/2026 o banco passou para um projeto Neon novo em `aws-us-east-2`, ao lado das funções, com os dados copiados. O projeto de São Paulo ficou parado como cópia de segurança.
 
 ## Migrações em produção
 

@@ -21,6 +21,7 @@ const COOKIE_MAX_AGE = 400 * 24 * 60 * 60;
 
 export type UsuarioDaSessao = {
   id: string;
+  sessaoId: string;
   nome: string;
   email: string;
   fechadoAte: string;
@@ -97,8 +98,8 @@ export const usuarioAtual = cache(async (): Promise<UsuarioDaSessao | null> => {
       .where(eq(sessao.id, linha.sessaoId));
   }
 
-  const { id, nome, email, fechadoAte } = linha;
-  return { id, nome, email, fechadoAte };
+  const { sessaoId, id, nome, email, fechadoAte } = linha;
+  return { id, sessaoId, nome, email, fechadoAte };
 });
 
 /** Para páginas logadas: devolve o usuário ou manda para /entrar (RF-GLO-04). */

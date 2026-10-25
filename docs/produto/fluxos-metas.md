@@ -188,3 +188,10 @@ Pontos que os fluxos acima não fechavam e que a entrega 4 precisou decidir. Tod
 | --- | --- | --- |
 | 20 | Reativar uma meta que tinha uma mudança agendada ("esta e as próximas" numa data futura) | A regra de antes volta a valer de hoje até a véspera da mudança, e a mudança segue agendada. Antes da correção, os dias entre hoje e a mudança sumiam |
 | 21 | Corrigir para concluída uma original que já tinha sido reagendada (decidido na entrega 7) | A cópia sai se ainda estiver pendente (hoje ou no futuro), porque a meta foi feita no dia original. Se a cópia já foi concluída ou o dia dela já encerrou, as duas ficam |
+
+## Ajustes da entrega 8 (25/10/2026)
+
+| # | Situação | Como ficou |
+| --- | --- | --- |
+| 22 | Uma ocorrência de uma mudança agendada foi antecipada para antes da data de uma nova edição "esta e as próximas" | Ela continua com a regra de quando foi mostrada (título, horário, alvo). A versão dela fica guardada, vazia, só para o histórico. Antes, o título dela mudava no histórico |
+| 23 | Valor digitado com ponto de milhar ("1.000") | Ponto seguido de grupos de 3 dígitos é milhar, como o app escreve os números: "1.000" é mil e "12.500,5" é doze mil e quinhentos e meio. Qualquer outro ponto vale como vírgula ("1.5" é um e meio). Antes, "1.000" virava 1 |

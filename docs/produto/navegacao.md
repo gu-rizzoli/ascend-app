@@ -84,3 +84,12 @@ No celular, a barra inferior some só dentro de formulários, para dar espaço a
 | 4 | Onde o app abre? | Sempre em Hoje, na data atual |
 | 5 | Exercícios e Modelos têm área própria? | Não; são abas dentro de Treinos |
 | 6 | Botão flutuante por área | Hoje: Nova meta. Projetos: Novo projeto. Treinos: Registrar treino. Histórico: nenhum |
+
+## Decisões da entrega 8 (25/10/2026)
+
+| # | Pergunta | Decisão |
+| --- | --- | --- |
+| 7 | Formulários no computador | Abrem na própria tela, numa coluna mais estreita, com a barra lateral à vista, em vez do painel lateral sobre a lista. O painel exigiria telas sobrepostas em todos os formulários de meta e projeto, e o ganho para um usuário só é pequeno |
+| 8 | A partir de que largura vale o layout de computador | 768 px (tablet deitado e computador) |
+| 9 | Conta: o que pede a senha atual | Trocar e-mail e trocar senha. Nome não pede |
+| 10 | Trocar a senha e os outros aparelhos | Os outros aparelhos saem e precisam entrar com a senha nova; este continua dentro |
