@@ -1,9 +1,12 @@
+import { readFileSync } from "node:fs";
+
 import { describe, expect, it } from "vitest";
 
 import { paraDataCivil } from "@/domain/datas";
 import {
   avisoDeDescartadas,
   buscarExercicios,
+  EXERCICIOS_INICIAIS,
   faixaDeRepeticoes,
   formatarSeries,
   lerCarga,
@@ -291,5 +294,26 @@ describe("modelos", () => {
     expect(
       validarModelo({ nome: "A", observacao: "", exercicios: [] }).ok,
     ).toBe(false);
+  });
+});
+
+describe("catálogo inicial", () => {
+  it("não tem nomes repetidos e a migração 0005 grava a mesma lista", () => {
+    const normalizados = EXERCICIOS_INICIAIS.map(normalizarNome);
+    expect(new Set(normalizados).size).toBe(EXERCICIOS_INICIAIS.length);
+    const sql = readFileSync(
+      new URL(
+        "../../src/db/migrations/0005_exercicios_iniciais.sql",
+        import.meta.url,
+      ),
+      "utf8",
+    );
+    const linhas = [...sql.matchAll(/\('([^']+)', '([^']+)'\)/g)].map((m) => [
+      m[1],
+      m[2],
+    ]);
+    expect(linhas).toEqual(
+      EXERCICIOS_INICIAIS.map((n) => [n, normalizarNome(n)]),
+    );
   });
 });

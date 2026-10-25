@@ -14,6 +14,7 @@ import {
 } from "@/db/schema";
 import type { DataCivil } from "@/domain/datas";
 import {
+  EXERCICIOS_INICIAIS,
   limparNome,
   normalizarNome,
   type ModeloValido,
@@ -139,6 +140,20 @@ export async function criarExercicio(
     .returning(colunasExercicio);
   if (!existente) return { ok: false, erro: "Não foi possível criar." };
   return { ok: true, exercicio: paraExercicio(existente), jaExistia: true };
+}
+
+/** Grava o catálogo inicial na conta nova (decisão 16). */
+export async function semearExercicios(executor: Executor, usuarioId: string) {
+  await executor
+    .insert(exercicio)
+    .values(
+      EXERCICIOS_INICIAIS.map((nome) => ({
+        usuarioId,
+        nome,
+        nomeNormalizado: normalizarNome(nome),
+      })),
+    )
+    .onConflictDoNothing();
 }
 
 /** Renomeia; o novo nome vale em todos os treinos (decisão 4). */

@@ -102,3 +102,4 @@ Pontos que a especificação deixava em aberto e foram resolvidos ao construir, 
 | 13 | Onde fica o "Novo exercício" | No catálogo, usando a mesma busca do registro: os parecidos aparecem antes de criar |
 | 14 | Editar treino muda o modelo de origem? | Não; a referência ao modelo fica como no registro |
 | 15 | Título de um treino sem nome | Os nomes dos exercícios, na ordem ("Supino reto, Flexão") |
+| 16 | Catálogo vazio no primeiro acesso? | Não: toda conta começa com cerca de 35 exercícios comuns (supino, agachamento, rosca…), que se renomeiam, arquivam ou excluem como os outros. Pedido em 25/10/2026 |

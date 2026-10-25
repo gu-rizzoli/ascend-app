@@ -17,6 +17,7 @@ import { hoje, somarDias } from "@/domain/datas";
 
 import { conferirSenha, gerarHashDeSenha } from "./senha";
 import { encerrarSessao, iniciarSessao } from "./sessao";
+import { semearExercicios } from "./treinos";
 
 export type EstadoFormulario<T> = {
   erros?: ErrosDeCampo<T>;
@@ -45,11 +46,16 @@ export async function cadastrar(
   const { nome, email, senha } = resultado.data;
 
   const senhaHash = await gerarHashDeSenha(senha);
-  const [novo] = await db()
-    .insert(usuario)
-    .values({ nome, email, senhaHash, fechadoAte: somarDias(hoje(), -1) })
-    .onConflictDoNothing()
-    .returning({ id: usuario.id });
+  // A conta nasce com o catálogo inicial de exercícios (treinos.md, 16).
+  const novo = await db().transaction(async (tx) => {
+    const [criado] = await tx
+      .insert(usuario)
+      .values({ nome, email, senhaHash, fechadoAte: somarDias(hoje(), -1) })
+      .onConflictDoNothing()
+      .returning({ id: usuario.id });
+    if (criado) await semearExercicios(tx, criado.id);
+    return criado;
+  });
   if (!novo) {
     return {
       erros: { email: "Já existe uma conta com este e-mail." },

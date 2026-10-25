@@ -31,6 +31,57 @@ export function normalizarNome(nome: string): string {
     .trim();
 }
 
+/**
+ * O catálogo com que toda conta começa: os exercícios mais comuns, para o
+ * primeiro registro não exigir cadastro. São exercícios como os outros: dá
+ * para renomear, arquivar ou excluir (treinos.md, decisão 16). A migração
+ * 0005 grava a mesma lista nas contas que já existiam.
+ */
+export const EXERCICIOS_INICIAIS = [
+  // Peito
+  "Supino reto",
+  "Supino inclinado",
+  "Supino declinado",
+  "Crucifixo",
+  "Crossover",
+  "Flexão",
+  // Costas
+  "Puxada frontal",
+  "Barra fixa",
+  "Remada curvada",
+  "Remada baixa",
+  "Remada unilateral",
+  "Levantamento terra",
+  // Ombros
+  "Desenvolvimento",
+  "Elevação lateral",
+  "Elevação frontal",
+  "Crucifixo inverso",
+  // Bíceps
+  "Rosca direta",
+  "Rosca alternada",
+  "Rosca martelo",
+  "Rosca Scott",
+  // Tríceps
+  "Tríceps pulley",
+  "Tríceps testa",
+  "Tríceps francês",
+  "Paralelas",
+  // Pernas
+  "Agachamento livre",
+  "Leg press",
+  "Cadeira extensora",
+  "Mesa flexora",
+  "Stiff",
+  "Afundo",
+  "Elevação pélvica",
+  "Cadeira abdutora",
+  "Panturrilha em pé",
+  // Abdômen
+  "Abdominal",
+  "Abdominal infra",
+] as const;
+
 /** O nome como fica gravado: só sem espaços sobrando. */
 export function limparNome(nome: string): string {
   return nome.replace(/\s+/g, " ").trim();

@@ -3,7 +3,11 @@ import { expect, it } from "vitest";
 
 import { db } from "@/db";
 import { exercicio, projetoAtualTroca, projeto, treino } from "@/db/schema";
-import type { ModeloValido, TreinoValido } from "@/domain/treinos";
+import {
+  EXERCICIOS_INICIAIS,
+  type ModeloValido,
+  type TreinoValido,
+} from "@/domain/treinos";
 import { projetoEmFoco } from "@/server/projetos";
 import {
   criarExercicio,
@@ -15,6 +19,7 @@ import {
   gravarTreino,
   historicoDoExercicio,
   renomearExercicio,
+  semearExercicios,
   treinoDoUsuario,
   treinosDoUsuario,
 } from "@/server/treinos";
@@ -199,6 +204,19 @@ comBanco("treinos no banco", () => {
     expect(depois!.exercicios[0]!.series).toEqual([s(10, 40)]);
     const [linha] = await db().select().from(treino).where(eq(treino.id, t));
     expect(linha!.modeloId).toBeNull();
+  });
+});
+
+comBanco("catálogo inicial", () => {
+  it("semeia uma vez só e não duplica um nome que a conta já tem", async () => {
+    const u = await novoUsuario("2026-10-19");
+    await novoExercicio(u, "supino  RETO");
+    await semearExercicios(db(), u);
+    await semearExercicios(db(), u);
+    const nomes = (await exerciciosDoUsuario(u)).map((e) => e.nome);
+    expect(nomes).toHaveLength(EXERCICIOS_INICIAIS.length);
+    expect(nomes).toContain("supino RETO");
+    expect(nomes).not.toContain("Supino reto");
   });
 });
 
