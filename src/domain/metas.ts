@@ -66,6 +66,8 @@ export type CamposNovaMeta = {
   intervaloDias: string;
   horario: string;
   dataInicio: string;
+  // Id do projeto associado, ou vazio (RF-PRO-07). Quem grava confere o dono.
+  projeto: string;
 };
 
 export type NovaMeta = {
@@ -75,6 +77,7 @@ export type NovaMeta = {
   unidade: string | null;
   valorAlvo: number | null;
   horario: string | null;
+  projetoId: string | null;
   regra: Regra;
 };
 
@@ -145,6 +148,13 @@ const camposComuns = {
     .string()
     .trim()
     .refine((v) => v === "" || HORARIO.test(v), "Horário inválido."),
+  projeto: z
+    .string()
+    .refine(
+      (v) => v === "" || z.uuid().safeParse(v).success,
+      "Projeto inválido.",
+    )
+    .transform((v) => (v === "" ? null : v)),
 };
 
 /**
@@ -186,6 +196,7 @@ export function esquemaNovaMeta(hoje: DataCivil) {
         unidade,
         valorAlvo,
         horario: c.horario === "" ? null : c.horario,
+        projetoId: c.projeto,
         regra: {
           ...lerFrequencia(c, problema),
           vigenteDe,
@@ -212,6 +223,7 @@ export type EdicaoMeta = {
   descricao: string | null;
   valorAlvo: number | null;
   horario: string | null;
+  projetoId: string | null;
   frequencia: Pick<Regra, "frequencia" | "diasSemana" | "intervaloDias">;
 };
 
@@ -235,6 +247,7 @@ export function esquemaEdicaoMeta(tipo: TipoMeta, recorrente: boolean) {
       descricao: c.descricao,
       valorAlvo: tipo === "numerica" ? lerAlvo(c.valorAlvo, problema) : null,
       horario: c.horario === "" ? null : c.horario,
+      projetoId: c.projeto,
       frequencia: lerFrequencia(c, problema),
     };
   });

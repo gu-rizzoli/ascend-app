@@ -70,7 +70,7 @@ Basta uma tabela nova. As ligações com Metas e com o projeto atual já existem
 | Criar | 1 `projeto`, mais 1 `projeto_atual_troca` se "Tornar atual" estiver marcado |
 | Trocar ou remover o atual | 1 `projeto_atual_troca` com a data de hoje, com `projeto_id` nulo para remover |
 | Concluir ou arquivar | Atualiza `status`. Se era o atual, grava uma troca para nenhum. Se o usuário escolher pausar metas, aplica a pausa de Metas em cada uma. Tudo numa transação |
-| Excluir | Apaga o `projeto`. O `ON DELETE SET NULL` limpa `meta_versao.projeto_id` e `projeto_atual_troca.projeto_id`. Se era o atual, grava uma troca para nenhum |
+| Excluir | Apaga o `projeto`. O `ON DELETE SET NULL` limpa `meta_versao.projeto_id` e `projeto_atual_troca.projeto_id`. Se era o atual, a última troca vira "nenhum" pelo próprio `SET NULL`, sem gravar outra |
 | Prazo vencido | Nada é gravado. É calculado na leitura: `prazo < hoje AND status NOT IN ('concluido', 'arquivado')` |
 
 Com o `SET NULL` em `projeto_atual_troca`, o Histórico mostra "sem projeto em foco" nas datas em que um projeto excluído era o atual. Isso segue a regra 10.8, "referência histórica ao projeto, enquanto ele existir".
@@ -86,3 +86,18 @@ Com o `SET NULL` em `projeto_atual_troca`, o Histórico mostra "sem projeto em f
 | 5 | Metas recorrentes ao concluir ou arquivar | Manter ativas, Pausar todas ou Escolher uma a uma |
 | 6 | Excluir projeto com metas | Sugere arquivar; excluir mesmo assim exige digitar o nome |
 | 7 | Reabrir projeto | Não reativa metas pausadas |
+
+## Detalhes da implementação (entrega 5, 25/10/2026)
+
+Pontos que a especificação deixava em aberto e foram resolvidos ao construir, sem mudar o escopo:
+
+| # | Situação | Como ficou |
+| --- | --- | --- |
+| 8 | Status no formulário de criar e editar | Só Planejado, Em andamento e Pausado. Concluir e Arquivar têm botão próprio no detalhe, porque perguntam o que fazer com as metas |
+| 9 | Projeto concluído pode ser arquivado? | Sim, com a mesma pergunta sobre metas. Um arquivado volta por Reabrir |
+| 10 | Reabrir | Botão Reabrir no detalhe, ou trocar o status no formulário de edição |
+| 11 | Estrela em projeto concluído ou arquivado | Não aparece: só um projeto aberto vira o atual |
+| 12 | Onde o projeto atual aparece em Hoje | Só na lista do dia atual (`/hoje`). Em outras datas, o foco é assunto do Histórico |
+| 13 | Projeto de uma meta recorrente | É parte da regra, como a descrição: muda só em "esta e as próximas" e as datas que passaram mantêm o projeto de antes |
+| 14 | Ao concluir ou arquivar sem metas recorrentes ativas | Não há pergunta; o status muda com um toque |
+| 15 | Confirmação por nome ao excluir | Ignora maiúsculas e espaços nas pontas |

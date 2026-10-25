@@ -147,3 +147,35 @@ export function CamposFrequencia({
     </fieldset>
   );
 }
+
+/** O projeto associado (RF-PRO-07): só projetos não concluídos nem arquivados. */
+export function CampoProjeto({
+  projetos,
+  valor,
+  erro,
+}: {
+  projetos: { id: string; nome: string }[];
+  valor: string;
+  erro?: string;
+}) {
+  return (
+    <label className="flex flex-col gap-1">
+      <span className="text-sm font-medium">Projeto</span>
+      <select
+        name="projeto"
+        defaultValue={valor}
+        aria-invalid={erro ? true : undefined}
+        aria-describedby={erro ? "projeto-erro" : undefined}
+        className="rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-base outline-none focus:border-neutral-900 aria-invalid:border-red-600"
+      >
+        <option value="">Nenhum</option>
+        {projetos.map((p) => (
+          <option key={p.id} value={p.id}>
+            {p.nome}
+          </option>
+        ))}
+      </select>
+      <Erro id="projeto-erro" texto={erro} />
+    </label>
+  );
+}

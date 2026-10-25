@@ -13,6 +13,7 @@ import {
 import { pausarMeta, reativarMeta } from "@/server/acoes-recorrencia";
 import { usuarioComDiasFechados } from "@/server/fechamento";
 import { metaDoUsuario, ocorrenciaDoDetalhe } from "@/server/metas";
+import { projetoDoUsuario } from "@/server/projetos";
 import { classeBotao } from "@/ui/botao";
 
 import {
@@ -100,6 +101,9 @@ export default async function PaginaMeta({ params, searchParams }: Props) {
   const ativa = m.estado === "ativa";
   const podeEditar = ativa && (!o || o.data >= dataHoje);
   // A regra que vale para o futuro, não a de uma ocorrência antiga.
+  const projeto = versao.projetoId
+    ? await projetoDoUsuario(usuario.id, versao.projetoId)
+    : null;
   const comeca =
     referencia.vigenteDe > dataHoje
       ? `Começa em ${formatarDataCurta(referencia.vigenteDe)}`
@@ -135,6 +139,17 @@ export default async function PaginaMeta({ params, searchParams }: Props) {
       {versao.descricao && (
         <p className="mt-3 text-sm whitespace-pre-line text-neutral-700">
           {versao.descricao}
+        </p>
+      )}
+      {projeto && (
+        <p className="mt-3 text-sm text-neutral-600">
+          Projeto:{" "}
+          <Link
+            href={`/projetos/${projeto.id}`}
+            className="font-medium text-neutral-900 underline"
+          >
+            {projeto.nome}
+          </Link>
         </p>
       )}
 

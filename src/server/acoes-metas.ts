@@ -22,6 +22,7 @@ import {
 
 import { fecharSePreciso } from "./fechamento";
 import { ocorrenciaDaRef, type OcorrenciaParaAlterar } from "./metas";
+import { projetoValidoParaMeta } from "./projetos";
 import { exigirUsuario } from "./sessao";
 
 export type EstadoNovaMeta = {
@@ -58,12 +59,16 @@ export async function criarMeta(
     intervaloDias: texto(form, "intervaloDias"),
     horario: texto(form, "horario"),
     dataInicio: texto(form, "dataInicio"),
+    projeto: texto(form, "projeto"),
   };
   const resultado = esquemaNovaMeta(hoje()).safeParse(valores);
   if (!resultado.success) {
     return { erros: errosPorCampo(resultado.error), valores };
   }
   const nova = resultado.data;
+  if (!(await projetoValidoParaMeta(usuario.id, nova.projetoId))) {
+    return { erros: { projeto: "Escolha outro projeto." }, valores };
+  }
 
   await db().transaction(async (tx) => {
     const [criada] = await tx
@@ -81,6 +86,7 @@ export async function criarMeta(
       frequencia: nova.regra.frequencia,
       diasSemana: nova.regra.diasSemana,
       intervaloDias: nova.regra.intervaloDias,
+      projetoId: nova.projetoId,
     });
   });
 

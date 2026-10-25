@@ -6,14 +6,19 @@ import { usePathname } from "next/navigation";
 const AREAS = [
   // Metas vivem em Hoje (navegacao.md, decisão 2).
   { nome: "Hoje", href: "/hoje", inclui: ["/hoje", "/dia", "/metas"] },
-  { nome: "Projetos", href: "/projetos", inclui: null },
+  { nome: "Projetos", href: "/projetos", inclui: ["/projetos"] },
   { nome: "Treinos", href: "/treinos", inclui: null },
   { nome: "Histórico", href: "/historico", inclui: null },
 ];
 
 // Formulários ocupam a tela toda e escondem a barra, para dar espaço ao
 // teclado (navegacao.md, "Celular e computador").
-const FORMULARIOS = [/^\/metas\/novo/, /^\/metas\/[^/]+\/editar/];
+const FORMULARIOS = [
+  /^\/metas\/novo/,
+  /^\/metas\/[^/]+\/editar/,
+  /^\/projetos\/novo/,
+  /^\/projetos\/[^/]+\/editar/,
+];
 
 export function BarraDeAreas() {
   const caminho = usePathname();

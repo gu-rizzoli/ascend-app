@@ -170,6 +170,7 @@ export async function reativar(
       frequencia: ultima.frequencia,
       diasSemana: ultima.diasSemana,
       intervaloDias: ultima.intervaloDias,
+      projetoId: ultima.projetoId,
     });
   }
   await tx
@@ -249,6 +250,7 @@ function mesmaRegra(v: Versao, e: EdicaoMeta): boolean {
     v.descricao === e.descricao &&
     v.horario === e.horario &&
     v.valorAlvo === e.valorAlvo &&
+    v.projetoId === e.projetoId &&
     v.frequencia === e.frequencia.frequencia &&
     (v.diasSemana ?? []).join() === (e.frequencia.diasSemana ?? []).join() &&
     v.intervaloDias === e.frequencia.intervaloDias
@@ -280,7 +282,7 @@ function estadoComAlvo(
  *
  * - Meta de ocorrência única: não há o que perguntar, a única versão muda.
  * - "Só esta": a ocorrência guarda o título, o horário e o alvo que diferem
- *   da regra; descrição e frequência são da regra e não mudam.
+ *   da regra; descrição, frequência e projeto são da regra e não mudam.
  * - "Esta e as próximas": a regra antiga termina na véspera da ocorrência
  *   editada (ou de hoje, vindo de Todas as metas) e uma nova começa ali.
  */
@@ -327,6 +329,9 @@ export async function editar(
     };
     if (edicao.horario === null && versao.horario !== null) {
       return "Para tirar o horário, salve para esta e as próximas.";
+    }
+    if (edicao.projetoId !== atual!.versao.projetoId) {
+      return "O projeto só muda para esta e as próximas.";
     }
     const ajuste = ajusteSoEsta(versao, {
       titulo: edicao.titulo,
@@ -396,6 +401,7 @@ export async function editar(
       frequencia: novaRegra.frequencia,
       diasSemana: novaRegra.diasSemana,
       intervaloDias: novaRegra.intervaloDias,
+      projetoId: edicao.projetoId,
     })
     .returning({ id: metaVersao.id });
 
@@ -457,6 +463,7 @@ async function editarUnica(
       diasSemana: regra.diasSemana,
       intervaloDias: regra.intervaloDias,
       vigenteAte: regra.vigenteAte,
+      projetoId: edicao.projetoId,
     })
     .where(eq(metaVersao.id, versao.id));
   if (gravada) {

@@ -86,6 +86,17 @@ Implementado na entrega 4 (RF-MET-09, 10, 13), seguindo a seção "Recorrência"
 - **Telas:** o título de cada linha abre `/metas/:id?dia=…&vaga=…` (ou `&ocorrencia=…` numa reagendada). A edição fica em `/metas/:id/editar`, com o mesmo contexto. `/metas` lista recorrentes, datas marcadas e pausadas.
 - **Reagendadas:** não ocupam vaga da regra, então as ações de marcar e somar recebem uma referência (`RefOcorrencia`) que é a vaga ou o id da ocorrência.
 
+## Projetos
+
+Implementado na entrega 5 (RF-PRO-01 a 12), seguindo [Projetos](../produto/projetos.md).
+
+- **Tabelas:** `projeto`, `projeto_atual_troca` e a coluna `meta_versao.projeto_id` (migração 0003). As duas chaves para `projeto` usam `ON DELETE SET NULL`, então excluir um projeto deixa as metas e as trocas sem ele.
+- **Projeto atual:** `projetoAtualId()` lê a última troca do usuário. Toda escrita que grava troca trava a linha do usuário (`FOR UPDATE`) e grava o instante vindo do servidor, para a ordem das trocas do mesmo dia ser a real.
+- **Regras puras:** `src/domain/projetos.ts` valida o formulário, agrupa a lista, decide a estrela (`trocaPelaEstrela()`), quando o destaque sai (`saiDoDestaque()`), o prazo vencido e quais metas pausar (`metasParaPausar()`).
+- **Escritas:** as Server Actions ficam em `src/server/acoes-projetos.ts`. Concluir ou arquivar muda o status, grava a troca para nenhum se preciso e pausa as metas escolhidas com a mesma `pausar()` de Metas, tudo numa transação.
+- **Metas:** o campo Projeto entra no formulário de criar e editar meta e só lista projetos abertos. O servidor confere o dono e o status (`projetoValidoParaMeta()`).
+- **Telas:** `/projetos`, `/projetos/novo`, `/projetos/:id` e `/projetos/:id/editar`. O próximo passo se edita com um toque na lista, no detalhe e na linha do projeto atual em Hoje.
+
 ## Migrações em produção
 
 O deploy de produção no Netlify roda `pnpm db:migrate` antes do build (`netlify.toml`). Assim o banco é atualizado no momento do merge na `main`. Se a migração falhar, o build para e a versão anterior continua no ar.

@@ -6,6 +6,7 @@ import { diaDaSemana, formatarDataCurta, hoje } from "@/domain/datas";
 import { versaoDeReferencia } from "@/domain/vigencia";
 import { usuarioComDiasFechados } from "@/server/fechamento";
 import { metaDoUsuario, ocorrenciaDoDetalhe } from "@/server/metas";
+import { projetoDoUsuario, projetosParaAssociar } from "@/server/projetos";
 
 import { enderecoDoDetalhe, lerContexto } from "../../enderecos";
 import { FormularioEdicao, type Pergunta } from "./formulario";
@@ -64,6 +65,14 @@ export default async function PaginaEditarMeta({
                 : "hoje",
           };
 
+  // A lista traz os projetos abertos e, se a meta já estiver num encerrado,
+  // esse também, para salvar sem tirá-la dele.
+  const projetos = await projetosParaAssociar(usuario.id);
+  if (versao.projetoId && !projetos.some((p) => p.id === versao.projetoId)) {
+    const atual = await projetoDoUsuario(usuario.id, versao.projetoId);
+    if (atual) projetos.unshift({ id: atual.id, nome: atual.nome });
+  }
+
   return (
     <>
       <header className="flex items-center gap-2">
@@ -83,6 +92,7 @@ export default async function PaginaEditarMeta({
         unidade={m.unidade}
         pergunta={pergunta}
         voltar={detalhe}
+        projetos={projetos}
         inicial={{
           titulo: o?.titulo ?? versao.titulo,
           descricao: versao.descricao ?? "",
@@ -97,6 +107,7 @@ export default async function PaginaEditarMeta({
             versao.diasSemana ?? [diaDaSemana(o?.data ?? dataHoje)]
           ).map(String),
           intervaloDias: versao.intervaloDias?.toString() ?? "2",
+          projeto: versao.projetoId ?? "",
         }}
       />
     </>
