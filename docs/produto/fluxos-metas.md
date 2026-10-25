@@ -181,3 +181,9 @@ Pontos que os fluxos acima não fechavam e que a entrega 4 precisou decidir. Tod
 | 17 | Reagendar duas vezes | Cada não concluída é reagendada uma vez. Se a nova também falhar, ela pode ser reagendada |
 | 18 | Mudar a data | Vale para pendentes de hoje e do futuro, inclusive reagendadas. Com atalhos "Hoje" e "Amanhã" e um calendário, como no reagendamento |
 | 19 | Reativar no mesmo dia da pausa | A regra volta como estava, sem versão nova. Depois de dias pausados, nasce uma versão nova a partir de hoje |
+
+## Revisão das metas (25/10/2026)
+
+| # | Situação | Como ficou |
+| --- | --- | --- |
+| 20 | Reativar uma meta que tinha uma mudança agendada ("esta e as próximas" numa data futura) | A regra de antes volta a valer de hoje até a véspera da mudança, e a mudança segue agendada. Antes da correção, os dias entre hoje e a mudança sumiam |

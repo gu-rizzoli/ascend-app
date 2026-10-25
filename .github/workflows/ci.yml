@@ -8,6 +8,20 @@ on:
 jobs:
   verificar:
     runs-on: ubuntu-latest
+    # Banco descartável para os testes de tests/server (tests/server/banco.ts).
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ascend_teste
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL_TESTE: postgresql://postgres:postgres@localhost:5432/ascend_teste
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -19,5 +33,8 @@ jobs:
       - run: pnpm format:check
       - run: pnpm lint
       - run: pnpm typecheck
+      - run: pnpm db:migrate
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL_TESTE }}
       - run: pnpm test
       - run: pnpm build

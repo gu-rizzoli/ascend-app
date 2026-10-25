@@ -153,24 +153,26 @@ export async function reativar(
   const plano = planoDeReativacao(dataHoje, travada.versoes);
   if (!plano) return false;
 
-  if (plano.tipo === "reabrir") {
+  for (const r of plano.reabrir) {
     await tx
       .update(metaVersao)
-      .set({ vigenteAte: null })
-      .where(eq(metaVersao.id, plano.versaoId));
-  } else {
-    const ultima = travada.versoes.find((v) => v.id === plano.versaoId)!;
+      .set({ vigenteAte: r.vigenteAte })
+      .where(eq(metaVersao.id, r.id));
+  }
+  if (plano.copiar) {
+    const base = travada.versoes.find((v) => v.id === plano.copiar!.versaoId)!;
     await tx.insert(metaVersao).values({
       metaId,
-      vigenteDe: plano.vigenteDe,
-      titulo: ultima.titulo,
-      descricao: ultima.descricao,
-      horario: ultima.horario,
-      valorAlvo: ultima.valorAlvo,
-      frequencia: ultima.frequencia,
-      diasSemana: ultima.diasSemana,
-      intervaloDias: ultima.intervaloDias,
-      projetoId: ultima.projetoId,
+      vigenteDe: plano.copiar.vigenteDe,
+      vigenteAte: plano.copiar.vigenteAte,
+      titulo: base.titulo,
+      descricao: base.descricao,
+      horario: base.horario,
+      valorAlvo: base.valorAlvo,
+      frequencia: base.frequencia,
+      diasSemana: base.diasSemana,
+      intervaloDias: base.intervaloDias,
+      projetoId: base.projetoId,
     });
   }
   await tx

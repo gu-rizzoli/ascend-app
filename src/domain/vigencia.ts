@@ -127,29 +127,58 @@ export function planoDeEncerramento(
 // ---------------------------------------------------------------------------
 // Reativar (RF-MET-10)
 
-export type PlanoDeReativacao =
-  | { tipo: "reabrir"; versaoId: string }
-  | { tipo: "copiar"; versaoId: string; vigenteDe: DataCivil };
+export type PlanoDeReativacao = {
+  /** Versões que voltam a valer, com o `vigente_ate` de antes da pausa. */
+  reabrir: { id: string; vigenteAte: DataCivil | null }[];
+  /** Cópia da versão que valia, a partir de hoje, se a pausa cobriu dias. */
+  copiar: {
+    versaoId: string;
+    vigenteDe: DataCivil;
+    vigenteAte: DataCivil | null;
+  } | null;
+};
 
 /**
- * Reativar abre a regra de novo a partir de hoje, igual à última versão. Se a
- * pausa não chegou a cobrir um dia inteiro (pausou e reativou no mesmo dia,
- * ou a regra ainda nem tinha começado), a última versão só é reaberta e nada
- * muda. Senão nasce uma versão nova, e a contagem de "a cada X dias"
+ * Reativar abre a regra de novo a partir de hoje, igual à última versão que
+ * valia. Se a pausa não chegou a cobrir um dia inteiro (pausou e reativou no
+ * mesmo dia, ou a regra ainda nem tinha começado), essa versão só é reaberta
+ * e nada muda. Senão nasce uma versão nova, e a contagem de "a cada X dias"
  * recomeça nela (modelo-dados-metas.md).
+ *
+ * Uma mudança agendada com "esta e as próximas" para depois de hoje ficou
+ * vazia na pausa e volta como estava: a versão de hoje vale até a véspera
+ * dela, e ela segue dali em diante.
  */
 export function planoDeReativacao(
   hoje: DataCivil,
   versoes: Vigencia[],
 ): PlanoDeReativacao | null {
-  const ultima = [...versoes].sort((a, b) =>
+  if (versoes.length === 0) return null;
+  const ordenadas = [...versoes].sort((a, b) =>
     a.vigenteDe < b.vigenteDe ? -1 : 1,
-  )[versoes.length - 1];
-  if (!ultima) return null;
-  if (ultima.vigenteAte === null || ultima.vigenteAte >= somarDias(hoje, -1)) {
-    return { tipo: "reabrir", versaoId: ultima.id };
+  );
+  const futuras = ordenadas.filter((v) => v.vigenteDe > hoje);
+  const base = ordenadas.filter((v) => v.vigenteDe <= hoje).at(-1);
+
+  const reabrir: PlanoDeReativacao["reabrir"] = [];
+  const reabrirAte = (v: Vigencia, vigenteAte: DataCivil | null) => {
+    if (v.vigenteAte !== vigenteAte) reabrir.push({ id: v.id, vigenteAte });
+  };
+  futuras.forEach((v, i) => {
+    const proxima = futuras[i + 1];
+    reabrirAte(v, proxima ? somarDias(proxima.vigenteDe, -1) : null);
+  });
+
+  const fimDaBase = futuras[0] ? somarDias(futuras[0].vigenteDe, -1) : null;
+  let copiar: PlanoDeReativacao["copiar"] = null;
+  if (base) {
+    if (base.vigenteAte === null || base.vigenteAte >= somarDias(hoje, -1)) {
+      reabrirAte(base, fimDaBase);
+    } else {
+      copiar = { versaoId: base.id, vigenteDe: hoje, vigenteAte: fimDaBase };
+    }
   }
-  return { tipo: "copiar", versaoId: ultima.id, vigenteDe: hoje };
+  return { reabrir, copiar };
 }
 
 // ---------------------------------------------------------------------------
