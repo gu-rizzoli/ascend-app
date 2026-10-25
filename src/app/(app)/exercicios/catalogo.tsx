@@ -1,0 +1,104 @@
+"use client";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+import {
+  agruparPorGrupo,
+  buscarExercicios,
+  type GrupoMuscular,
+} from "@/domain/treinos";
+
+import {
+  EscolherExercicio,
+  type ExercicioDoCatalogo,
+} from "../treinos/escolher-exercicio";
+import { FiltroDeGrupo } from "../treinos/grupos";
+
+/**
+ * O catálogo com busca (RF-TRE-01, 02). "Novo exercício" usa a mesma busca:
+ * os parecidos aparecem antes de criar, e o nome igual não vira outro. A
+ * lista vem separada por grupo muscular, com fichas para filtrar.
+ */
+export function Catalogo({
+  exercicios,
+}: {
+  exercicios: ExercicioDoCatalogo[];
+}) {
+  const router = useRouter();
+  const [criando, setCriando] = useState(false);
+  const [busca, setBusca] = useState("");
+  const [grupo, setGrupo] = useState<GrupoMuscular | null>(null);
+  const achados = buscarExercicios(
+    busca,
+    grupo ? exercicios.filter((e) => e.grupo === grupo) : exercicios,
+  );
+
+  if (criando) {
+    return (
+      <div className="mt-4">
+        <EscolherExercicio
+          catalogo={exercicios}
+          rotulo="Nome do exercício"
+          aoFechar={() => setCriando(false)}
+          aoEscolher={(e) => router.push(`/exercicios/${e.id}`)}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="mt-4 flex gap-2">
+        <input
+          type="search"
+          aria-label="Buscar exercício"
+          placeholder="Buscar"
+          value={busca}
+          onChange={(e) => setBusca(e.currentTarget.value)}
+          className="min-w-0 flex-1 rounded-lg border border-neutral-300 px-3 py-2.5 text-base outline-none focus:border-neutral-900"
+        />
+        <button
+          type="button"
+          onClick={() => setCriando(true)}
+          className="shrink-0 rounded-lg bg-neutral-900 px-4 py-2.5 font-medium text-white"
+        >
+          Novo exercício
+        </button>
+      </div>
+      <div className="mt-3">
+        <FiltroDeGrupo grupo={grupo} aoEscolher={setGrupo} />
+      </div>
+      {exercicios.length === 0 ? (
+        <p className="mt-6 text-center text-neutral-600">
+          Nenhum exercício ainda. Crie aqui ou direto ao registrar um treino.
+        </p>
+      ) : achados.length === 0 ? (
+        <p className="mt-6 text-center text-neutral-600">
+          Nenhum exercício encontrado.
+        </p>
+      ) : (
+        agruparPorGrupo(achados).map((g) => (
+          <section key={g.grupo ?? "sem"} className="mt-4">
+            <h2 className="text-xs font-medium tracking-wide text-neutral-500 uppercase">
+              {g.nome} · {g.exercicios.length}
+            </h2>
+            <ul className="divide-y divide-neutral-200">
+              {g.exercicios.map((e) => (
+                <li key={e.id}>
+                  <Link
+                    href={`/exercicios/${e.id}`}
+                    className="block truncate py-3"
+                  >
+                    {e.nome}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      )}
+    </>
+  );
+}

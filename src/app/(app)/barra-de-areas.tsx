@@ -7,7 +7,12 @@ const AREAS = [
   // Metas vivem em Hoje (navegacao.md, decisão 2).
   { nome: "Hoje", href: "/hoje", inclui: ["/hoje", "/dia", "/metas"] },
   { nome: "Projetos", href: "/projetos", inclui: ["/projetos"] },
-  { nome: "Treinos", href: "/treinos", inclui: null },
+  {
+    nome: "Treinos",
+    href: "/treinos",
+    // Exercícios e Modelos são abas de Treinos (navegacao.md, decisão 5).
+    inclui: ["/treinos", "/exercicios", "/modelos"],
+  },
   { nome: "Histórico", href: "/historico", inclui: null },
 ];
 
@@ -18,6 +23,9 @@ const FORMULARIOS = [
   /^\/metas\/[^/]+\/editar/,
   /^\/projetos\/novo/,
   /^\/projetos\/[^/]+\/editar/,
+  /^\/treinos\/novo/,
+  /^\/treinos\/[^/]+\/editar/,
+  /^\/modelos\/.+/,
 ];
 
 export function BarraDeAreas() {

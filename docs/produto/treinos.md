@@ -56,7 +56,7 @@ erDiagram
 
 | Tabela | Colunas | Regras |
 | --- | --- | --- |
-| exercicio | id, usuario_id, nome, nome_normalizado, arquivado_em, criado_em | `UNIQUE (usuario_id, nome_normalizado)`. `nome_normalizado` = minúsculas, sem acentos, espaços simples |
+| exercicio | id, usuario_id, nome, nome_normalizado, grupo, arquivado_em, criado_em | `UNIQUE (usuario_id, nome_normalizado)`. `nome_normalizado` = minúsculas, sem acentos, espaços simples. `grupo` opcional (decisão 17) |
 | modelo_treino | id, usuario_id, nome, observacao, criado_em, atualizado_em | |
 | modelo_exercicio | id, modelo_id, exercicio_id, ordem, series_sugeridas, reps_min, reps_max | `series_sugeridas >= 1`. `reps_max` opcional e maior ou igual a `reps_min`. Apagado junto com o modelo |
 | treino | id, usuario_id, nome, data, observacao, modelo_id, criado_em, atualizado_em | `data` é data civil. `modelo_id` é só informativo, com `ON DELETE SET NULL` |
@@ -88,3 +88,19 @@ erDiagram
 | 6 | Exercício arquivado pode voltar? | Sim |
 | 7 | Dois treinos no mesmo dia? | Sim |
 | 8 | Excluir modelo afeta treinos feitos com ele? | Não; eles só perdem a referência |
+
+## Detalhes da implementação (entrega 6, 25/10/2026)
+
+Pontos que a especificação deixava em aberto e foram resolvidos ao construir, sem mudar o escopo:
+
+| # | Situação | Como ficou |
+| --- | --- | --- |
+| 9 | Data do treino no futuro | Não é aceita: o treino é registrado depois de acontecer (9.9) |
+| 10 | Salvar sem nenhuma série com repetições | Não salva e pede pelo menos uma série |
+| 11 | Criar no registro um nome que já existe arquivado | Usa o exercício existente e o desarquiva, em vez de dar erro |
+| 12 | Modelo sem exercícios | Não é aceito; o máximo de repetições igual ao mínimo vira "só o mínimo" |
+| 13 | Onde fica o "Novo exercício" | No catálogo, usando a mesma busca do registro: os parecidos aparecem antes de criar |
+| 14 | Editar treino muda o modelo de origem? | Não; a referência ao modelo fica como no registro |
+| 15 | Título de um treino sem nome | Os nomes dos exercícios, na ordem ("Supino reto, Flexão") |
+| 16 | Catálogo vazio no primeiro acesso? | Não: toda conta começa com 81 exercícios comuns (supino, agachamento, rosca…), que se renomeiam, arquivam ou excluem como os outros. Pedido em 25/10/2026 |
+| 17 | Organizar o catálogo | Cada exercício tem um grupo muscular principal, opcional: Peito, Costas, Ombros, Bíceps, Tríceps, Antebraços, Quadríceps, Posteriores, Glúteos, Panturrilhas ou Abdômen. O catálogo e a busca do registro filtram por grupo com fichas; criar com uma ficha escolhida já põe o exercício no grupo, e o grupo se troca na página do exercício. Pedido em 25/10/2026. Coluna `exercicio.grupo` (migração 0006) |

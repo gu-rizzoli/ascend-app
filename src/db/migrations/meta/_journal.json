@@ -29,6 +29,27 @@
       "when": 1792891393836,
       "tag": "0003_violet_wildside",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792896792747,
+      "tag": "0004_gigantic_multiple_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792898090668,
+      "tag": "0005_exercicios_iniciais",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792898483267,
+      "tag": "0006_grupos_musculares",
+      "breakpoints": true
     }
   ]
 }

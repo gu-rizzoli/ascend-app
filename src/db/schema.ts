@@ -325,3 +325,160 @@ export const projetoAtualTroca = pgTable(
     ),
   ],
 );
+
+// ---------------------------------------------------------------------------
+// Treinos (docs/produto/treinos.md)
+
+export const grupoMuscular = pgEnum("grupo_muscular", [
+  "peito",
+  "costas",
+  "ombros",
+  "biceps",
+  "triceps",
+  "antebracos",
+  "quadriceps",
+  "posteriores",
+  "gluteos",
+  "panturrilhas",
+  "abdomen",
+]);
+
+/**
+ * O catálogo de exercícios (9.3). Renomear muda o nome em todos os treinos,
+ * porque é o mesmo exercício. Um exercício usado não é apagado: é arquivado
+ * (9.4), e as referências com RESTRICT garantem isso no banco.
+ */
+export const exercicio = pgTable(
+  "exercicio",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    usuarioId: uuid("usuario_id")
+      .notNull()
+      .references(() => usuario.id, { onDelete: "restrict" }),
+    nome: text("nome").notNull(),
+    // Minúsculas, sem acentos e com espaços simples: "Supino  Reto" e
+    // "supino reto" são o mesmo nome (treinos.md, decisão 5).
+    nomeNormalizado: text("nome_normalizado").notNull(),
+    // O grupo principal, só para organizar o catálogo. Opcional.
+    grupo: grupoMuscular("grupo"),
+    arquivadoEm: timestamp("arquivado_em", { withTimezone: true }),
+    criadoEm: timestamp("criado_em", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("exercicio_nome_unico").on(t.usuarioId, t.nomeNormalizado),
+  ],
+);
+
+/** Um ponto de partida para registrar treinos, sem carga (9.6, D-032). */
+export const modeloTreino = pgTable(
+  "modelo_treino",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    usuarioId: uuid("usuario_id")
+      .notNull()
+      .references(() => usuario.id, { onDelete: "restrict" }),
+    nome: text("nome").notNull(),
+    observacao: text("observacao"),
+    criadoEm: timestamp("criado_em", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    atualizadoEm: timestamp("atualizado_em", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("modelo_treino_usuario_idx").on(t.usuarioId)],
+);
+
+export const modeloExercicio = pgTable(
+  "modelo_exercicio",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    modeloId: uuid("modelo_id")
+      .notNull()
+      .references(() => modeloTreino.id, { onDelete: "cascade" }),
+    exercicioId: uuid("exercicio_id")
+      .notNull()
+      .references(() => exercicio.id, { onDelete: "restrict" }),
+    ordem: integer("ordem").notNull(),
+    seriesSugeridas: integer("series_sugeridas").notNull(),
+    repsMin: integer("reps_min").notNull(),
+    repsMax: integer("reps_max"),
+  },
+  (t) => [
+    index("modelo_exercicio_modelo_idx").on(t.modeloId),
+    index("modelo_exercicio_exercicio_idx").on(t.exercicioId),
+    check("modelo_exercicio_series", sql`${t.seriesSugeridas} >= 1`),
+    check(
+      "modelo_exercicio_reps",
+      sql`${t.repsMin} >= 1 and (${t.repsMax} is null or ${t.repsMax} >= ${t.repsMin})`,
+    ),
+  ],
+);
+
+/**
+ * Uma sessão de musculação registrada (9.5, 9.8). Chama-se treino para não
+ * confundir com a sessão de login. É uma cópia independente do modelo:
+ * `modelo_id` só informa de onde veio (D-033, D-045).
+ */
+export const treino = pgTable(
+  "treino",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    usuarioId: uuid("usuario_id")
+      .notNull()
+      .references(() => usuario.id, { onDelete: "restrict" }),
+    nome: text("nome"),
+    data: date("data").notNull(),
+    observacao: text("observacao"),
+    modeloId: uuid("modelo_id").references(() => modeloTreino.id, {
+      onDelete: "set null",
+    }),
+    criadoEm: timestamp("criado_em", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    atualizadoEm: timestamp("atualizado_em", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("treino_usuario_data_idx").on(t.usuarioId, t.data)],
+);
+
+export const treinoExercicio = pgTable(
+  "treino_exercicio",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    treinoId: uuid("treino_id")
+      .notNull()
+      .references(() => treino.id, { onDelete: "cascade" }),
+    exercicioId: uuid("exercicio_id")
+      .notNull()
+      .references(() => exercicio.id, { onDelete: "restrict" }),
+    ordem: integer("ordem").notNull(),
+  },
+  (t) => [
+    index("treino_exercicio_treino_idx").on(t.treinoId),
+    index("treino_exercicio_exercicio_idx").on(t.exercicioId),
+  ],
+);
+
+/** Uma série: repetições obrigatórias, carga opcional para peso corporal. */
+export const serie = pgTable(
+  "serie",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    treinoExercicioId: uuid("treino_exercicio_id")
+      .notNull()
+      .references(() => treinoExercicio.id, { onDelete: "cascade" }),
+    ordem: integer("ordem").notNull(),
+    repeticoes: integer("repeticoes").notNull(),
+    cargaKg: numeric("carga_kg", { precision: 6, scale: 2, mode: "number" }),
+    observacao: text("observacao"),
+  },
+  (t) => [
+    index("serie_treino_exercicio_idx").on(t.treinoExercicioId),
+    check("serie_repeticoes", sql`${t.repeticoes} > 0`),
+    check("serie_carga", sql`${t.cargaKg} is null or ${t.cargaKg} >= 0`),
+  ],
+);
