@@ -96,7 +96,7 @@ export async function TelaDoDia({
       </header>
 
       {total > 0 && (
-        // O resumo do dia, também como barra (PRÉVIA do visual novo).
+        // O resumo do dia, também como barra.
         <div className="bg-superficie mt-4 rounded-2xl px-4 py-3 shadow-sm">
           <div className="flex items-baseline justify-between text-sm">
             <span className="font-semibold">

@@ -104,7 +104,9 @@ export default async function PaginaDiaDoHistorico({ params }: Props) {
             >
               Histórico
             </Link>
-            <h1 className="text-xl font-semibold">{formatarDataLonga(data)}</h1>
+            <h1 className="text-xl font-bold tracking-tight">
+              {formatarDataLonga(data)}
+            </h1>
           </div>
           <SetaDoDia
             href={enderecoDaData(seguinte, dataHoje)}

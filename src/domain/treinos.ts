@@ -488,7 +488,7 @@ export function mover<T>(lista: readonly T[], i: number, passo: -1 | 1): T[] {
 
 /** O aviso depois de salvar (decisão 3). */
 export function avisoDeDescartadas(n: number): string | null {
-  if (n <= 0) return null;
+  if (!(n > 0)) return null;
   return n === 1
     ? "1 série sem repetições foi descartada."
     : `${n} séries sem repetições foram descartadas.`;

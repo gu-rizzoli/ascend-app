@@ -53,7 +53,7 @@ Cada tela tem um endereço próprio. Assim, o botão voltar do navegador funcion
 | Histórico | `/historico` | Calendário do mês, com a taxa por dia | Filtros |
 | Histórico | `/historico/lista` | Lista cronológica agrupada por data | Filtros |
 | Histórico | `/historico/2026-07-10` | Detalhe do dia, com o botão Corrigir | Corrigir |
-| Conta | `/conta` | Nome, e-mail, senha e sair (11.6) | Salvar |
+| Conta | `/conta` | Nome, e-mail, senha, aparência e sair (11.6) | Salvar |
 
 **Dia passado em Hoje ou no Histórico?** Navegar para trás em Hoje leva a `/dia/...` de um dia encerrado, que mostra a lista só para leitura com o botão Corrigir. O detalhe do dia no Histórico mostra mais coisas: projeto em foco, treino do dia e selos de correção. Os dois caminhos levam à mesma correção: o botão Corrigir abre a lista do dia em modo de correção (`?corrigir=1`), onde cada mudança salva na hora e ganha o selo "Corrigida".
 
@@ -93,3 +93,9 @@ No celular, a barra inferior some só dentro de formulários, para dar espaço a
 | 8 | A partir de que largura vale o layout de computador | 768 px (tablet deitado e computador) |
 | 9 | Conta: o que pede a senha atual | Trocar e-mail e trocar senha. Nome não pede |
 | 10 | Trocar a senha e os outros aparelhos | Os outros aparelhos saem e precisam entrar com a senha nova; este continua dentro |
+
+## Decisões do visual novo (25/10/2026)
+
+| # | Pergunta | Decisão |
+| --- | --- | --- |
+| 11 | Claro ou escuro | Os dois: Menta (claro, verde) e Noite (escuro, violeta). Na Conta, Aparência: Automático (segue o aparelho, padrão), Claro ou Escuro. A escolha fica só no aparelho, sem ir ao banco: claro e escuro costumam depender do aparelho, e assim não há migração |

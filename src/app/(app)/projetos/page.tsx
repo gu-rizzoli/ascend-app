@@ -127,7 +127,7 @@ export default async function PaginaProjetos() {
   return (
     <>
       <header className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Projetos</h1>
+        <h1 className="text-xl font-bold tracking-tight">Projetos</h1>
       </header>
 
       {projetos.length === 0 ? (

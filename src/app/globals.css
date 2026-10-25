@@ -5,8 +5,8 @@
  * papel: fundo, superficie, acento, calor-1 a 5 (calendário) e a escala
  * neutral, que cada estilo tinge do seu jeito.
  *
- * PRÉVIA: três estilos para escolher (data-tema no <html>). Depois da escolha
- * fica só um.
+ * Dois estilos (navegacao.md, decisão 11): Menta, claro, e Noite, escuro. O
+ * data-tema do <html> é decidido por src/ui/aparencia.tsx.
  */
 @theme {
   --color-fundo: var(--fundo);
@@ -20,13 +20,12 @@
   --color-calor-3: var(--calor-3);
   --color-calor-4: var(--calor-4);
   --color-calor-5: var(--calor-5);
-  --font-sans: var(--fonte), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans:
+    var(--fonte-jakarta), system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
-/* A: Menta. Claro, verde de progresso, fundo levemente esverdeado. */
-:root,
-[data-tema="menta"] {
-  --fonte: var(--fonte-jakarta);
+/* Menta: claro, verde de progresso, fundo levemente esverdeado. */
+:root {
   --fundo: #eef5f1;
   --superficie: #ffffff;
   --texto: #13231c;
@@ -47,33 +46,9 @@
   --color-neutral-700: #364540;
 }
 
-/* B: Pôr do sol. Claro e quente, laranja, fonte arredondada. */
-[data-tema="sol"] {
-  --fonte: var(--fonte-nunito);
-  --fundo: #fbf3ea;
-  --superficie: #fffdfa;
-  --texto: #2b1d14;
-  --acento: #c4410c;
-  --acento-suave: #fde2d1;
-  --acento-forte: #9a330a;
-  --calor-1: #ffeddf;
-  --calor-2: #ffd5b3;
-  --calor-3: #ffb784;
-  --calor-4: #fb9555;
-  --calor-5: #ef7330;
-  --color-neutral-100: #f4ebe2;
-  --color-neutral-200: #e9ddd2;
-  --color-neutral-300: #d6c6b8;
-  --color-neutral-400: #b09c8b;
-  --color-neutral-500: #85715f;
-  --color-neutral-600: #63523f;
-  --color-neutral-700: #4a3c2e;
-}
-
-/* C: Noite. Escuro, violeta, cartões em azul profundo. */
-[data-tema="noite"] {
+/* Noite: escuro, violeta, cartões em azul profundo. */
+[data-tema="escuro"] {
   color-scheme: dark;
-  --fonte: var(--fonte-manrope);
   --fundo: #0d0f1e;
   --superficie: #171a2e;
   --texto: #e9eaf5;
@@ -111,4 +86,13 @@
 body {
   background: var(--fundo);
   color: var(--texto);
+}
+
+/* Campos sobre a superfície, para se destacarem do fundo tingido. */
+@layer base {
+  input:not([type="checkbox"], [type="radio"]),
+  textarea,
+  select {
+    background-color: var(--superficie);
+  }
 }

@@ -22,7 +22,7 @@ export default async function PaginaExercicios({ searchParams }: Props) {
 
   return (
     <>
-      <h1 className="text-xl font-semibold">Treinos</h1>
+      <h1 className="text-xl font-bold tracking-tight">Treinos</h1>
       <div className="mt-3">
         <AbasDeTreinos atual="/exercicios" />
       </div>

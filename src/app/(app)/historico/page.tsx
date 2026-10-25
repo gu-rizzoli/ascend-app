@@ -60,7 +60,7 @@ export default async function PaginaHistorico({ searchParams }: Props) {
 
   return (
     <>
-      <h1 className="text-xl font-semibold">Histórico</h1>
+      <h1 className="text-xl font-bold tracking-tight">Histórico</h1>
       <div className="mt-3">
         <AbasDoHistorico atual="calendario" filtros={filtros} />
       </div>

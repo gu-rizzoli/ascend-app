@@ -68,7 +68,7 @@ export default async function PaginaProjeto({ params }: Props) {
         >
           ‹
         </Link>
-        <h1 className="min-w-0 flex-1 pt-1 text-xl font-semibold break-words">
+        <h1 className="min-w-0 flex-1 pt-1 text-xl font-bold tracking-tight break-words">
           {p.nome}
         </h1>
         {!encerrado && <Estrela projetoId={p.id} atual={p.id === atualId} />}

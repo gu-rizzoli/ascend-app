@@ -103,3 +103,24 @@ test("não deixa usar o e-mail de outra conta", async ({ browser }) => {
     formEmail.getByText("Já existe uma conta com este e-mail."),
   ).toBeVisible();
 });
+
+test("aparência: automático segue o aparelho, e a escolha fica", async ({
+  page,
+}) => {
+  await page.emulateMedia({ colorScheme: "dark" });
+  await cadastrar(page);
+  const html = page.locator("html");
+  await expect(html).toHaveAttribute("data-tema", "escuro");
+
+  await abrirConta(page);
+  await page.getByText("Claro", { exact: true }).click();
+  await expect(html).toHaveAttribute("data-tema", "claro");
+  await page.reload();
+  await expect(html).toHaveAttribute("data-tema", "claro");
+  await expect(page.getByRole("radio", { name: "Claro" })).toBeChecked();
+
+  await page.getByText("Automático", { exact: true }).click();
+  await expect(html).toHaveAttribute("data-tema", "escuro");
+  await page.emulateMedia({ colorScheme: "light" });
+  await expect(html).toHaveAttribute("data-tema", "claro");
+});

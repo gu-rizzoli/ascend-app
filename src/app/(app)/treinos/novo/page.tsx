@@ -66,7 +66,7 @@ export default async function PaginaNovoTreino({ searchParams }: Props) {
         >
           ‹
         </Link>
-        <h1 className="text-xl font-semibold">Registrar treino</h1>
+        <h1 className="text-xl font-bold tracking-tight">Registrar treino</h1>
       </header>
 
       <Link

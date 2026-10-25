@@ -27,7 +27,7 @@ export default async function PaginaNovoProjeto() {
         >
           ‹
         </Link>
-        <h1 className="text-xl font-semibold">Novo projeto</h1>
+        <h1 className="text-xl font-bold tracking-tight">Novo projeto</h1>
       </header>
       <FormularioProjeto
         modo="criar"

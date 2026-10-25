@@ -28,7 +28,7 @@ export default async function PaginaEditarProjeto({ params }: Props) {
         >
           ‹
         </Link>
-        <h1 className="text-xl font-semibold">Editar projeto</h1>
+        <h1 className="text-xl font-bold tracking-tight">Editar projeto</h1>
       </header>
       <FormularioProjeto
         modo="editar"

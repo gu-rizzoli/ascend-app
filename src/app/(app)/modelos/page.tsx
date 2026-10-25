@@ -17,7 +17,7 @@ export default async function PaginaModelos() {
 
   return (
     <>
-      <h1 className="text-xl font-semibold">Treinos</h1>
+      <h1 className="text-xl font-bold tracking-tight">Treinos</h1>
       <div className="mt-3">
         <AbasDeTreinos atual="/modelos" />
       </div>

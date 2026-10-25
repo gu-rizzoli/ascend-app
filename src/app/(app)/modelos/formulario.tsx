@@ -80,7 +80,7 @@ export function FormularioModelo({
           >
             ‹
           </LinkDeSaida>
-          <h1 className="text-xl font-semibold">{titulo}</h1>
+          <h1 className="text-xl font-bold tracking-tight">{titulo}</h1>
         </header>
 
         {modeloId && <input type="hidden" name="modeloId" value={modeloId} />}

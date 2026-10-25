@@ -97,7 +97,7 @@ export default async function PaginaTodasAsMetas() {
         >
           ‹
         </Link>
-        <h1 className="text-xl font-semibold">Todas as metas</h1>
+        <h1 className="text-xl font-bold tracking-tight">Todas as metas</h1>
       </header>
 
       {vazio ? (

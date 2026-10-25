@@ -75,7 +75,7 @@ export function FormularioTreino({
         >
           ‹
         </LinkDeSaida>
-        <h1 className="text-xl font-semibold">{titulo}</h1>
+        <h1 className="text-xl font-bold tracking-tight">{titulo}</h1>
       </header>
 
       {treinoId && <input type="hidden" name="treinoId" value={treinoId} />}

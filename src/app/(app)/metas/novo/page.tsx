@@ -36,7 +36,7 @@ export default async function PaginaNovaMeta({ searchParams }: Props) {
         >
           ‹
         </Link>
-        <h1 className="text-xl font-semibold">Nova meta</h1>
+        <h1 className="text-xl font-bold tracking-tight">Nova meta</h1>
       </header>
       <FormularioNovaMeta
         dataAberta={data}

@@ -38,7 +38,7 @@ export default async function PaginaTreino({ params, searchParams }: Props) {
           ‹
         </Link>
         <div className="min-w-0 flex-1 pt-1">
-          <h1 className="text-xl font-semibold break-words">
+          <h1 className="text-xl font-bold tracking-tight break-words">
             {tituloDoTreino(t)}
           </h1>
           <p className="text-sm text-neutral-600">

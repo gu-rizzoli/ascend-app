@@ -119,7 +119,7 @@ export default async function PaginaMeta({ params, searchParams }: Props) {
         >
           ‹
         </Link>
-        <h1 className="min-w-0 flex-1 text-xl font-semibold break-words">
+        <h1 className="min-w-0 flex-1 text-xl font-bold tracking-tight break-words">
           {titulo}
         </h1>
       </header>

@@ -1,14 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { Manrope, Nunito, Plus_Jakarta_Sans } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
+
+import { scriptDaAparencia } from "@/ui/aparencia";
+
 import "./globals.css";
 
-// PRÉVIA: as fontes dos três estilos. Depois da escolha fica uma.
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--fonte-jakarta",
 });
-const nunito = Nunito({ subsets: ["latin"], variable: "--fonte-nunito" });
-const manrope = Manrope({ subsets: ["latin"], variable: "--fonte-manrope" });
 
 export const metadata: Metadata = {
   title: "Ascend",
@@ -20,23 +20,16 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-// PRÉVIA: ?tema=menta|sol|noite troca o estilo e fica lembrado no aparelho.
-const escolherTema = `try{var t=new URLSearchParams(location.search).get("tema");if(t)localStorage.setItem("ascend:tema",t);t=localStorage.getItem("ascend:tema");if(t)document.documentElement.dataset.tema=t}catch(e){}`;
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="pt-BR"
-      data-tema="menta"
-      suppressHydrationWarning
-      className={`${jakarta.variable} ${nunito.variable} ${manrope.variable}`}
-    >
+    // O script troca o data-tema antes de o React montar.
+    <html lang="pt-BR" suppressHydrationWarning className={jakarta.variable}>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: escolherTema }} />
+        <script dangerouslySetInnerHTML={{ __html: scriptDaAparencia }} />
       </head>
       <body className="antialiased">{children}</body>
     </html>
