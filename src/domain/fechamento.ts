@@ -93,3 +93,22 @@ export function estadoCorrigido(
 export function diaCorrigivel(data: DataCivil, hoje: DataCivil): boolean {
   return data < hoje;
 }
+
+/**
+ * Corrigir para concluída uma original que tinha sido reagendada: a cópia sai
+ * se ainda estiver pendente, porque a meta já foi feita no dia original e a
+ * cópia não aconteceu. Uma cópia concluída ou de um dia já encerrado fica
+ * (fluxos-metas.md, decisão 21).
+ */
+export function copiaSaiNaCorrecao(
+  estadoCorrigido: EstadoOcorrencia,
+  copia: { estado: EstadoOcorrencia; data: DataCivil } | null,
+  hoje: DataCivil,
+): boolean {
+  return (
+    estadoCorrigido === "concluida" &&
+    copia !== null &&
+    copia.estado === "pendente" &&
+    copia.data >= hoje
+  );
+}

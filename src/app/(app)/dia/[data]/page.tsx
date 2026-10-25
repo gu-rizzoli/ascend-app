@@ -7,7 +7,10 @@ import { TelaDoDia } from "../tela-do-dia";
 
 type Props = {
   params: Promise<{ data: string }>;
-  searchParams: Promise<{ corrigir?: string | string[] }>;
+  searchParams: Promise<{
+    corrigir?: string | string[];
+    voltar?: string | string[];
+  }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -22,6 +25,13 @@ export default async function PaginaDia({ params, searchParams }: Props) {
   if (!ehDataCivil(data)) notFound();
   if (data === hoje()) redirect("/hoje");
   // "?corrigir=1" abre a correção retroativa de um dia encerrado (RF-MET-12).
-  const { corrigir } = await searchParams;
-  return <TelaDoDia data={data} corrigindo={corrigir !== undefined} />;
+  // "&voltar=historico": o Pronto leva de volta ao detalhe do Histórico.
+  const { corrigir, voltar } = await searchParams;
+  return (
+    <TelaDoDia
+      data={data}
+      corrigindo={corrigir !== undefined}
+      voltarAoHistorico={voltar === "historico"}
+    />
+  );
 }
