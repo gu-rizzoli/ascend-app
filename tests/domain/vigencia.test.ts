@@ -215,9 +215,9 @@ describe("planoDeReativacao", () => {
   it("pausa de hoje mesmo: só reabre a versão", () => {
     expect(
       planoDeReativacao(HOJE, [versao("v1", "2026-10-01", ONTEM)]),
-    ).toEqual({ tipo: "reabrir", versaoId: "v1" });
+    ).toEqual({ reabrir: [{ id: "v1", vigenteAte: null }], copiar: null });
     expect(planoDeReativacao(HOJE, [versao("v1", "2026-10-01", HOJE)])).toEqual(
-      { tipo: "reabrir", versaoId: "v1" },
+      { reabrir: [{ id: "v1", vigenteAte: null }], copiar: null },
     );
   });
 
@@ -227,13 +227,41 @@ describe("planoDeReativacao", () => {
         versao("v0", "2026-09-01", "2026-09-30"),
         versao("v1", "2026-10-01", "2026-10-20"),
       ]),
-    ).toEqual({ tipo: "copiar", versaoId: "v1", vigenteDe: HOJE });
+    ).toEqual({
+      reabrir: [],
+      copiar: { versaoId: "v1", vigenteDe: HOJE, vigenteAte: null },
+    });
   });
 
   it("regra que ainda não tinha começado volta como estava", () => {
     expect(
       planoDeReativacao(HOJE, [versao("v1", "2026-11-01", "2026-10-31")]),
-    ).toEqual({ tipo: "reabrir", versaoId: "v1" });
+    ).toEqual({ reabrir: [{ id: "v1", vigenteAte: null }], copiar: null });
+  });
+
+  it("mudança agendada para depois de hoje volta, e hoje até a véspera dela segue a regra de antes", () => {
+    // Pausou hoje com "esta e as próximas" agendado para 01/11 e 05/11.
+    const versoes = [
+      versao("v1", "2026-10-01", ONTEM),
+      versao("v2", "2026-11-01", "2026-10-31"),
+      versao("v3", "2026-11-05", "2026-11-04"),
+    ];
+    expect(planoDeReativacao(HOJE, versoes)).toEqual({
+      reabrir: [
+        { id: "v2", vigenteAte: d("2026-11-04") },
+        { id: "v3", vigenteAte: null },
+        { id: "v1", vigenteAte: d("2026-10-31") },
+      ],
+      copiar: null,
+    });
+    // Reativando dias depois, a cópia também para na véspera da mudança.
+    expect(
+      planoDeReativacao(d("2026-10-28"), versoes.slice(0, 2))?.copiar,
+    ).toEqual({
+      versaoId: "v1",
+      vigenteDe: d("2026-10-28"),
+      vigenteAte: d("2026-10-31"),
+    });
   });
 
   it("sem versões não há o que reativar", () => {
