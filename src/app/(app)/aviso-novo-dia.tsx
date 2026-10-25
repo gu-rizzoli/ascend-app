@@ -24,7 +24,7 @@ export function AvisoNovoDia({ hoje }: { hoje: string }) {
   return (
     <div
       role="status"
-      className="fixed inset-x-0 top-4 z-20 mx-auto w-fit rounded-full bg-neutral-900 px-4 py-2 text-sm text-white shadow-lg"
+      className="bg-acento fixed inset-x-0 top-4 z-20 mx-auto w-fit rounded-full px-4 py-2 text-sm text-white shadow-lg"
     >
       Um novo dia começou
     </div>

@@ -3,17 +3,44 @@
 import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 
+import { Marca } from "@/ui/marca";
+
+// Ícones de traço, desenhados em 24×24.
+const ICONES = {
+  hoje: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM8.5 12l2.5 2.5 4.5-5",
+  projetos:
+    "M5 21V4c2.3-1.5 4.7-1.5 7 0s4.7 1.5 7 0v10c-2.3 1.5-4.7 1.5-7 0s-4.7-1.5-7 0",
+  treinos: "M6.5 6.5v11M17.5 6.5v11M3 9.5v5M21 9.5v5M6.5 12h11",
+  historico: "M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2zM3 10h18M8 2v4M16 2v4",
+};
+
 const AREAS = [
   // Metas vivem em Hoje (navegacao.md, decisão 2).
-  { nome: "Hoje", href: "/hoje", inclui: ["/hoje", "/dia", "/metas"] },
-  { nome: "Projetos", href: "/projetos", inclui: ["/projetos"] },
+  {
+    nome: "Hoje",
+    href: "/hoje",
+    icone: ICONES.hoje,
+    inclui: ["/hoje", "/dia", "/metas"],
+  },
+  {
+    nome: "Projetos",
+    href: "/projetos",
+    icone: ICONES.projetos,
+    inclui: ["/projetos"],
+  },
   {
     nome: "Treinos",
     href: "/treinos",
+    icone: ICONES.treinos,
     // Exercícios e Modelos são abas de Treinos (navegacao.md, decisão 5).
     inclui: ["/treinos", "/exercicios", "/modelos"],
   },
-  { nome: "Histórico", href: "/historico", inclui: ["/historico"] },
+  {
+    nome: "Histórico",
+    href: "/historico",
+    icone: ICONES.historico,
+    inclui: ["/historico"],
+  },
 ];
 
 // Formulários ocupam a tela toda e escondem a barra, para dar espaço ao
@@ -57,12 +84,12 @@ export function BarraDeAreas({ nome }: { nome: string }) {
 
   return (
     <nav
-      className={`fixed inset-x-0 bottom-0 z-10 border-t border-neutral-200 bg-white md:inset-y-0 md:right-auto md:flex md:w-56 md:flex-col md:border-t-0 md:border-r md:px-3 md:py-5 ${
+      className={`bg-superficie/90 fixed inset-x-0 bottom-0 z-10 border-t border-neutral-200 backdrop-blur md:inset-y-0 md:right-auto md:flex md:w-56 md:flex-col md:border-t-0 md:border-r md:px-3 md:py-5 ${
         emFormulario ? "hidden" : ""
       }`}
     >
-      <span className="hidden px-3 pb-6 text-lg font-semibold tracking-tight md:block">
-        Ascend
+      <span className="hidden px-3 pb-6 md:block">
+        <Marca />
       </span>
       <ul className="mx-auto grid max-w-md grid-cols-4 text-center text-xs md:mx-0 md:flex md:max-w-none md:flex-col md:gap-1 md:text-left md:text-sm">
         {AREAS.map((area) => (
@@ -77,8 +104,22 @@ export function BarraDeAreas({ nome }: { nome: string }) {
                   ? "page"
                   : undefined
               }
-              className="block py-4 text-neutral-500 hover:text-neutral-900 aria-[current=page]:font-semibold aria-[current=page]:text-neutral-900 md:rounded-lg md:px-3 md:py-2 md:aria-[current=page]:bg-neutral-100"
+              className="group hover:text-acento aria-[current=page]:text-acento-forte md:aria-[current=page]:bg-acento-suave flex flex-col items-center gap-1 pt-2.5 pb-3 text-neutral-500 aria-[current=page]:font-bold md:flex-row md:gap-3 md:rounded-xl md:px-3 md:py-2.5"
             >
+              <span className="group-aria-[current=page]:bg-acento-suave flex h-7 w-14 items-center justify-center rounded-full md:h-auto md:w-auto md:group-aria-[current=page]:bg-transparent">
+                <svg
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  className="size-5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d={area.icone} />
+                </svg>
+              </span>
               <Nome>{area.nome}</Nome>
             </Link>
           </li>
@@ -87,7 +128,7 @@ export function BarraDeAreas({ nome }: { nome: string }) {
       <Link
         href="/conta"
         aria-current={caminho.startsWith("/conta") ? "page" : undefined}
-        className="mt-auto hidden items-center gap-3 rounded-lg px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 aria-[current=page]:bg-neutral-100 aria-[current=page]:font-semibold aria-[current=page]:text-neutral-900 md:flex"
+        className="hover:text-acento aria-[current=page]:bg-acento-suave aria-[current=page]:text-acento-forte mt-auto hidden items-center gap-3 rounded-lg px-3 py-2 text-sm text-neutral-600 aria-[current=page]:font-semibold md:flex"
       >
         <span
           aria-hidden="true"

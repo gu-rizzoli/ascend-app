@@ -146,7 +146,7 @@ export default async function PaginaMeta({ params, searchParams }: Props) {
           Projeto:{" "}
           <Link
             href={`/projetos/${projeto.id}`}
-            className="font-medium text-neutral-900 underline"
+            className="text-acento font-medium underline"
           >
             {projeto.nome}
           </Link>

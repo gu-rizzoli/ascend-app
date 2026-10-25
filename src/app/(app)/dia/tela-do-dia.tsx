@@ -79,11 +79,13 @@ export async function TelaDoDia({
         </SetaDoDia>
         <div className="text-center">
           {rotulo && (
-            <p className="text-xs font-medium tracking-wide text-neutral-500 uppercase">
+            <p className="text-acento text-xs font-bold tracking-widest uppercase">
               {rotulo}
             </p>
           )}
-          <h1 className="text-xl font-semibold">{formatarDataLonga(data)}</h1>
+          <h1 className="text-xl font-bold tracking-tight">
+            {formatarDataLonga(data)}
+          </h1>
         </div>
         <SetaDoDia
           href={enderecoDoDia(somarDias(data, 1), dataHoje)}
@@ -93,14 +95,33 @@ export async function TelaDoDia({
         </SetaDoDia>
       </header>
 
-      <div className="mt-1 flex min-h-6 items-center justify-center gap-3 text-sm">
-        {total > 0 && (
-          <span className="text-neutral-600">
-            {textoDoResumo(concluidas, total)}
-          </span>
-        )}
+      {total > 0 && (
+        // O resumo do dia, também como barra (PRÉVIA do visual novo).
+        <div className="bg-superficie mt-4 rounded-2xl px-4 py-3 shadow-sm">
+          <div className="flex items-baseline justify-between text-sm">
+            <span className="font-semibold">
+              {textoDoResumo(concluidas, total)}
+            </span>
+            <span className="text-acento font-bold tabular-nums">
+              {Math.round((concluidas / total) * 100)}%
+            </span>
+          </div>
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-neutral-200">
+            <div
+              className="bg-acento h-full rounded-full transition-[width]"
+              style={{ width: `${(concluidas / total) * 100}%` }}
+            />
+          </div>
+        </div>
+      )}
+
+      <div className="mt-2 flex min-h-6 items-center justify-center gap-3 text-sm">
         {data !== dataHoje && (
-          <Link href="/hoje" prefetch className="font-medium underline">
+          <Link
+            href="/hoje"
+            prefetch
+            className="text-acento font-semibold underline"
+          >
             Voltar para hoje
           </Link>
         )}
@@ -113,7 +134,7 @@ export async function TelaDoDia({
 
       {projeto && (
         // Projeto atual (fluxos-metas.md, "Tela Hoje", item 3).
-        <section className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2">
+        <section className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
           <div className="flex items-center gap-2">
             <span aria-hidden="true" className="text-amber-500">
               ★
@@ -144,7 +165,7 @@ export async function TelaDoDia({
           {itens.length > 0 && (
             <Link
               href={`/dia/${data}?corrigir=1`}
-              className="rounded-full bg-white px-3 py-1.5 font-medium text-neutral-900 shadow-sm"
+              className="bg-superficie text-acento rounded-full px-3 py-1.5 font-medium shadow-sm"
             >
               Corrigir
             </Link>
@@ -160,7 +181,7 @@ export async function TelaDoDia({
           </p>
           <Link
             href={voltarAoHistorico ? `/historico/${data}` : `/dia/${data}`}
-            className="shrink-0 rounded-full bg-neutral-900 px-3 py-1.5 font-medium text-white"
+            className="bg-acento shrink-0 rounded-full px-3 py-1.5 font-medium text-white"
           >
             Pronto
           </Link>
@@ -168,7 +189,7 @@ export async function TelaDoDia({
       )}
 
       {itens.length > 0 ? (
-        <ul className="mt-4 divide-y divide-neutral-200">
+        <ul className="bg-superficie mt-3 divide-y divide-neutral-200 rounded-2xl px-4 shadow-sm">
           {itens.map((item) =>
             item.tipo === "numerica" ? (
               <LinhaNumerica

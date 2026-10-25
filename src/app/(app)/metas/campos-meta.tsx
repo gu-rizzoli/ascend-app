@@ -43,7 +43,7 @@ export function Opcao({
   children: React.ReactNode;
 }) {
   return (
-    <label className="flex-1 cursor-pointer rounded-lg border border-neutral-300 px-3 py-2.5 text-center text-sm font-medium has-checked:border-neutral-900 has-checked:bg-neutral-900 has-checked:text-white">
+    <label className="has-checked:border-acento has-checked:bg-acento flex-1 cursor-pointer rounded-lg border border-neutral-300 px-3 py-2.5 text-center text-sm font-medium has-checked:text-white">
       <input
         type="radio"
         name={name}
@@ -107,7 +107,7 @@ export function CamposFrequencia({
               <label
                 key={dia.valor}
                 title={dia.nome}
-                className="flex size-10 cursor-pointer items-center justify-center rounded-full border border-neutral-300 text-sm font-medium has-checked:border-neutral-900 has-checked:bg-neutral-900 has-checked:text-white"
+                className="has-checked:border-acento has-checked:bg-acento flex size-10 cursor-pointer items-center justify-center rounded-full border border-neutral-300 text-sm font-medium has-checked:text-white"
               >
                 <input
                   type="checkbox"
@@ -137,7 +137,7 @@ export function CamposFrequencia({
               aria-describedby={
                 erros.intervaloDias ? "intervaloDias-erro" : undefined
               }
-              className="w-16 rounded-lg border border-neutral-300 px-3 py-2 text-center text-base outline-none focus:border-neutral-900 aria-invalid:border-red-600"
+              className="focus:border-acento w-16 rounded-lg border border-neutral-300 px-3 py-2 text-center text-base outline-none aria-invalid:border-red-600"
             />
             dias
           </label>
@@ -166,7 +166,7 @@ export function CampoProjeto({
         defaultValue={valor}
         aria-invalid={erro ? true : undefined}
         aria-describedby={erro ? "projeto-erro" : undefined}
-        className="rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-base outline-none focus:border-neutral-900 aria-invalid:border-red-600"
+        className="bg-superficie focus:border-acento rounded-lg border border-neutral-300 px-3 py-2.5 text-base outline-none aria-invalid:border-red-600"
       >
         <option value="">Nenhum</option>
         {projetos.map((p) => (

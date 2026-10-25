@@ -12,7 +12,7 @@ export default function PaginaCadastro() {
       <FormularioCadastro />
       <p className="text-center text-sm text-neutral-600">
         Já tem conta?{" "}
-        <Link href="/entrar" className="font-medium text-neutral-900 underline">
+        <Link href="/entrar" className="text-acento font-medium underline">
           Entrar
         </Link>
       </p>

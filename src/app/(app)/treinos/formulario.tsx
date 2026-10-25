@@ -23,7 +23,7 @@ import {
 import { BotoesDeOrdem, LinkDeSaida, useConfirmarSaida } from "./saida";
 
 const classeCampo =
-  "rounded-lg border border-neutral-300 px-3 py-2.5 text-base outline-none focus:border-neutral-900";
+  "rounded-lg border border-neutral-300 px-3 py-2.5 text-base outline-none focus:border-acento";
 
 /**
  * Registrar ou editar um treino (treinos.md, "Registrar treino"). Nada é
@@ -276,7 +276,7 @@ function LinhaDaSerie({
   const [aberta, setAberta] = useState(s.observacao !== "");
   const nome = `série ${numero} de ${exercicio}`;
   const classe =
-    "w-full min-w-0 rounded-md border border-neutral-300 px-2 py-2 text-base outline-none focus:border-neutral-900";
+    "w-full min-w-0 rounded-md border border-neutral-300 px-2 py-2 text-base outline-none focus:border-acento";
 
   return (
     <li className="py-1">
@@ -320,7 +320,7 @@ function LinhaDaSerie({
             onChange={(ev) =>
               aoMudar({ ...s, observacao: ev.currentTarget.value })
             }
-            className="min-w-0 flex-1 rounded-md border border-neutral-300 px-2 py-1.5 text-sm outline-none focus:border-neutral-900"
+            className="focus:border-acento min-w-0 flex-1 rounded-md border border-neutral-300 px-2 py-1.5 text-sm outline-none"
           />
           <BotoesDeOrdem
             nome={nome}

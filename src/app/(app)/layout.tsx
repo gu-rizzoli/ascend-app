@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { hoje } from "@/domain/datas";
 import { usuarioComDiasFechados } from "@/server/fechamento";
+import { Marca } from "@/ui/marca";
 
 import { AvisoNovoDia } from "./aviso-novo-dia";
 import { BarraDeAreas, Conteudo } from "./barra-de-areas";
@@ -19,11 +20,11 @@ export default async function LayoutApp({
     <div className="mx-auto flex min-h-dvh max-w-md flex-col md:max-w-none md:pl-56">
       {/* No computador o nome do app e a Conta ficam na barra lateral. */}
       <header className="flex items-center justify-between px-4 pt-4 md:hidden">
-        <span className="text-lg font-semibold tracking-tight">Ascend</span>
+        <Marca />
         <Link
           href="/conta"
           aria-label="Conta"
-          className="flex size-9 items-center justify-center rounded-full bg-neutral-200 text-sm font-semibold"
+          className="bg-acento-suave text-acento-forte flex size-9 items-center justify-center rounded-full text-sm font-bold"
         >
           {usuario.nome.charAt(0).toUpperCase()}
         </Link>

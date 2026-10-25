@@ -57,12 +57,12 @@ export function Catalogo({
           placeholder="Buscar"
           value={busca}
           onChange={(e) => setBusca(e.currentTarget.value)}
-          className="min-w-0 flex-1 rounded-lg border border-neutral-300 px-3 py-2.5 text-base outline-none focus:border-neutral-900"
+          className="focus:border-acento min-w-0 flex-1 rounded-lg border border-neutral-300 px-3 py-2.5 text-base outline-none"
         />
         <button
           type="button"
           onClick={() => setCriando(true)}
-          className="shrink-0 rounded-lg bg-neutral-900 px-4 py-2.5 font-medium text-white"
+          className="bg-acento shrink-0 rounded-lg px-4 py-2.5 font-medium text-white"
         >
           Novo exercício
         </button>
@@ -84,7 +84,7 @@ export function Catalogo({
             <h2 className="text-xs font-medium tracking-wide text-neutral-500 uppercase">
               {g.nome} · {g.exercicios.length}
             </h2>
-            <ul className="divide-y divide-neutral-200">
+            <ul className="bg-superficie divide-y divide-neutral-200 rounded-2xl px-4 shadow-sm">
               {g.exercicios.map((e) => (
                 <li key={e.id}>
                   <Link

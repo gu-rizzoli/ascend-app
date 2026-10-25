@@ -12,10 +12,7 @@ export default function PaginaEntrar() {
       <FormularioEntrar />
       <p className="text-center text-sm text-neutral-600">
         Ainda não tem conta?{" "}
-        <Link
-          href="/cadastro"
-          className="font-medium text-neutral-900 underline"
-        >
+        <Link href="/cadastro" className="text-acento font-medium underline">
           Criar conta
         </Link>
       </p>

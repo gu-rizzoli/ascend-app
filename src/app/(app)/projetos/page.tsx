@@ -77,7 +77,7 @@ function Grupo({
       <h2 className="text-sm font-medium text-neutral-500">
         {titulo} · {projetos.length}
       </h2>
-      <ul className="mt-1 divide-y divide-neutral-200">
+      <ul className="bg-superficie mt-1 divide-y divide-neutral-200 rounded-2xl px-4 shadow-sm">
         {projetos.map((p) => (
           <LinhaDoProjeto key={p.id} p={p} atual={false} dataHoje={dataHoje} />
         ))}
@@ -102,7 +102,7 @@ function GrupoRecolhido({
       <summary className="cursor-pointer text-sm font-medium text-neutral-500 select-none">
         {titulo} · {projetos.length}
       </summary>
-      <ul className="mt-1 divide-y divide-neutral-200">
+      <ul className="bg-superficie mt-1 divide-y divide-neutral-200 rounded-2xl px-4 shadow-sm">
         {projetos.map((p) => (
           <LinhaDoProjeto key={p.id} p={p} atual={false} dataHoje={dataHoje} />
         ))}

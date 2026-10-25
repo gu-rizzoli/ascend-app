@@ -37,7 +37,7 @@ export default async function PaginaTreinos() {
         </section>
       ) : (
         <>
-          <ul className="mt-4 divide-y divide-neutral-200">
+          <ul className="bg-superficie mt-4 divide-y divide-neutral-200 rounded-2xl px-4 shadow-sm">
             {treinos.map((t) => (
               <li key={t.id}>
                 <Link

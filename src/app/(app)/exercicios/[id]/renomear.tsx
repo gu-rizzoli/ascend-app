@@ -49,7 +49,7 @@ export function NomeDoExercicio({
         defaultValue={nome}
         maxLength={NOME_EXERCICIO_MAXIMO}
         autoComplete="off"
-        className="rounded-lg border border-neutral-300 px-3 py-2 text-base outline-none focus:border-neutral-900"
+        className="focus:border-acento rounded-lg border border-neutral-300 px-3 py-2 text-base outline-none"
       />
       <p className="text-xs text-neutral-500">
         O nome muda em todos os treinos. Para uma variação, crie outro
@@ -71,7 +71,7 @@ export function NomeDoExercicio({
         <button
           type="submit"
           disabled={enviando}
-          className="flex-1 rounded-lg bg-neutral-900 px-4 py-2.5 font-medium text-white disabled:opacity-50"
+          className="bg-acento flex-1 rounded-lg px-4 py-2.5 font-medium text-white disabled:opacity-50"
         >
           {enviando ? "Salvando…" : "Salvar"}
         </button>

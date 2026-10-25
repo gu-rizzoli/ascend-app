@@ -17,7 +17,7 @@ export function BotaoFlutuante({
       <Link
         href={href}
         aria-label={rotulo}
-        className="pointer-events-auto flex size-14 items-center justify-center gap-1.5 rounded-full bg-neutral-900 text-3xl leading-none text-white shadow-lg md:size-auto md:rounded-lg md:px-4 md:py-2.5 md:text-base md:font-medium md:shadow-none"
+        className="bg-acento pointer-events-auto flex size-14 items-center justify-center gap-1.5 rounded-full text-3xl leading-none text-white shadow-lg md:size-auto md:rounded-lg md:px-4 md:py-2.5 md:text-base md:font-medium md:shadow-none"
       >
         +<span className="hidden md:inline">{rotulo}</span>
       </Link>

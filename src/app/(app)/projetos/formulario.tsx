@@ -100,7 +100,7 @@ export function FormularioProjeto(props: Props) {
           rows={3}
           maxLength={DESCRICAO_MAXIMA}
           defaultValue={v.descricao}
-          className="rounded-lg border border-neutral-300 px-3 py-2.5 text-base outline-none focus:border-neutral-900"
+          className="focus:border-acento rounded-lg border border-neutral-300 px-3 py-2.5 text-base outline-none"
         />
         <Erro id="descricao-erro" texto={erros.descricao} />
       </label>
@@ -128,7 +128,7 @@ export function FormularioProjeto(props: Props) {
             type="checkbox"
             name="tornarAtual"
             defaultChecked={estado.valores?.tornarAtual ?? props.semAtual}
-            className="size-5 accent-neutral-900"
+            className="accent-acento size-5"
           />
           <span>Tornar projeto atual</span>
         </label>
@@ -163,7 +163,7 @@ function OpcaoStatus({
   inicial: string;
 }) {
   return (
-    <label className="cursor-pointer rounded-lg border border-neutral-300 px-2 py-2.5 text-center text-sm font-medium has-checked:border-neutral-900 has-checked:bg-neutral-900 has-checked:text-white">
+    <label className="has-checked:border-acento has-checked:bg-acento cursor-pointer rounded-lg border border-neutral-300 px-2 py-2.5 text-center text-sm font-medium has-checked:text-white">
       <input
         type="radio"
         name="status"

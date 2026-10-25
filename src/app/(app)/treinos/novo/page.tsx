@@ -84,7 +84,7 @@ export default async function PaginaNovoTreino({ searchParams }: Props) {
           A partir de um modelo
         </h2>
         {modelos.length > 0 ? (
-          <ul className="mt-1 divide-y divide-neutral-200">
+          <ul className="bg-superficie mt-1 divide-y divide-neutral-200 rounded-2xl px-4 shadow-sm">
             {modelos.map((m) => (
               <li key={m.id}>
                 <Link

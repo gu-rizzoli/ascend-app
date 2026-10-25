@@ -64,7 +64,7 @@ export function EscolherExercicio({
   }
 
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-neutral-300 bg-white p-2">
+    <div className="bg-superficie flex flex-col gap-2 rounded-lg border border-neutral-300 p-2">
       <div className="flex items-center gap-2">
         <input
           autoFocus
@@ -90,7 +90,7 @@ export function EscolherExercicio({
               aoFechar?.();
             }
           }}
-          className="min-w-0 flex-1 rounded-md border border-neutral-300 px-3 py-2 text-base outline-none focus:border-neutral-900"
+          className="focus:border-acento min-w-0 flex-1 rounded-md border border-neutral-300 px-3 py-2 text-base outline-none"
         />
         {aoFechar && (
           <button
@@ -129,7 +129,7 @@ export function EscolherExercicio({
               type="button"
               onClick={criar}
               disabled={criando}
-              className="block w-full truncate rounded-md px-3 py-2 text-left font-medium text-neutral-900 hover:bg-neutral-100 disabled:opacity-50"
+              className="text-acento block w-full truncate rounded-md px-3 py-2 text-left font-medium hover:bg-neutral-100 disabled:opacity-50"
             >
               {criando
                 ? "Criando…"
