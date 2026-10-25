@@ -62,7 +62,7 @@ Os padrões do passo 4 mudam conforme a data aberta, porque abrir uma data futur
 
 **Atualizar meta numérica (RF-MET-07, 08):**
 
-- O + abre um painel com **+1 unidade**, **+ último incremento usado** e um campo **"novo total"**.
+- O + abre um painel com duas partes. **Somar:** **+1 unidade**, **+ último incremento usado** e um campo para somar outro valor. **Corrigir o total:** um campo que já vem com o valor atual, para trocar um valor digitado errado (ajuste de 24/10/2026, depois do teste no celular).
 - O valor pode passar do alvo. A barra para em 100% e o número real continua aparecendo ("3,5 / 3 L").
 - Quando chega ao alvo, a ocorrência passa a contar como concluída. Se o valor for corrigido para menos, ela volta a ficar pendente.
 - Guarda-se só o valor atual da ocorrência, sem um log de cada incremento. O v0.4 não pede esse histórico.

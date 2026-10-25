@@ -135,10 +135,15 @@ export function LinhaBinaria({ item, modo }: Props) {
 
 const chaveIncremento = (metaId: string) => `ascend:incremento:${metaId}`;
 
+// Sem separador de milhar, para o campo aceitar o valor de volta.
+const paraCampo = (valor: number) =>
+  String(Math.round(valor * 1000) / 1000).replace(".", ",");
+
 /**
  * Numérica: "1,5 / 3 L", barra que para em 100% e um + que abre atalhos de
- * incremento e o campo de novo total (fluxos-metas.md). Num dia em correção,
- * o painel mostra só o campo do total corrigido.
+ * incremento e o campo do total, já preenchido com o valor atual para corrigir
+ * um valor errado (fluxos-metas.md). Num dia em correção, o painel mostra só o
+ * campo do total corrigido.
  */
 export function LinhaNumerica({ item, modo }: Props) {
   const alvo = item.valorAlvo ?? 0;
@@ -148,7 +153,8 @@ export function LinhaNumerica({ item, modo }: Props) {
   const [corrigida, marcarCorrigida] = useOptimistic(item.corrigida);
   const [, iniciar] = useTransition();
   const [aberto, setAberto] = useState(false);
-  const [digitado, setDigitado] = useState("");
+  const [somaDigitada, setSomaDigitada] = useState("");
+  const [totalDigitado, setTotalDigitado] = useState("");
   // O último incremento usado fica só neste aparelho: o v0.4 não pede log de
   // incrementos (fluxos-metas.md, decisão 4).
   const [ultimo, setUltimo] = useState<number | null>(null);
@@ -181,6 +187,7 @@ export function LinhaNumerica({ item, modo }: Props) {
         localStorage.setItem(chaveIncremento(item.metaId), String(incremento));
       } catch {}
     }
+    setTotalDigitado(paraCampo(valor + incremento));
     iniciar(async () => {
       mudarValor(valor + incremento);
       await somarValor(item.metaId, item.dataPrevista!, String(incremento));
@@ -199,7 +206,15 @@ export function LinhaNumerica({ item, modo }: Props) {
     });
   }
 
-  const n = lerNumero(digitado);
+  // Ao abrir, o campo do total já vem com o valor atual: corrigir um valor
+  // errado é só apagar e digitar o certo.
+  function alternarPainel() {
+    if (!aberto) setTotalDigitado(paraCampo(valor));
+    setAberto(!aberto);
+  }
+
+  const soma = lerNumero(somaDigitada);
+  const total = lerNumero(totalDigitado);
 
   return (
     <li className="py-3.5">
@@ -238,7 +253,7 @@ export function LinhaNumerica({ item, modo }: Props) {
             type="button"
             aria-label={`Atualizar ${item.titulo}`}
             aria-expanded={aberto}
-            onClick={() => setAberto((a) => !a)}
+            onClick={alternarPainel}
             className="flex size-10 shrink-0 items-center justify-center rounded-full border border-neutral-300 text-xl leading-none"
           >
             {aberto ? "×" : "+"}
@@ -247,64 +262,90 @@ export function LinhaNumerica({ item, modo }: Props) {
       </div>
 
       {tocavel && aberto && (
-        <div className="mt-3 flex flex-col gap-3 rounded-lg bg-neutral-100 p-3">
-          <div className={corrigindo ? "hidden" : "flex flex-wrap gap-2"}>
-            <button
-              type="button"
-              onClick={() => somar(1)}
-              className="rounded-full bg-white px-4 py-2 text-sm font-medium shadow-sm"
-            >
-              +1 {unidade}
-            </button>
-            {ultimo !== null && ultimo !== 1 && (
-              <button
-                type="button"
-                onClick={() => somar(ultimo)}
-                className="rounded-full bg-white px-4 py-2 text-sm font-medium shadow-sm"
+        <div className="mt-3 flex flex-col gap-4 rounded-lg bg-neutral-100 p-3">
+          {!corrigindo && (
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-medium text-neutral-600">
+                Somar
+              </span>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => somar(1)}
+                  className="rounded-full bg-white px-4 py-2 text-sm font-medium shadow-sm"
+                >
+                  +1 {unidade}
+                </button>
+                {ultimo !== null && ultimo !== 1 && (
+                  <button
+                    type="button"
+                    onClick={() => somar(ultimo)}
+                    className="rounded-full bg-white px-4 py-2 text-sm font-medium shadow-sm"
+                  >
+                    +{formatarNumero(ultimo)} {unidade}
+                  </button>
+                )}
+              </div>
+              <form
+                className="flex gap-2"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (soma === null || soma === 0) return;
+                  somar(soma);
+                  setSomaDigitada("");
+                }}
               >
-                +{formatarNumero(ultimo)} {unidade}
-              </button>
-            )}
-          </div>
+                <input
+                  aria-label={`Quanto somar em ${item.titulo}`}
+                  inputMode="decimal"
+                  placeholder="Outro valor"
+                  value={somaDigitada}
+                  onChange={(e) => setSomaDigitada(e.target.value)}
+                  className="min-w-0 flex-1 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-base outline-none focus:border-neutral-900"
+                />
+                <button
+                  type="submit"
+                  disabled={soma === null || soma === 0}
+                  className="rounded-lg bg-white px-4 py-2 text-sm font-medium shadow-sm disabled:opacity-50"
+                >
+                  Somar
+                </button>
+              </form>
+            </div>
+          )}
           <form
-            className="flex gap-2"
+            className="flex flex-col gap-2"
             onSubmit={(e) => {
               e.preventDefault();
-              if (n === null) return;
-              definir(n);
-              setDigitado("");
+              if (total === null) return;
+              definir(total);
               setAberto(false);
             }}
           >
-            <input
-              aria-label="Quantidade"
-              inputMode="decimal"
-              placeholder="Ex.: 0,5"
-              value={digitado}
-              onChange={(e) => setDigitado(e.target.value)}
-              className="min-w-0 flex-1 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-base outline-none focus:border-neutral-900"
-            />
-            {!corrigindo && (
-              <button
-                type="button"
-                disabled={n === null || n === 0}
-                onClick={() => {
-                  if (n === null || n === 0) return;
-                  somar(n);
-                  setDigitado("");
-                }}
-                className="rounded-lg bg-white px-3 py-2 text-sm font-medium shadow-sm disabled:opacity-50"
-              >
-                Somar
-              </button>
-            )}
-            <button
-              type="submit"
-              disabled={n === null}
-              className="rounded-lg bg-neutral-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
+            <label
+              htmlFor={`total-${item.chave}`}
+              className="text-xs font-medium text-neutral-600"
             >
-              {corrigindo ? "Corrigir total" : "Novo total"}
-            </button>
+              {corrigindo ? "Total corrigido" : "Corrigir o total"}
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                id={`total-${item.chave}`}
+                inputMode="decimal"
+                value={totalDigitado}
+                onChange={(e) => setTotalDigitado(e.target.value)}
+                onFocus={(e) => e.currentTarget.select()}
+                className="min-w-0 flex-1 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-base outline-none focus:border-neutral-900"
+              />
+              <span className="text-sm text-neutral-600">{unidade}</span>
+              <button
+                type="submit"
+                disabled={total === null}
+                className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+              >
+                Salvar
+              </button>
+            </div>
           </form>
         </div>
       )}
