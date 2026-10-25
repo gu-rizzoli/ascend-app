@@ -97,7 +97,7 @@ Pontos que a especificação deixava em aberto e foram resolvidos ao construir, 
 | 9 | Projeto concluído pode ser arquivado? | Sim, com a mesma pergunta sobre metas. Um arquivado volta por Reabrir |
 | 10 | Reabrir | Botão Reabrir no detalhe, ou trocar o status no formulário de edição |
 | 11 | Estrela em projeto concluído ou arquivado | Não aparece: só um projeto aberto vira o atual |
-| 12 | Onde o projeto atual aparece em Hoje | Só na lista do dia atual (`/hoje`). Em outras datas, o foco é assunto do Histórico |
+| 12 | Onde o projeto atual aparece em Hoje | Em hoje e nos próximos dias, o projeto atual de agora, com o próximo passo. Num dia passado, o projeto que estava em foco naquele dia (a última troca até a data), só com o nome, sem reescrever o passado. Revisto em 25/10/2026: antes aparecia só em `/hoje` |
 | 13 | Projeto de uma meta recorrente | É parte da regra, como a descrição: muda só em "esta e as próximas" e as datas que passaram mantêm o projeto de antes |
 | 14 | Ao concluir ou arquivar sem metas recorrentes ativas | Não há pergunta; o status muda com um toque |
 | 15 | Confirmação por nome ao excluir | Ignora maiúsculas e espaços nas pontas |

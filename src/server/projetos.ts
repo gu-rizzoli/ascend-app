@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, lte, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import { db } from "@/db";
@@ -63,6 +63,30 @@ export async function projetoAtualId(
 export async function projetoAtual(usuarioId: string): Promise<Projeto | null> {
   const id = await projetoAtualId(usuarioId);
   return id ? projetoDoUsuario(usuarioId, id) : null;
+}
+
+/**
+ * O projeto em foco numa data passada: a última troca feita até aquele dia
+ * (RF-HIS-09). Trocas posteriores não mudam o passado.
+ */
+export async function projetoEmFoco(
+  usuarioId: string,
+  data: DataCivil,
+): Promise<Projeto | null> {
+  const [ultima] = await db()
+    .select({ projetoId: projetoAtualTroca.projetoId })
+    .from(projetoAtualTroca)
+    .where(
+      and(
+        eq(projetoAtualTroca.usuarioId, usuarioId),
+        lte(projetoAtualTroca.data, data),
+      ),
+    )
+    .orderBy(desc(projetoAtualTroca.data), desc(projetoAtualTroca.criadoEm))
+    .limit(1);
+  return ultima?.projetoId
+    ? projetoDoUsuario(usuarioId, ultima.projetoId)
+    : null;
 }
 
 /** Todos os projetos, em ordem alfabética. */

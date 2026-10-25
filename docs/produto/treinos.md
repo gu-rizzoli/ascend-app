@@ -88,3 +88,17 @@ erDiagram
 | 6 | Exercício arquivado pode voltar? | Sim |
 | 7 | Dois treinos no mesmo dia? | Sim |
 | 8 | Excluir modelo afeta treinos feitos com ele? | Não; eles só perdem a referência |
+
+## Detalhes da implementação (entrega 6, 25/10/2026)
+
+Pontos que a especificação deixava em aberto e foram resolvidos ao construir, sem mudar o escopo:
+
+| # | Situação | Como ficou |
+| --- | --- | --- |
+| 9 | Data do treino no futuro | Não é aceita: o treino é registrado depois de acontecer (9.9) |
+| 10 | Salvar sem nenhuma série com repetições | Não salva e pede pelo menos uma série |
+| 11 | Criar no registro um nome que já existe arquivado | Usa o exercício existente e o desarquiva, em vez de dar erro |
+| 12 | Modelo sem exercícios | Não é aceito; o máximo de repetições igual ao mínimo vira "só o mínimo" |
+| 13 | Onde fica o "Novo exercício" | No catálogo, usando a mesma busca do registro: os parecidos aparecem antes de criar |
+| 14 | Editar treino muda o modelo de origem? | Não; a referência ao modelo fica como no registro |
+| 15 | Título de um treino sem nome | Os nomes dos exercícios, na ordem ("Supino reto, Flexão") |

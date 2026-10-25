@@ -11,7 +11,7 @@ import { diaEditavel, resumoDoDia } from "@/domain/metas";
 import { prazoVencido } from "@/domain/projetos";
 import { usuarioComDiasFechados } from "@/server/fechamento";
 import { listaDoDia, temAlgumaMeta } from "@/server/metas";
-import { projetoAtual } from "@/server/projetos";
+import { projetoAtual, projetoEmFoco } from "@/server/projetos";
 import { classeBotao } from "@/ui/botao";
 
 import { ProximoPasso, SeloPrazoVencido } from "../projetos/pecas";
@@ -50,12 +50,14 @@ export async function TelaDoDia({
   // metas pendentes.
   const usuario = await usuarioComDiasFechados();
   const dataHoje = hoje();
-  // O projeto atual é de agora: aparece só em Hoje. O foco de outras datas
-  // é do Histórico (RF-HIS-09).
+  // Hoje e os próximos dias mostram o projeto atual. Um dia passado mostra o
+  // que estava em foco naquele dia, sem o próximo passo, que é de agora
+  // (projetos.md, decisão 12).
+  const passado = data < dataHoje;
   const [itens, temMeta, projeto] = await Promise.all([
     listaDoDia(usuario.id, data),
     temAlgumaMeta(usuario.id),
-    data === dataHoje ? projetoAtual(usuario.id) : null,
+    passado ? projetoEmFoco(usuario.id, data) : projetoAtual(usuario.id),
   ]);
   const editavel = diaEditavel(data, dataHoje);
   const modo: Modo = editavel ? "editar" : corrigindo ? "corrigir" : "ler";
@@ -119,9 +121,17 @@ export async function TelaDoDia({
             >
               {projeto.nome}
             </Link>
-            {prazoVencido(projeto, dataHoje) && <SeloPrazoVencido />}
+            {passado ? (
+              <span className="shrink-0 text-xs text-amber-800">
+                em foco neste dia
+              </span>
+            ) : (
+              prazoVencido(projeto, dataHoje) && <SeloPrazoVencido />
+            )}
           </div>
-          <ProximoPasso projetoId={projeto.id} texto={projeto.proximoPasso} />
+          {!passado && (
+            <ProximoPasso projetoId={projeto.id} texto={projeto.proximoPasso} />
+          )}
         </section>
       )}
 

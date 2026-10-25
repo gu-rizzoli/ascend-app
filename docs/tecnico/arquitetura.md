@@ -96,6 +96,17 @@ Implementado na entrega 5 (RF-PRO-01 a 12), seguindo [Projetos](../produto/proje
 - **Escritas:** as Server Actions ficam em `src/server/acoes-projetos.ts`. Concluir ou arquivar muda o status, grava a troca para nenhum se preciso e pausa as metas escolhidas com a mesma `pausar()` de Metas, tudo numa transação.
 - **Metas:** o campo Projeto entra no formulário de criar e editar meta e só lista projetos abertos. O servidor confere o dono e o status (`projetoValidoParaMeta()`).
 - **Telas:** `/projetos`, `/projetos/novo`, `/projetos/:id` e `/projetos/:id/editar`. O próximo passo se edita com um toque na lista, no detalhe e na linha do projeto atual em Hoje.
+- **Projeto na lista do dia:** hoje e os próximos dias mostram o atual (`projetoAtual()`); um dia passado mostra o que estava em foco naquele dia (`projetoEmFoco()`, a última troca com `data` até ele), só com o nome.
+
+## Treinos
+
+Entrega 6. O desenho está em [Treinos](../produto/treinos.md).
+
+- **Tabelas:** `exercicio`, `modelo_treino`, `modelo_exercicio`, `treino`, `treino_exercicio` e `serie` (migração 0004). As referências a `exercicio` usam `RESTRICT`; modelo e treino apagam os filhos em cascata; `treino.modelo_id` usa `SET NULL`.
+- **Regras puras:** `src/domain/treinos.ts` normaliza nomes (`normalizarNome()`), busca no catálogo (`buscarExercicios()`), valida o treino descartando séries vazias (`validarTreino()`), monta o formulário a partir do modelo (`treinoDoModelo()`) e valida o modelo (`validarModelo()`).
+- **Escritas:** `src/server/treinos.ts` grava treino e modelo inteiros numa transação, substituindo exercícios e séries ao editar, e confere que todo exercício é do usuário. As Server Actions ficam em `src/server/acoes-treinos.ts`; os formulários de treino e modelo mandam o conteúdo como JSON num campo só.
+- **Criar exercício no registro:** `novoExercicio()` usa `ON CONFLICT DO NOTHING` sobre `(usuario_id, nome_normalizado)`. Se o nome já existe, devolve o existente (e o desarquiva).
+- **Telas:** `/treinos`, `/treinos/novo` (escolha, depois `?livre=1` ou `?modelo=…`), `/treinos/:id`, `/treinos/:id/editar`, `/exercicios`, `/exercicios/:id`, `/modelos`, `/modelos/novo` e `/modelos/:id`. Exercícios e Modelos são abas de Treinos.
 
 ## Migrações em produção
 
