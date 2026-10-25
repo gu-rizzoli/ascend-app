@@ -109,6 +109,17 @@ Entrega 6. O desenho está em [Treinos](../produto/treinos.md).
 - **Criar exercício no registro:** `novoExercicio()` usa `ON CONFLICT DO NOTHING` sobre `(usuario_id, nome_normalizado)`. Se o nome já existe, devolve o existente (e o desarquiva).
 - **Telas:** `/treinos`, `/treinos/novo` (escolha, depois `?livre=1` ou `?modelo=…`), `/treinos/:id`, `/treinos/:id/editar`, `/exercicios`, `/exercicios/:id`, `/modelos`, `/modelos/novo` e `/modelos/:id`. Exercícios e Modelos são abas de Treinos.
 
+## Histórico
+
+Implementado na entrega 7 (RF-HIS-01 a 15), seguindo [Histórico](../produto/historico.md). Sem migração.
+
+- **Sem tabela própria:** `src/server/historico.ts` lê as ocorrências do período (`metasDoPeriodo()`, com o projeto da versão), os treinos (`treinosDoUsuario()` com período) e as trocas de projeto atual (`focosDosDias()`).
+- **Regras puras:** `src/domain/historico.ts` conta a taxa por dia (`contagemPorDia()`, `percentual()`), as 4 estatísticas (`estatisticas()`), monta a grade do mês, lê os filtros do endereço, reconstrói o foco de cada dia (`focoPorDia()`) e agrupa a lista (`agruparPorData()`).
+- **Fechamento:** as telas chamam `usuarioComDiasFechados()` antes de ler, então um dia passado nunca aparece com pendentes.
+- **Correção:** a escrita saiu da Server Action para `corrigir()` em `src/server/correcao.ts`, que também tira a cópia pendente de uma original reagendada corrigida para concluída (decisão 21 dos fluxos de Metas) e avisa para revalidar os outros dias.
+- **Telas:** `/historico`, `/historico/lista` e `/historico/AAAA-MM-DD`. A aba Histórico da barra passa a funcionar.
+- **Abas instantâneas:** as 4 abas da barra usam prefetch completo, como as setas do dia, e o nome pulsa se o toque chegar antes. Qualquer outro link mostra o esqueleto de `src/app/(app)/loading.tsx` na hora. Por isso, toda escrita que muda outra área chama `revalidatePath("/", "layout")`, inclusive a correção retroativa, que muda o Histórico. Marcar uma meta de hoje ou do futuro continua com `refresh()`, porque o Histórico só mostra até ontem.
+
 ## Migrações em produção
 
 O deploy de produção no Netlify roda `pnpm db:migrate` antes do build (`netlify.toml`). Assim o banco é atualizado no momento do merge na `main`. Se a migração falhar, o build para e a versão anterior continua no ar.

@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { refresh, revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -9,7 +9,6 @@ import { db } from "@/db";
 import { meta, metaVersao, ocorrencia } from "@/db/schema";
 import { errosPorCampo, type ErrosDeCampo } from "@/domain/conta";
 import { hoje, type DataCivil } from "@/domain/datas";
-import { diaCorrigivel, estadoCorrigido } from "@/domain/fechamento";
 import {
   diaEditavel,
   esquemaNovaMeta,
@@ -20,6 +19,7 @@ import {
   type RefOcorrencia,
 } from "@/domain/metas";
 
+import { corrigir } from "./correcao";
 import { fecharSePreciso } from "./fechamento";
 import { ocorrenciaDaRef, type OcorrenciaParaAlterar } from "./metas";
 import { projetoValidoParaMeta } from "./projetos";
@@ -184,53 +184,18 @@ async function corrigirOcorrencia(
     // "Antes de alterar uma ocorrência vencida" (11.5): o dia precisa estar
     // encerrado para a correção partir do estado final.
     await fecharSePreciso(usuario, dataHoje);
-    await db().transaction(async (tx) => {
-      const [linha] = await tx
-        .select({ meta, versao: metaVersao, ocorrencia })
-        .from(ocorrencia)
-        .innerJoin(meta, eq(ocorrencia.metaId, meta.id))
-        .innerJoin(metaVersao, eq(ocorrencia.versaoId, metaVersao.id))
-        .where(
-          and(
-            eq(ocorrencia.id, ocorrenciaId),
-            eq(ocorrencia.usuarioId, usuario.id),
-          ),
-        )
-        .for("update", { of: ocorrencia })
-        .limit(1);
-      if (!linha) return;
-      const { meta: m, versao: v, ocorrencia: o } = linha;
-      if (!diaCorrigivel(o.data as DataCivil, dataHoje)) return;
-
-      const valor =
-        m.tipo === "numerica" && pedido.valor !== undefined
-          ? Math.min(VALOR_MAXIMO, Math.max(0, pedido.valor))
-          : undefined;
-      const estado = estadoCorrigido(
-        m.tipo,
-        { concluida: pedido.concluida, valor },
-        o.valorAlvo ?? v.valorAlvo,
-      );
-      if (!estado) return;
-      const mesmoValor = valor === undefined || valor === o.valorAtual;
-      if (estado === o.estado && mesmoValor) return;
-
-      await tx
-        .update(ocorrencia)
-        .set({
-          estado,
-          ...(valor !== undefined && { valorAtual: valor }),
-          concluidaEm:
-            estado !== "concluida"
-              ? null
-              : o.estado === "concluida"
-                ? o.concluidaEm
-                : new Date(),
-          corrigidaAposEncerramento: true,
-          atualizadoEm: new Date(),
-        })
-        .where(eq(ocorrencia.id, o.id));
-    });
+    const { alterou } = await corrigir(
+      usuario.id,
+      ocorrenciaId,
+      pedido,
+      dataHoje,
+    );
+    // A correção muda o Histórico, e a cópia reagendada fica em outro dia;
+    // as duas telas podem estar pré-carregadas.
+    if (alterou) {
+      revalidatePath("/", "layout");
+      return;
+    }
   }
   refresh();
 }

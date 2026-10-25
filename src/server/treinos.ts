@@ -1,6 +1,16 @@
 import "server-only";
 
-import { and, asc, count, desc, eq, inArray, isNull, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  between,
+  count,
+  desc,
+  eq,
+  inArray,
+  isNull,
+  sql,
+} from "drizzle-orm";
 import { z } from "zod";
 
 import { db } from "@/db";
@@ -238,14 +248,23 @@ export type ResumoTreino = {
   exercicios: string[];
 };
 
-/** A lista de sessões, da mais recente para a mais antiga (RF-TRE-15). */
+/**
+ * A lista de sessões, da mais recente para a mais antiga (RF-TRE-15). Com
+ * `periodo`, só as de dentro dele, para o Histórico.
+ */
 export async function treinosDoUsuario(
   usuarioId: string,
+  periodo?: { de: DataCivil; ate: DataCivil },
 ): Promise<ResumoTreino[]> {
   const treinos = await db()
     .select({ id: treino.id, nome: treino.nome, data: treino.data })
     .from(treino)
-    .where(eq(treino.usuarioId, usuarioId))
+    .where(
+      and(
+        eq(treino.usuarioId, usuarioId),
+        periodo && between(treino.data, periodo.de, periodo.ate),
+      ),
+    )
     .orderBy(desc(treino.data), desc(treino.criadoEm));
   if (treinos.length === 0) return [];
 

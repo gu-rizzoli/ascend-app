@@ -42,9 +42,11 @@ function textoDoResumo(concluidas: number, total: number): string {
 export async function TelaDoDia({
   data,
   corrigindo = false,
+  voltarAoHistorico = false,
 }: {
   data: DataCivil;
   corrigindo?: boolean;
+  voltarAoHistorico?: boolean;
 }) {
   // Fecha os dias vencidos antes de ler: um dia passado nunca aparece com
   // metas pendentes.
@@ -156,7 +158,7 @@ export async function TelaDoDia({
             corrigida.
           </p>
           <Link
-            href={`/dia/${data}`}
+            href={voltarAoHistorico ? `/historico/${data}` : `/dia/${data}`}
             className="shrink-0 rounded-full bg-neutral-900 px-3 py-1.5 font-medium text-white"
           >
             Pronto

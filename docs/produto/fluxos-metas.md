@@ -187,3 +187,4 @@ Pontos que os fluxos acima não fechavam e que a entrega 4 precisou decidir. Tod
 | # | Situação | Como ficou |
 | --- | --- | --- |
 | 20 | Reativar uma meta que tinha uma mudança agendada ("esta e as próximas" numa data futura) | A regra de antes volta a valer de hoje até a véspera da mudança, e a mudança segue agendada. Antes da correção, os dias entre hoje e a mudança sumiam |
+| 21 | Corrigir para concluída uma original que já tinha sido reagendada (decidido na entrega 7) | A cópia sai se ainda estiver pendente (hoje ou no futuro), porque a meta foi feita no dia original. Se a cópia já foi concluída ou o dia dela já encerrou, as duas ficam |

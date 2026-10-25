@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { paraDataCivil } from "@/domain/datas";
 import {
+  copiaSaiNaCorrecao,
   diaCorrigivel,
   estadoCorrigido,
   periodoAFechar,
@@ -198,5 +199,40 @@ describe("diaCorrigivel", () => {
     expect(diaCorrigivel(d("2026-10-23"), HOJE)).toBe(true);
     expect(diaCorrigivel(HOJE, HOJE)).toBe(false);
     expect(diaCorrigivel(d("2026-10-25"), HOJE)).toBe(false);
+  });
+});
+
+describe("copiaSaiNaCorrecao (decisão 21)", () => {
+  const pendenteFutura = { estado: "pendente" as const, data: d("2026-10-26") };
+
+  it("corrigir para concluída tira a cópia ainda pendente", () => {
+    expect(copiaSaiNaCorrecao("concluida", pendenteFutura, HOJE)).toBe(true);
+    expect(
+      copiaSaiNaCorrecao("concluida", { estado: "pendente", data: HOJE }, HOJE),
+    ).toBe(true);
+  });
+
+  it("a cópia fica se já foi feita ou se o dia dela já encerrou", () => {
+    expect(
+      copiaSaiNaCorrecao(
+        "concluida",
+        { estado: "concluida", data: d("2026-10-26") },
+        HOJE,
+      ),
+    ).toBe(false);
+    expect(
+      copiaSaiNaCorrecao(
+        "concluida",
+        { estado: "nao_concluida", data: d("2026-10-22") },
+        HOJE,
+      ),
+    ).toBe(false);
+  });
+
+  it("corrigir para não concluída ou sem cópia não tira nada", () => {
+    expect(copiaSaiNaCorrecao("nao_concluida", pendenteFutura, HOJE)).toBe(
+      false,
+    );
+    expect(copiaSaiNaCorrecao("concluida", null, HOJE)).toBe(false);
   });
 });

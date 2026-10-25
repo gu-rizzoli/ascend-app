@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 
 const AREAS = [
@@ -13,7 +13,7 @@ const AREAS = [
     // Exercícios e Modelos são abas de Treinos (navegacao.md, decisão 5).
     inclui: ["/treinos", "/exercicios", "/modelos"],
   },
-  { nome: "Histórico", href: "/historico", inclui: null },
+  { nome: "Histórico", href: "/historico", inclui: ["/historico"] },
 ];
 
 // Formulários ocupam a tela toda e escondem a barra, para dar espaço ao
@@ -37,30 +37,33 @@ export function BarraDeAreas() {
       <ul className="mx-auto grid max-w-md grid-cols-4 text-center text-xs">
         {AREAS.map((area) => (
           <li key={area.href}>
-            {area.inclui ? (
-              <Link
-                href={area.href}
-                aria-current={
-                  area.inclui.some((p) => caminho.startsWith(p))
-                    ? "page"
-                    : undefined
-                }
-                className="block py-4 text-neutral-500 aria-[current=page]:font-semibold aria-[current=page]:text-neutral-900"
-              >
-                {area.nome}
-              </Link>
-            ) : (
-              // As outras áreas chegam nas próximas entregas.
-              <span
-                aria-disabled="true"
-                className="block py-4 text-neutral-300"
-              >
-                {area.nome}
-              </span>
-            )}
+            {/* As abas são carregadas inteiras em segundo plano (prefetch):
+                o toque troca de área na hora. */}
+            <Link
+              href={area.href}
+              prefetch
+              aria-current={
+                area.inclui.some((p) => caminho.startsWith(p))
+                  ? "page"
+                  : undefined
+              }
+              className="block py-4 text-neutral-500 aria-[current=page]:font-semibold aria-[current=page]:text-neutral-900"
+            >
+              <Nome>{area.nome}</Nome>
+            </Link>
           </li>
         ))}
       </ul>
     </nav>
+  );
+}
+
+/** Se o toque chegar antes da área estar pronta, o nome pulsa até ela abrir. */
+function Nome({ children }: { children: React.ReactNode }) {
+  const { pending } = useLinkStatus();
+  return (
+    <span className={pending ? "animate-pulse opacity-50" : undefined}>
+      {children}
+    </span>
   );
 }

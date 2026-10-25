@@ -5,6 +5,7 @@ import {
   diferencaEmDias,
   ehDataCivil,
   formatarDataCurta,
+  formatarInstante,
   formatarDataLonga,
   hoje,
   paraDataCivil,
@@ -76,5 +77,14 @@ describe("formatarDataCurta", () => {
   it("dia e mês com dois dígitos", () => {
     expect(formatarDataCurta(d("2026-07-05"))).toBe("05/07");
     expect(formatarDataCurta(d("2026-12-25"))).toBe("25/12");
+  });
+});
+
+describe("formatarInstante", () => {
+  it("lê o instante UTC no fuso de São Paulo", () => {
+    // 02:30 UTC do dia 25 ainda é 23:30 do dia 24 em São Paulo.
+    expect(formatarInstante(new Date("2026-10-25T02:30:00Z"))).toBe(
+      "24/10 às 23:30",
+    );
   });
 });

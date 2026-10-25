@@ -95,3 +95,8 @@ export function formatarDataCurta(data: DataCivil): string {
   const [, m, d] = partes(data);
   return `${String(d).padStart(2, "0")}/${String(m).padStart(2, "0")}`;
 }
+
+/** Ex.: "24/10 às 14:32", um instante técnico lido no fuso do produto. */
+export function formatarInstante(instante: Date): string {
+  return format(instante, "dd/MM 'às' HH:mm", { in: tz(FUSO) });
+}

@@ -64,7 +64,7 @@ const original = alias(ocorrencia, "original");
 const reagendada = alias(ocorrencia, "reagendada");
 
 /** Ocorrências gravadas com a meta, a versão e as datas do reagendamento. */
-function selecionarGravadas(onde: SQL | undefined) {
+export function selecionarGravadas(onde: SQL | undefined) {
   return db()
     .select({
       meta,
@@ -81,9 +81,11 @@ function selecionarGravadas(onde: SQL | undefined) {
     .where(onde);
 }
 
-type LinhaGravada = Awaited<ReturnType<typeof selecionarGravadas>>[number];
+export type LinhaGravada = Awaited<
+  ReturnType<typeof selecionarGravadas>
+>[number];
 
-function paraGravada({
+export function paraGravada({
   meta: m,
   versao: v,
   ocorrencia: o,
