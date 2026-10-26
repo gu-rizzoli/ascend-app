@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useState } from "react";
 
 import {
@@ -16,11 +17,7 @@ import {
   EscolherExercicio,
   type ExercicioDoCatalogo,
 } from "../treinos/escolher-exercicio";
-import {
-  BotoesDeOrdem,
-  LinkDeSaida,
-  useConfirmarSaida,
-} from "../treinos/saida";
+import { BotoesDeOrdem, useConfirmarSaida } from "../treinos/saida";
 
 const classeCampo =
   "rounded-lg border border-neutral-300 px-3 py-2.5 text-base outline-none focus:border-acento";
@@ -72,14 +69,13 @@ export function FormularioModelo({
     <>
       <form action={acao} className="flex flex-col gap-5" noValidate>
         <header className="flex items-center gap-2">
-          <LinkDeSaida
+          <Link
             href="/modelos"
-            alterado={alterado}
             aria-label="Voltar"
             className="-ml-2 flex size-10 items-center justify-center rounded-full text-2xl text-neutral-600 hover:bg-neutral-100"
           >
             ‹
-          </LinkDeSaida>
+          </Link>
           <h1 className="text-xl font-bold tracking-tight">{titulo}</h1>
         </header>
 
@@ -224,13 +220,12 @@ export function FormularioModelo({
           <Botao type="submit" disabled={enviando}>
             {enviando ? "Salvando…" : "Salvar"}
           </Botao>
-          <LinkDeSaida
+          <Link
             href="/modelos"
-            alterado={alterado}
             className="rounded-lg px-4 py-3 text-center font-medium text-neutral-600"
           >
             Cancelar
-          </LinkDeSaida>
+          </Link>
         </div>
       </form>
       {acoes && <div className="mt-6 flex flex-col gap-3">{acoes}</div>}

@@ -99,3 +99,9 @@ No celular, a barra inferior some só dentro de formulários, para dar espaço a
 | # | Pergunta | Decisão |
 | --- | --- | --- |
 | 11 | Claro ou escuro | Os dois: Menta (claro, verde) e Noite (escuro, violeta). Na Conta, Aparência: Automático (segue o aparelho, padrão), Claro ou Escuro. A escolha fica só no aparelho, sem ir ao banco: claro e escuro costumam depender do aparelho, e assim não há migração |
+
+## Ajustes do teste de ponta a ponta (26/10/2026)
+
+| # | Pergunta | Decisão |
+| --- | --- | --- |
+| 12 | Endereço que não existe, ou item excluído ou de outra conta | Página "Página não encontrada", em português e no visual do app, com o botão "Ir para Hoje". Dentro do app, o menu continua à vista. Antes aparecia a página padrão, em inglês |

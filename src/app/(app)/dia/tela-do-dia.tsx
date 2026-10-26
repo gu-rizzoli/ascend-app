@@ -208,18 +208,17 @@ export async function TelaDoDia({
             ),
           )}
         </ul>
-      ) : !temMeta ? (
-        // Primeiro acesso (11.2, RF-GLO-06).
+      ) : !temMeta && editavel ? (
+        // Primeiro acesso (11.2, RF-GLO-06). Num dia encerrado, cai no
+        // "Nada registrado".
         <section className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
           <p className="max-w-64 text-neutral-600">
             Você ainda não tem metas. Comece pela primeira e ela aparece aqui no
             dia certo.
           </p>
-          {editavel && (
-            <Link href={novaMeta} className={classeBotao}>
-              Criar primeira meta
-            </Link>
-          )}
+          <Link href={novaMeta} className={classeBotao}>
+            Criar primeira meta
+          </Link>
         </section>
       ) : (
         <section className="flex flex-1 flex-col items-center justify-center text-center">

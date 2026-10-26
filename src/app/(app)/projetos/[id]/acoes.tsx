@@ -128,7 +128,11 @@ export function Encerrar({
               onChange={() => setDestino(d.valor)}
               className="accent-acento"
             />
-            {n === 1 && d.valor === "pausar_todas" ? "Pausar" : d.nome}
+            {n === 1 && d.valor === "pausar_todas"
+              ? "Pausar"
+              : n === 1 && d.valor === "manter"
+                ? "Manter ativa"
+                : d.nome}
           </label>
         ))}
       </div>
@@ -154,7 +158,9 @@ export function Encerrar({
         </fieldset>
       )}
       <p className="text-xs text-neutral-600">
-        As metas continuam ligadas ao projeto no Histórico.
+        {n === 1
+          ? "A meta continua ligada ao projeto no Histórico."
+          : "As metas continuam ligadas ao projeto no Histórico."}
       </p>
       <div className="flex gap-2">
         {!principal && (

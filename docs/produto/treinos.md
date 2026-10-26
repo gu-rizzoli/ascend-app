@@ -104,3 +104,9 @@ Pontos que a especificação deixava em aberto e foram resolvidos ao construir, 
 | 15 | Título de um treino sem nome | Os nomes dos exercícios, na ordem ("Supino reto, Flexão") |
 | 16 | Catálogo vazio no primeiro acesso? | Não: toda conta começa com 81 exercícios comuns (supino, agachamento, rosca…), que se renomeiam, arquivam ou excluem como os outros. Pedido em 25/10/2026 |
 | 17 | Organizar o catálogo | Cada exercício tem um grupo muscular principal, opcional: Peito, Costas, Ombros, Bíceps, Tríceps, Antebraços, Quadríceps, Posteriores, Glúteos, Panturrilhas ou Abdômen. O catálogo e a busca do registro filtram por grupo com fichas; criar com uma ficha escolhida já põe o exercício no grupo, e o grupo se troca na página do exercício. Pedido em 25/10/2026. Coluna `exercicio.grupo` (migração 0006) |
+
+## Ajustes do teste de ponta a ponta (26/10/2026)
+
+| # | Situação | Como ficou |
+| --- | --- | --- |
+| 18 | Sair do registro ou do modelo sem salvar | A confirmação vale para qualquer saída: voltar e cancelar do formulário, o menu e a Conta, o voltar do navegador e o gesto de voltar do celular, e fechar a aba. Antes, só o voltar e o cancelar do formulário perguntavam, e o treino se perdia pelo menu do computador ou pelo voltar do celular |

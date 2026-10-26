@@ -1,49 +1,68 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect } from "react";
-
-/** Avisa o navegador para confirmar antes de fechar com alterações. */
-export function useConfirmarSaida(alterado: boolean) {
-  useEffect(() => {
-    if (!alterado) return;
-    const aviso = (e: BeforeUnloadEvent) => e.preventDefault();
-    window.addEventListener("beforeunload", aviso);
-    return () => window.removeEventListener("beforeunload", aviso);
-  }, [alterado]);
-}
 
 const PERGUNTA = "Sair sem salvar? As alterações serão perdidas.";
 
 /**
- * Link de sair do formulário (voltar, cancelar). Com alterações não salvas,
- * pede confirmação antes (treinos.md, "Registrar treino", item 8).
+ * Com alterações não salvas, pede confirmação antes de sair do formulário
+ * por qualquer caminho (treinos.md, "Registrar treino", item 8): fechar ou
+ * recarregar a aba, tocar num link da tela (voltar, cancelar, o menu, a
+ * Conta) e o voltar do navegador ou o gesto de voltar do celular.
  */
-export function LinkDeSaida({
-  href,
-  alterado,
-  className,
-  children,
-  ...resto
-}: {
-  href: string;
-  alterado: boolean;
-  className?: string;
-  children: React.ReactNode;
-  "aria-label"?: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className={className}
-      onClick={(e) => {
-        if (alterado && !window.confirm(PERGUNTA)) e.preventDefault();
-      }}
-      {...resto}
-    >
-      {children}
-    </Link>
-  );
+export function useConfirmarSaida(alterado: boolean) {
+  useEffect(() => {
+    if (!alterado) return;
+
+    const aviso = (e: BeforeUnloadEvent) => e.preventDefault();
+
+    // Na captura, antes de o Link do Next navegar.
+    const clique = (e: MouseEvent) => {
+      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+        return;
+      }
+      const link = (e.target as Element | null)?.closest?.("a[href]");
+      if (!(link instanceof HTMLAnchorElement) || link.target === "_blank") {
+        return;
+      }
+      if (!window.confirm(PERGUNTA)) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+
+    // O voltar não pode ser cancelado. Uma cópia da entrada atual no
+    // histórico segura o primeiro voltar: se a pessoa desistir de sair, a
+    // cópia volta para o lugar; se confirmar, o app volta de verdade.
+    const segurar = () =>
+      window.history.pushState(
+        { ...window.history.state, ascendSaida: true },
+        "",
+        window.location.href,
+      );
+    if (!window.history.state?.ascendSaida) segurar();
+    let saindo = false;
+    const voltar = (e: PopStateEvent) => {
+      if (saindo) return;
+      // Antes do roteador do Next, que trocaria de tela.
+      e.stopImmediatePropagation();
+      if (window.confirm(PERGUNTA)) {
+        saindo = true;
+        window.history.back();
+      } else {
+        segurar();
+      }
+    };
+
+    window.addEventListener("beforeunload", aviso);
+    document.addEventListener("click", clique, { capture: true });
+    window.addEventListener("popstate", voltar, { capture: true });
+    return () => {
+      window.removeEventListener("beforeunload", aviso);
+      document.removeEventListener("click", clique, { capture: true });
+      window.removeEventListener("popstate", voltar, { capture: true });
+    };
+  }, [alterado]);
 }
 
 /** Os botões pequenos de subir, descer e remover itens da lista. */

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useState } from "react";
 
 import type { DataCivil } from "@/domain/datas";
@@ -20,7 +21,7 @@ import {
   EscolherExercicio,
   type ExercicioDoCatalogo,
 } from "./escolher-exercicio";
-import { BotoesDeOrdem, LinkDeSaida, useConfirmarSaida } from "./saida";
+import { BotoesDeOrdem, useConfirmarSaida } from "./saida";
 
 const classeCampo =
   "rounded-lg border border-neutral-300 px-3 py-2.5 text-base outline-none focus:border-acento";
@@ -67,14 +68,13 @@ export function FormularioTreino({
   return (
     <form action={acao} className="flex flex-col gap-5" noValidate>
       <header className="flex items-center gap-2">
-        <LinkDeSaida
+        <Link
           href={voltar}
-          alterado={alterado}
           aria-label="Voltar"
           className="-ml-2 flex size-10 items-center justify-center rounded-full text-2xl text-neutral-600 hover:bg-neutral-100"
         >
           ‹
-        </LinkDeSaida>
+        </Link>
         <h1 className="text-xl font-bold tracking-tight">{titulo}</h1>
       </header>
 
@@ -174,13 +174,12 @@ export function FormularioTreino({
         <Botao type="submit" disabled={enviando}>
           {enviando ? "Salvando…" : "Salvar"}
         </Botao>
-        <LinkDeSaida
+        <Link
           href={voltar}
-          alterado={alterado}
           className="rounded-lg px-4 py-3 text-center font-medium text-neutral-600"
         >
           Cancelar
-        </LinkDeSaida>
+        </Link>
       </div>
     </form>
   );

@@ -2,7 +2,7 @@
 
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { redirect, RedirectType } from "next/navigation";
 import { z } from "zod";
 
 import { db } from "@/db";
@@ -198,10 +198,14 @@ export async function salvarTreino(
   if (!id) return { erro: "Treino ou exercício não encontrado." };
 
   revalidatePath("/", "layout");
+  // Substitui a entrada do formulário no histórico, que o aviso de sair sem
+  // salvar duplicou (saida.tsx): voltar do treino salvo não reabre o
+  // formulário duas vezes.
   redirect(
     r.descartadas > 0
       ? `/treinos/${id}?descartadas=${r.descartadas}`
       : `/treinos/${id}`,
+    RedirectType.replace,
   );
 }
 
@@ -237,7 +241,8 @@ export async function salvarModelo(
   if (!id) return { erro: "Modelo ou exercício não encontrado." };
 
   revalidatePath("/", "layout");
-  redirect("/modelos");
+  // Como no treino: substitui a entrada duplicada do formulário.
+  redirect("/modelos", RedirectType.replace);
 }
 
 export async function apagarModelo(form: FormData): Promise<void> {
