@@ -48,6 +48,8 @@ e2e/          testes Playwright
 
 O produto começou por uma especificação escrita antes do código: requisitos, fluxos, modelo de dados e navegação, todos em [`docs/produto`](docs/produto). Depois veio uma [arquitetura com backlog de 9 entregas](docs/tecnico/arquitetura.md), cada uma numa pull request revisada antes do merge.
 
+O código foi escrito com assistentes de IA (Claude) sob a minha direção: eu concebi o produto, defini os requisitos, tomei as decisões de produto e de arquitetura e revisei e aprovei cada pull request antes do merge.
+
 Documentos principais:
 
 - [Especificação do MVP (v0.4)](docs/produto/Ascend_Documentacao_Produto_MVP_v0.4.md)
